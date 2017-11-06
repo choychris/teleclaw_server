@@ -12,5 +12,5 @@
 ## Backend Application 
 
 - Database : MongoDB
-- Programming Language : Node.JS
+- Programming Language : Node.JS : 6.11.1 ; NPM : 3.10.10
 - Framework : Loopback 3.0
