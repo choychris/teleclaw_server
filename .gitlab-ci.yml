@@ -11,3 +11,4 @@ test_async:
   script:
     - npm install
     - npm run start
+    - npm run dev
