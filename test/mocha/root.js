@@ -9,10 +9,9 @@ before(function() {
 	server.start();
 });
 
-//after(function(){
-		////server.stop();
-		////
-//});
+after(function(){
+	server.stop();	
+});
 
 describe('API root access Test', function() {
 	it("should return status 200",function(done){

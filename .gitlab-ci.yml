@@ -3,7 +3,11 @@ image: node:6.11.1
 services:
   - mongo:3.4
 
+stages:
+  - test
+    
 test:
+  stage: test
   script:
     - npm install
     - npm run dev
