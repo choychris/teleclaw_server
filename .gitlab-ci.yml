@@ -4,10 +4,11 @@ services:
   - mongo:3.4
 
 stages:
+  - build
   - test
     
 start_server:
-  stage: test
+  stage: build
   script:
     - npm install
     - npm run start
