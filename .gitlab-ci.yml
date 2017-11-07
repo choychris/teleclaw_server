@@ -1,7 +1,7 @@
 image: node:6.11.1
 
 services:
-  - mongodb:3.4
+  - mongo:3.4
 
 cache:
   paths:
