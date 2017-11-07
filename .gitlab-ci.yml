@@ -4,7 +4,8 @@ services:
   - mongo:3.4
 
 cache:
-  - node_modules/
+  paths:
+    - node_modules/
 
 stages:
   - build
