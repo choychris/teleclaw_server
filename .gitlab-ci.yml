@@ -3,6 +3,9 @@ image: node:6.11.1
 services:
   - mongo:3.4
 
+cache:
+  - node_modules/
+
 stages:
   - build
   - test
@@ -14,7 +17,5 @@ build:
 
 test:
   stage: test
-  dependencies:
-    - build          
   script: 
     - npm run dev
