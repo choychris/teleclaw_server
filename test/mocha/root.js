@@ -5,13 +5,13 @@ var supertest = require('supertest')
 var api = supertest.agent('localhost:3000');
 var server = require('../../server/server.js');
 
-//before(function() {
-	//server.start();
-//});
+before(function() {
+	server.start();
+});
 
-//after(function(){
-	//server.stop();	
-//});
+after(function(){
+	server.stop();	
+});
 
 describe('API root access Test', function() {
 	it("should return status 200",function(done){

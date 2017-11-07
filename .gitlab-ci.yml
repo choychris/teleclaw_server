@@ -7,12 +7,14 @@ stages:
   - build
   - test
     
-start_server:
+build:
   stage: build
   script:
     - npm install
 
 test:
   stage: test
+  dependencies:
+    - build          
   script: 
     - npm run dev
