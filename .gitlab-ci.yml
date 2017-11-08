@@ -29,6 +29,7 @@ deploy:
   variables: 
     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    AWS_S3_BUCKET: $AWS_S3_BUCKET
   image: python:latest
   dependencies:
     - build
@@ -36,7 +37,9 @@ deploy:
     - apt-get update
     - apt-get install -y zip
     - TIMESTAMP=$(date +%s)
-    - zip -r teleclaw_backend_api_$TIMESTAMP.zip package.json server/ node_modules/
+    - ZIP_FILE_NAME="teleclaw_backend_api_$TIMESTAMP.zip"
+    - zip -r $ZIP_FILE_NAME package.json server/
     - ls
     - pip install awscli
     - aws s3 ls
+    - aws s3 cp $ZIP_FILE_NAME s3://$AWS_S3_BUCKET
