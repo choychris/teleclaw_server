@@ -42,5 +42,5 @@ deploy:
     - zip -r $ZIP_FILE_NAME package.json server/ node_modules/
     - pip install awscli
     - aws s3 cp $ZIP_FILE_NAME s3://$AWS_S3_BUCKET
-    - aws elasticbeanstalk create-application-version --application-name teleclaw_backend_api --version-label $ZIP_FILE_NAME --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ZIP_FILE_NAME --auto-create-application
-    - aws elasticbeanstalk update-environment --application-name teleclaw_backend_api --environment-name Default-Environment --version-label $ZIP_FILE_NAME
+    - aws elasticbeanstalk create-application-version --application-name teleclaw_backend_api --version-label test --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ZIP_FILE_NAME --auto-create-application
+    - aws elasticbeanstalk update-environment --application-name teleclaw_backend_api --environment-name Default-Environment --version-label test
