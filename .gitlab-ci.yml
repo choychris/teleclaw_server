@@ -29,12 +29,13 @@ deploy:
   variables: 
     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    BUILD_TIMESTAMP: date +%s
   image: python:latest
   dependencies:
     - build
   script:
     - apt-get update
     - apt-get install -y zip
-    - zip -r teleclaw_backend_api_"date +%s".zip package.json server/ node_modules/
+    - zip -r teleclaw_backend_api_$BUILD_TIMESTAMP.zip package.json server/ node_modules/
     - pip install awscli
     - aws s3 ls
