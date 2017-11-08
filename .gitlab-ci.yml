@@ -24,6 +24,10 @@ test:
 
 deploy:
   stage: deploy
+  variables: 
+    AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
   image: python:latest
   script:
     - pip install awscli
+    - aws s3 ls
