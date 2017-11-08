@@ -35,7 +35,10 @@ deploy:
   script:
     - apt-get update
     - apt-get install -y zip
-    - zip -r teleclaw_backend_api.zip package.json server/
-    - ls
+    - export TIME_STAMP=date +%s
+    - zip -r teleclaw_backend_api_"$TIME_STAMP".zip package.json server/ node_modules/
     - pip install awscli
     - aws s3 ls
+  artifacts:
+    paths:
+      - teleclaw_backend_api_"$TIME_STAMP".zip
