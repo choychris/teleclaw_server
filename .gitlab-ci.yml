@@ -11,7 +11,8 @@ build:
   artifacts:
     paths:
       - node_modules/
-      - .
+      - package.json
+      - server/
 
 test:
   stage: test
@@ -29,8 +30,11 @@ deploy:
     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
   image: python:latest
+  dependencies:
+    - build
   script:
     - apt-get update
     - apt-get install -y zip
+    - zip -r teleclaw_backend_api.zip .
     - pip install awscli
     - aws s3 ls
