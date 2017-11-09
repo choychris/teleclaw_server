@@ -3,7 +3,7 @@ stages:
   - test
   - deploy
     
-build:
+buildTest:
   stage: build
   image: node:6.11.1
   script:
@@ -20,27 +20,34 @@ test:
   services:
     - mongo:3.4
   dependencies:
-    - build
+    - buildTest
   script: 
     - npm run dev
 
-deploy:
+deployStaging:
   stage: deploy
   variables: 
     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-    AWS_S3_BUCKET: $AWS_S3_BUCKET
+    AWS_S3_BUCKET: $AWS_S3_STAGING_BUCKET
     AWS_DEFAULT_REGION: ap-southeast-1
   image: python:latest
   dependencies:
-    - build
+    - buildTest
+  only:
+    - master
   script:
+    # Define Dynamic Variables
+    - TIMESTAMP=$(date +%s)
+    - FILE_NAME="teleclaw_backend_api_$TIMESTAMP"
+    - ZIP_FILE_NAME="$FILE_NAME.zip"
+    # Install and Execute Zip Tools
     - apt-get update
     - apt-get install -y zip
-    - TIMESTAMP=$(date +%s)
-    - ZIP_FILE_NAME="teleclaw_backend_api_$TIMESTAMP.zip"
     - zip -r $ZIP_FILE_NAME package.json server/ node_modules/
+    # Install and Execute AWS CLI
     - pip install awscli
     - aws s3 cp $ZIP_FILE_NAME s3://$AWS_S3_BUCKET
-    - aws elasticbeanstalk create-application-version --application-name teleclaw_backend_api --version-label test1 --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ZIP_FILE_NAME
-    - aws elasticbeanstalk update-environment --application-name teleclaw_backend_api --environment-name teleclawBackendApi-env --version-label test1
+    # Deploy Build to AWS Elastic BeanStalk
+    - aws elasticbeanstalk create-application-version --application-name teleclaw_backend_api --version-label $FILE_NAME --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ZIP_FILE_NAME
+    - aws elasticbeanstalk update-environment --application-name teleclaw_backend_api --environment-name teleclawBackendApi-env --version-label $FILE_NAME
