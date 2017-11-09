@@ -54,3 +54,36 @@ deployStaging:
     # Deploy Build to AWS Elastic BeanStalk
     - aws elasticbeanstalk create-application-version --application-name teleclaw_backend_api --version-label $FILE_NAME --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ZIP_FILE_NAME --auto-create-application
     - aws elasticbeanstalk update-environment --application-name teleclaw_backend_api --environment-name teleclawBackendApi-staging --version-label $FILE_NAME
+
+deployProduction:
+  stage: deploy
+  variables: 
+    AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    AWS_S3_BUCKET: $AWS_S3_PRODUCTION_BUCKET
+    AWS_DEFAULT_REGION: ap-southeast-1
+  image: python:latest
+  environment:
+    name: production
+    url: http://teleclawbackendapi-production.ap-southeast-1.elasticbeanstalk.com/
+  dependencies:
+    - buildTest
+  when: manual
+  only:
+    - production
+  script:
+    # Define Dynamic Variables
+    - TIMESTAMP=$(date +%s)
+    - FILE_NAME="teleclaw_backend_api_$TIMESTAMP"
+    - ZIP_FILE_NAME="$FILE_NAME.zip"
+    - echo $CI_COMMIT_TAG
+    # Install and Execute Zip Tools
+    - apt-get update
+    - apt-get install -y zip
+    - zip -r $ZIP_FILE_NAME package.json server/ node_modules/
+    # Install and Execute AWS CLI
+    - pip install awscli
+    - aws s3 cp $ZIP_FILE_NAME s3://$AWS_S3_BUCKET
+    # Deploy Build to AWS Elastic BeanStalk
+    - aws elasticbeanstalk create-application-version --application-name teleclaw_backend_api --version-label $FILE_NAME --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ZIP_FILE_NAME --auto-create-application
+    - aws elasticbeanstalk update-environment --application-name teleclaw_backend_api --environment-name teleclawBackendApi-production --version-label $FILE_NAME
