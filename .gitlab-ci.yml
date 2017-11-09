@@ -24,6 +24,24 @@ test:
   script: 
     - npm run dev
 
+deployDevelopment:
+  stage: deploy
+  variables: 
+    AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    AWS_S3_BUCKET: $AWS_S3_STAGING_BUCKET
+    AWS_DEFAULT_REGION: ap-southeast-1
+  image: python:latest
+  environment:
+    name: development
+  dependencies:
+    - buildTest
+  except:
+    - master
+    - production
+  script:
+    - echo $GITLAB_USER_EMAIL
+
 deployStaging:
   stage: deploy
   variables: 
@@ -42,7 +60,7 @@ deployStaging:
   script:
     # Define Dynamic Variables
     - TIMESTAMP=$(date +%s)
-    - FILE_NAME="teleclaw_backend_api_$TIMESTAMP"
+    - FILE_NAME="teleclaw_backend_api_($TIMESTAMP)"
     - ZIP_FILE_NAME="$FILE_NAME.zip"
     # Install and Execute Zip Tools
     - apt-get update
