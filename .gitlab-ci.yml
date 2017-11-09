@@ -70,6 +70,7 @@ deployProduction:
     - buildTest
   when: manual
   only:
+    - tags
     - production
   script:
     # Define Dynamic Variables
