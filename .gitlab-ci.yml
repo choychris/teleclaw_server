@@ -36,11 +36,15 @@ deployDevelopment:
     name: development
   dependencies:
     - buildTest
+  only:
+    - pushes
   except:
     - master
     - production
   script:
     - echo $GITLAB_USER_EMAIL
+    - echo $GITLAB_USER_LOGIN
+    - echo $GITLAB_USER_NAME
 
 deployStaging:
   stage: deploy
