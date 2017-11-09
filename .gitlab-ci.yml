@@ -74,7 +74,7 @@ deployProduction:
   script:
     # Define Dynamic Variables
     - TIMESTAMP=$(date +%s)
-    - FILE_NAME="teleclaw_backend_api_$TIMESTAMP_$CI_COMMIT_TAG"
+    - FILE_NAME="teleclaw_backend_api_$TIMESTAMP_($CI_COMMIT_TAG)"
     - ZIP_FILE_NAME="$FILE_NAME.zip"
     # Install and Execute Zip Tools
     - apt-get update
