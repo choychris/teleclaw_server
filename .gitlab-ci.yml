@@ -32,6 +32,9 @@ deployStaging:
     AWS_S3_BUCKET: $AWS_S3_STAGING_BUCKET
     AWS_DEFAULT_REGION: ap-southeast-1
   image: python:latest
+  environment:
+    name: staging
+    url: http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com/  
   dependencies:
     - buildTest
   only:
