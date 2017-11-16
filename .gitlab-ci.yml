@@ -17,10 +17,11 @@ buildTest:
 buildProduction:
   stage: build
   image: node:6.11.1
-  services: 
-    - gulp:latest
+  environment:
+    name: production
   script: 
     - npm install
+    - npm install -g gulp
     - gulp clean
     - gulp transpile
     - gulp compress
@@ -46,6 +47,8 @@ testProduction:
   image: node:6.11.1
   services:
     - mongo:3.4
+  environment:
+    name: production
   dependencies:
     - buildProduction
   script: 
