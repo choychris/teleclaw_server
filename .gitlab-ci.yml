@@ -52,7 +52,7 @@ testProduction:
   dependencies:
     - buildProduction
   script: 
-    - npm -g mocha
+    - npm install -g mocha
     - NODE_ENV=production mocha ./test/mocha/root.js
     - npm prune --production
 
