@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "dev": "mocha ./test/mocha/root.js"
+    "dev": "NODE_ENV=production mocha ./test/mocha/root.js"
   },
   "dependencies": {
     "compression": "^1.0.3",
