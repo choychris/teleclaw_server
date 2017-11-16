@@ -14,6 +14,8 @@
   "dependencies": {
     "compression": "^1.0.3",
     "cors": "^2.5.2",
+    "gulp-strip-debug": "^1.1.0",
+    "gulp-util": "^3.0.8",
     "helmet": "^1.3.0",
     "loopback": "^3.0.0",
     "loopback-boot": "^2.6.5",
@@ -23,9 +25,17 @@
     "strong-error-handler": "^2.0.0"
   },
   "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.0",
     "chai": "^4.1.2",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-nodemon": "^2.2.1",
+    "gulp-sourcemaps": "^2.6.1",
+    "gulp-uglify": "^3.0.0",
     "mocha": "^4.0.1",
     "nsp": "^2.1.0",
     "supertest": "^3.0.0"

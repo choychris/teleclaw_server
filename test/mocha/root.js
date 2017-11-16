@@ -3,7 +3,7 @@
 var should = require('chai').should();
 var supertest = require('supertest')
 var api = supertest.agent('localhost:3000');
-var server = require('../../server/server.js');
+var server = (process.env.NODE_ENV === 'production') ? require('../../build/server.js') : require('../../server/server.js');
 
 before(function() {
 	server.start();

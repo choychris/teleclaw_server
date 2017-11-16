@@ -1,0 +1,1 @@
+{"db":{"name":"db","connector":"memory"},"mongodb":{"host":"localhost","port":27017,"url":"","database":"teleclaw_dev","password":"123456","name":"mongodb","user":"teleClawAdmin","connector":"mongodb","lazyConnect":true}}
