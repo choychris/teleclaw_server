@@ -19,10 +19,10 @@ buildProduction:
   image: node:6.11.1
   script: 
     - npm install
-    - gulp rebuild
+    - gulp clean
+    - gulp transpile
     - gulp compress
     - gulp stripdebug
-    - npm prune --production
   artifacts:
       paths:
         - node_modules/
@@ -47,7 +47,8 @@ testProduction:
   dependencies:
     - buildProduction
   script: 
-    - npm run dev
+    - npm run dev NODE_ENV=production
+    - npm prune --production
 
 deployDevelopment:
   stage: deploy
