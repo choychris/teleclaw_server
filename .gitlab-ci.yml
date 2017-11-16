@@ -17,6 +17,7 @@ buildTest:
 buildProduction:
   stage: build
   image: node:6.11.1
+  services: gulp:latest
   script: 
     - npm install
     - gulp clean
