@@ -1,0 +1,64 @@
+{
+  "name": "play",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "ended": {
+      "type": "date",
+      "required": true
+    },
+    "duration": {
+      "type": "numbder",
+      "required": true
+    },
+    "result": {
+      "type": "object",
+      "required": true
+    },
+    "movement": {
+      "type": [
+        "object"
+      ],
+      "required": true
+    },
+    "recording": {
+      "type": "string",
+      "required": true
+    },
+    "machineId": {
+      "type": "string",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "productId": {
+      "type": "string",
+      "required": true
+    },
+    "transactionId": {
+      "type": "string",
+      "required": true
+    },
+    "reservationId": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

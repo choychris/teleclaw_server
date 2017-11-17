@@ -1,0 +1,80 @@
+{
+  "name": "product",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "required": true
+    },
+    "size": {
+      "type": "object",
+      "required": true
+    },
+    "weight": {
+      "type": "object",
+      "required": true
+    },
+    "images": {
+      "type": "object",
+      "required": true
+    },
+    "status": {
+      "type": "boolean",
+      "required": true
+    },
+    "level": {
+      "type": "object",
+      "required": true
+    },
+    "tags": {
+      "type": [
+        "string"
+      ],
+      "required": true
+    },
+    "sku": {
+      "type": "number",
+      "required": true
+    },
+    "cost": {
+      "type": "object",
+      "required": true
+    },
+    "benchmarkId": {
+      "type": "string",
+      "required": true
+    },
+    "productRate": {
+      "type": "productRate",
+      "required": true
+    },
+    "numOfPlay": {
+      "type": "number",
+      "require": false
+    },
+    "numOfSuccess": {
+      "type": "number",
+      "require": false
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

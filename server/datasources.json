@@ -12,6 +12,6 @@
     "name": "mongodb",
     "user": "teleClawAdmin",
     "connector": "mongodb",
-		"lazyConnect": true
+    "lazyConnect": true
   }
 }

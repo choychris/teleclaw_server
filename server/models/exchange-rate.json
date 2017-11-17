@@ -1,0 +1,42 @@
+{
+  "name": "eechangeRate",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "coins": {
+      "type": "number",
+      "required": true
+    },
+    "discounts": {
+      "type": "number",
+      "required": true
+    },
+    "currency": {
+      "type": "object",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "images": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,34 @@
+{
+  "name": "benchmark",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "costRange": {
+      "type": "object",
+      "required": true
+    },
+    "marginRate": {
+      "type": "number",
+      "required": true
+    },
+    "gamePlayRate": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

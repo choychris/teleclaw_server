@@ -1,0 +1,30 @@
+{
+  "name": "rolemap",
+  "base": "RoleMapping",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "principalType": {
+      "type": "string",
+      "required": true
+    },
+    "principalId": {
+      "type": "string",
+      "required": true
+    },
+    "roleId": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
