@@ -92,6 +92,7 @@ deployStaging:
     url: http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com/  
   dependencies:
     - buildTest
+  when: manual
   only:
     - master
   script:

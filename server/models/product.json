@@ -38,6 +38,12 @@
       "type": "boolean",
       "required": true
     },
+    "machines" :{
+      "type": [
+        "string"
+      ],
+      "required": true  
+    },
     "level": {
       "type": "object",
       "required": true
