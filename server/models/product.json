@@ -38,12 +38,6 @@
       "type": "boolean",
       "required": true
     },
-    "machines" :{
-      "type": [
-        "string"
-      ],
-      "required": true  
-    },
     "level": {
       "type": "object",
       "required": true
@@ -80,7 +74,14 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "productBenchmark": {
+      "type": "hasOne",
+      "model": "benchmark",
+      "foreginKey": "benchmarkId",
+      "primaryKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

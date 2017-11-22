@@ -36,7 +36,20 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId",
+      "primaryKey": "id" 
+    },
+    "transaction": {
+      "type": "hasOne",
+      "model": "transaction",
+      "foreignKey": "transactionId",
+      "primaryKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

@@ -6,10 +6,17 @@
     "node": "6.11.1"
   },
   "scripts": {
+    "clean": "gulp clean",
+    "transpile": "gulp transpile",
+    "build": "npm run clean && npm run transpile",
+    "compress": "gulp compress",
+    "nodemon": "gulp restart",
+    "start:dev": "npm run build && npm run compress && npm run nodemon",
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "dev": "NODE_ENV=production mocha ./test/mocha/root.js"
+    "dev": "NODE_ENV=production mocha ./test/mocha/root.js",
+    "unitest": "NODE_ENV=production mocha ./test/mocha/productAndBenchMark"
   },
   "dependencies": {
     "compression": "^1.0.3",

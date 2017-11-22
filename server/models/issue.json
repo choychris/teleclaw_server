@@ -44,7 +44,32 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreginKey": "userId",
+      "primaryKey": "id"
+    },
+    "play": {
+      "type": "belongsTo",
+      "model": "play",
+      "foreginKey": "playId",
+      "primaryKey": "id"
+    },
+    "transaction": {
+      "type": "belongsTo",
+      "model": "transaction",
+      "foreginKey": "transactionId",
+      "primaryKey": "id"
+    },
+    "delivery": {
+      "type": "belongsTo",
+      "model": "delivery",
+      "foreginKey": "deliveryId",
+      "primaryKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

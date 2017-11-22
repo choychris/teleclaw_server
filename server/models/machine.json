@@ -5,7 +5,6 @@
   "options": {
     "validateUpsert": true
   },
-  "injectOptionsFromRemoteContext": true,
   "properties": {
     "id": {
       "type": "string",
@@ -31,36 +30,34 @@
       "type": "number",
       "required": true
     },
-    "iotPlatorm": {
+    "iotPlatform": {
       "type": "object",
       "required": true
     },
-    "player": {
+    "userId": {
       "type": "string",
       "required": true
     },
     "productId": {
       "type": "string",
       "required": true
-    },
-    "numOfPlay": {
-      "type": "number",
-      "required": true
-    },
-    "numOfSuccess": {
-      "type": "number",
-      "require": false
     }
   },
   "validations": [],
-  "relations": {},
-  "acls": [
-    {
-      "accessType": "WRITE",
-      "principalType": "ROLE",
-      "principalId": "$unauthenticated",
-      "permission": "DENY"
+  "relations": {
+    "product": {
+      "type": "hasOne",
+      "model": "product",
+      "foreginKey": "productId",
+      "primaryKey": "id"
+    },
+    "palyer": {
+      "type": "hasOne",
+      "model": "user",
+      "foreginKey": "userId",
+      "primaryKey": "id"
     }
-  ],
+  },
+  "acls": [],
   "methods": {}
 }

@@ -58,7 +58,38 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreginKey": "userId",
+      "primaryKey": "id"
+    },    
+    "machine": {
+      "type": "belongsTo",
+      "model": "machine",
+      "foreginKey": "machineId",
+      "primaryKey": "id"
+    },
+    "product": {
+      "type": "hasOne",
+      "model": "product",
+      "foreginKey": "productId",
+      "primaryKey": "id"
+    },
+    "transaction": {
+      "type": "hasOne",
+      "model": "transaction",
+      "foreginKey": "transactionId",
+      "primaryKey": "id"
+    },
+    "reservation": {
+      "type": "hasOne",
+      "model": "reservation",
+      "foreginKey": "reservationId",
+      "primaryKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

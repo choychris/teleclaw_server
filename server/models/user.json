@@ -60,7 +60,14 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "roles": {
+      "type": "hasMany",
+      "model": "role",
+      "foreignKey": "principalId",
+      "through": "rolemap"
+    }
+  },
   "acls": [],
   "methods": {}
 }

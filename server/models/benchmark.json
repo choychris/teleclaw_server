@@ -25,6 +25,10 @@
     "gamePlayRate": {
       "type": "number",
       "required": true
+    },
+    "realValuePerCoin" : {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],

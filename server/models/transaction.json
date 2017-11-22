@@ -40,7 +40,20 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId",
+      "primaryKey": "id"
+    },
+    "wallet": {
+      "type": "belongsTo",
+      "model": "wallet",
+      "foreignKey": "walletId",
+      "primaryKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

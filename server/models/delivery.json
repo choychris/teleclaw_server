@@ -40,7 +40,14 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "transaction": {
+      "type": "belongsTo",
+      "model": "transaction",
+      "foreginKey": "transactionId",
+      "primaryKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

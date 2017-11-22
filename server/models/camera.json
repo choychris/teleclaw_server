@@ -36,7 +36,14 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "machine": {
+      "type": "belongsTo",
+      "model": "machine",
+      "foreginKey": "machineId",
+      "primaryKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

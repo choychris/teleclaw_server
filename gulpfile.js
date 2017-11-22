@@ -51,7 +51,7 @@ gulp.task('compress', function() {
 });
 
 // start gulp clean and transpile tasks
-gulp.task('rebuild', ['clean','transpile']);
+// gulp.task('rebuild', ['clean','transpile']);
 
 // start nodemon, transpile and compress tasks
 gulp.task('restart', function () {
