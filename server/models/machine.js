@@ -9,7 +9,7 @@ module.exports = function(Machine) {
   loggingModel(Machine);
 
   // assgin an id to each newly created model
-  assignKey(Machine);
+  // assignKey(Machine);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Machine);

@@ -1,0 +1,37 @@
+{
+  "name": "wallet",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "total": {
+      "type": "number",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId",
+      "primaryKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

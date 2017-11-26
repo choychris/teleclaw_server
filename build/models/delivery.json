@@ -1,0 +1,53 @@
+{
+  "name": "delivery",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "shippmentAddress": {
+      "type": "object",
+      "required": true
+    },
+    "cost": {
+      "type": "number",
+      "required": true
+    },
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "transactionId": {
+      "type": "string",
+      "required": true
+    },
+    "courier": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "transaction": {
+      "type": "belongsTo",
+      "model": "transaction",
+      "foreginKey": "transactionId",
+      "primaryKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

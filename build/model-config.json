@@ -12,5 +12,65 @@
       "../common/mixins",
       "./mixins"
     ]
+  },
+  "machine": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "camera": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "product": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "benchmark": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "play": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "reservation": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "eechangeRate": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "transaction": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "wallet": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "reward": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "delivery": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "issue": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "user": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "role": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "rolemap": {
+    "dataSource": "mongodb",
+    "public": false
   }
 }

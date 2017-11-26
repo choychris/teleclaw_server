@@ -5,7 +5,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./test/data:/data/db
+      - ./test/data/mongo_data:/data/db
   api:
     build: .
     volumes:
@@ -18,3 +18,8 @@ services:
       - mongo
     environment:
       - NODE_ENV=development
+      - KT_VAR_MONGODB_HOST=mongo
+      - KT_VAR_MONGODB_PORT=27017
+      - KT_VAR_MONGODB_USERNAME=teleClawAdmin
+      - KT_VAR_MONGODB_PASSWORD=123456
+      - KT_VAR_MONGODB_DATABASE=teleclaw_dev

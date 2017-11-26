@@ -21,7 +21,7 @@ export function loggingAccess(model){
   model.observe('access',(ctx, next)=>{
 
     // Logging Model Name
-    let logMessage = `accessing | model : ${ctx.Model.modelName} | n/`;
+    let logMessage = `accessing | model : ${ctx.Model.modelName} | \n`;
 
     // Logging Query
     const { where , include } = ctx.query;
@@ -48,7 +48,7 @@ export function loggingSave(model){
   model.observe('before save',(ctx, next)=>{
 
     // Logging Model Name
-    let logMessage = `Before Saving | model : ${ctx.Model.modelName} | n/`;
+    let logMessage = `Before Saving | model : ${ctx.Model.modelName} | \n`;
 
     // Logging Instance
     logMessage += (ctx.isNewInstance) ? 
@@ -81,7 +81,7 @@ export function loggingRemote(model,modelName,methodName){
   model.beforeRemote(methodName,(ctx,modelInstance,next)=>{
 
     // Logging Model Name
-    let logMessage = `Remote Method | method : ${methodName} | model : ${modelName} | n/`;
+    let logMessage = `Remote Method | method : ${methodName} | model : ${modelName} | \n`;
 
     // Logging User Data
     const { accessToken } = ctx.req;
@@ -113,8 +113,8 @@ export function loggingFunction(logData,level){
   // Common Log Data Format : modelName , functionName , description , data , message
   let logMessage = ``;
   Object.keys(logData).map((logProp,index)=>{
-    if(index === 0) logMessage += 'Process Function | n/';
-    logMessage += `${logProp} : ${logData[logProp]} | n/`;
+    if(index === 0) logMessage += 'Process Function | \n';
+    logMessage += `${logProp} : ${logData[logProp]} | \n`;
   });
   logger((level === undefined) ? 'info' : level,logMessage);
 }

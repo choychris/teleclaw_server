@@ -14,13 +14,15 @@
       "type": "date",
       "required": true
     },
+    "lastUpdated":{
+      "type": "date"
+    },
     "name": {
       "type": "string",
       "required": true
     },
     "description": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "size": {
       "type": "object",
@@ -31,22 +33,20 @@
       "required": true
     },
     "images": {
-      "type": "object",
-      "required": true
+      "type": "object"
     },
     "status": {
       "type": "boolean",
-      "required": true
+      "required": true,
+      "default": false
     },
     "level": {
-      "type": "object",
-      "required": true
+      "type": "object"
     },
     "tags": {
       "type": [
         "string"
-      ],
-      "required": true
+      ]
     },
     "sku": {
       "type": "number",
@@ -57,28 +57,26 @@
       "required": true
     },
     "benchmarkId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "productRate": {
-      "type": "productRate",
-      "required": true
+      "type": "number"
     },
     "numOfPlay": {
       "type": "number",
-      "require": false
+      "default": 0
     },
     "numOfSuccess": {
       "type": "number",
-      "require": false
+      "default": 0
     }
   },
   "validations": [],
   "relations": {
-    "productBenchmark": {
-      "type": "hasOne",
-      "model": "benchmark",
-      "foreginKey": "benchmarkId",
+    "machine": {
+      "type": "hasMany",
+      "model": "machine",
+      "foreginKey": "machineId",
       "primaryKey": "id"
     }
   },

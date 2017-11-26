@@ -1,5 +1,5 @@
 'use strict';
 
-module.exports = function(Eechangerate) {
+module.exports = function(Exchange_rate) {
 
 };

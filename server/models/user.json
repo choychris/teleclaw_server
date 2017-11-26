@@ -1,6 +1,6 @@
 {
   "name": "user",
-  "base": "PersistedModel",
+  "base": "User",
   "idInjection": true,
   "options": {
     "validateUpsert": true
@@ -18,25 +18,23 @@
       "type": "date",
       "required": true
     },
+    "logInStatus": {
+      "type": "boolean"
+    },
     "lastUpdated": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "name": {
-      "type": "object",
-      "required": true
+      "type": "object"
     },
     "phone": {
-      "type": "integer",
-      "required": true
+      "type": "integer"
     },
     "address": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "email": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "password": {
       "type": "string",
@@ -44,19 +42,19 @@
     },
     "status": {
       "type": "boolean",
-      "required": true
+      "required": true,
+      "default": true
     },
     "language": {
       "type": "string",
-      "required": true
+      "required": true,
+      "default": "en"
     },
     "counrtyCode": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
-    "3rdPartyAccessToken": {
-      "type": "object",
-      "required": true
+    "3rdPartyAuth": {
+      "type": "object"
     }
   },
   "validations": [],
@@ -68,6 +66,14 @@
       "through": "rolemap"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "auth"
+    }
+  ],
   "methods": {}
 }
