@@ -8,6 +8,8 @@ const FB_APP_SECRET = 'e1af1950c0642c405a28c1e706059b7c';
 
 module.exports = function(User) {
 
+  var app = require('../server');
+
   //make loggings for monitor purpose
   loggingModel(User);
 
@@ -32,12 +34,18 @@ module.exports = function(User) {
             cb(null, {result:{error: err}});
             return;
           } else {
-            let { access_token, token_type, expires_in } = res.body;
-            user.access_token = access_token;
-            user.token_type = token_type;
-            user.expires_in = expires_in;
-            user.token_expire_date = new Date().getTime() + expires_in ;
-            cb(null, {result:{status: 'success', accessToken: res.accessToken}})
+            let result = JSON.parse(body);
+            console.log(result);
+            if(result.error !== undefined){
+              cb(null, {result: result.error, status: 190})
+            } else {
+              let { access_token, token_type, expires_in } = result;
+              user.access_token = access_token;
+              user.token_type = token_type;
+              user.expires_in = expires_in;
+              user.token_expire_date = new Date().getTime() + expires_in ;
+              singUpUser(user);
+            }
           }
         });
 
@@ -47,7 +55,46 @@ module.exports = function(User) {
           logInStatus: true,
           name: newUser.name,
           email: newUser.email || `${newUser.id}@noemail.com`,
+          password: newUser.id
         }
+
+        User.create(userData, (err, createdUser)=>{
+          if(err){
+            console.log(err)
+          };
+          if(model.id !== undefined){
+            let identityInfo = {
+              id: newUser.id,
+              userId: createdUser.id,
+              provider: 'facebook',
+              name: newUser.name,
+              email: newUser.email || `${newUser.id}@noemail.com`,
+              photo: newUser.photo,
+              accesstoken: newUser.access_token
+            }
+            // let UserIdentity = app.models.UserIdentity;
+            let Role = app.models.Role;
+            let Rolemap = app.models.Rolemap;
+            createdUser.userIdentitys.create(identityInfo, (err, identity)=>{
+              if(err){
+                console.log(err);
+              } else {
+                Role.findOne({ where: { name : 'user' }},(err,data) => {
+                  let thisRoleId = data.id;
+                  Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
+                });
+                let loginCred = { ttl : newUser.expires_in , email : userData.email , password : userData.password };
+                User.login(loginCred, (err,token)=>{
+                  if(err){
+                    cb(err);
+                  } else {
+                    cb(null, {Lbtoken: token, Fbtoken: newUser.access_token, ttl: newUser.expires_in})
+                  }
+                })
+              }
+            });
+          }
+        })
       }
 
       const loginUser = () => {
@@ -69,7 +116,7 @@ module.exports = function(User) {
     'auth',
     {
       accepts: {arg: 'userInfo', type: 'object', http: {source: 'body'}},
-      returns: {arg: 'result', type: 'object'}
+      returns: {arg: 'result', type: 'object', http:{target: 'status'}}
     }
   );
 

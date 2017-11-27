@@ -4,8 +4,8 @@ var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
 
-describe('create web user', function(){
-  it('should return user', function(done){
+describe('expired facebook token', function(){
+  it('status 190 and err message', function(done){
     var api = supertest.agent(baseUrl);
     var user = { 
         accessToken: "EAACDHoPDoIMBAPNZBQCRZApfnGMBGKuchGBedF46SpQ1ZAH5aVp691LIf3LvAi2VyDlVYbnX20adFRkjhCX9Md51Qm1XOqXmlGYjWxGCAiU45f00yZCGs4taKGvinTM1puIxfSZA1x3ogxZCjgBjL7j5ZB3KWRPNyPyyZByZAsseToQfCi373GQ0nov1E8786ZBtQTZAPHtJN0W9AZDZD",
@@ -25,8 +25,8 @@ describe('create web user', function(){
       .send(user)
       .set('Accept', 'application/json')
       .end(function(err,res){
-          // console.log(res);
-          res.status.should.equal(200);
+          console.log(res);
+          res.status.should.equal(190);
           done();
         });
     });
