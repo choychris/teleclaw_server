@@ -24,8 +24,8 @@
     "lastUpdated": {
       "type": "date"
     },
-    "name": {
-      "type": "object"
+    "username": {
+      "type": "string"
     },
     "phone": {
       "type": "integer"
@@ -61,6 +61,11 @@
       "model": "role",
       "foreignKey": "principalId",
       "through": "rolemap"
+    },
+    "userIdentities": {
+      "type": "hasMany",
+      "model": "userIdentity",
+      "foreignKey": "userId"
     }
   },
   "acls": [
@@ -70,6 +75,34 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "auth"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "checkTokenValid"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "accessTokens"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": ["findOne", "findById", "update"]
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": ["delete", "find"]
     }
   ],
   "methods": {}

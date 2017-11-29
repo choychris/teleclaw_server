@@ -7,7 +7,7 @@ var baseUrl = 'http://localhost:3000';
 describe('find all data', function(){
   it('should return all data', function(done){
     var api = supertest.agent(baseUrl);
-    var model = 'products'
+    var model = 'users'
     api
       .get(`/api/${model}`)
       .set('Accept', 'application/json')

@@ -4,8 +4,7 @@
       "loopback/common/models",
       "loopback/server/models",
       "../common/models",
-      "./models",
-      "../node_modules/loopback-component-passport/lib/models"
+      "./models"
     ],
     "mixins": [
       "loopback/common/mixins",
@@ -74,22 +73,27 @@
     "dataSource": "mongodb",
     "public": false
   },
-  "AccessToken": {
+  "User": {
     "dataSource": "mongodb",
-    "public": false,
-    "relations": {
-      "user": {
-        "type": "belongsTo",
-        "model": "user",
-        "foreignKey": "userId"
-      }
-    }
+    "public": false
   },
   "userIdentity": {
     "dataSource": "mongodb",
     "public": false
   },
   "ACL": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+   "AccessToken": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "Role": {
     "dataSource": "mongodb",
     "public": false
   }
