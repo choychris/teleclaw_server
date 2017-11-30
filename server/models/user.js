@@ -1,6 +1,6 @@
 'use strict';
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js';
+import { loggingModel, loggingRemote } from '../utils/createLogging.js';
 var request = require('request');
 
 const FB_APP_SECRET = 'e1af1950c0642c405a28c1e706059b7c';
@@ -18,11 +18,16 @@ module.exports = function(User) {
   //make loggings for monitor purpose
   loggingModel(User);
 
+
+
   // assgin last updated time / created time to model
   updateTimeStamp(User);
 
   User.auth = (userInfo, cb) => {
     console.log(userInfo)
+
+    // console log the remote method
+    loggingRemote(User, 'User', 'auth');
 
     userInfo.provider = 'facebook';
 
@@ -44,7 +49,7 @@ module.exports = function(User) {
             return;
           } else {
             let result = JSON.parse(body);
-            console.log('facebook result : ', result);
+            // console.log('facebook result : ', result);
             if(result.error !== undefined){
               var tokenError = {
                 type: result.error.type,
@@ -179,6 +184,10 @@ module.exports = function(User) {
   );
 
   User.checkTokenValid = (fbtoken, cb) => {
+
+   // console log the remote method
+    loggingRemote(User, 'User', 'checkTokenValid');
+
    // console.log(fbtoken.token);
     var tokenToCheck = fbtoken.token;
     request(`https://graph.facebook.com/debug_token?input_token=${tokenToCheck}&access_token=${FB_CLIENT_ID}|${FB_APP_SECRET}`, (err, res, body)=>{

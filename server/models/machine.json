@@ -34,22 +34,12 @@
     "iotPlatform": {
       "type": "object"
     },
-    "userId": {
-      "type": "string"
-    },
     "productId": {
       "type": "string"
     }
   },
   "validations": [],
-  "relations": {
-    "palyer": {
-      "type": "hasOne",
-      "model": "user",
-      "foreginKey": "userId",
-      "primaryKey": "id"
-    }
-  },
+  "relations": {},
   "acls": [],
   "methods": {}
 }

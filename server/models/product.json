@@ -73,10 +73,10 @@
   },
   "validations": [],
   "relations": {
-    "machine": {
+    "machines": {
       "type": "hasMany",
       "model": "machine",
-      "foreginKey": "machineId",
+      "foreginKey": "productId",
       "primaryKey": "id"
     }
   },

@@ -5,6 +5,7 @@ import { loggingModel } from '../utils/createLogging.js'
 
 module.exports = function(Machine) {
 
+  var app = require('../server');
   //make loggings for monitor purpose
   loggingModel(Machine);
 
@@ -14,5 +15,9 @@ module.exports = function(Machine) {
   // assgin last updated time / created time to model
   updateTimeStamp(Machine);
 
+  Machine.observe('before save', (ctx, next) => {
+    // console.log(app.firebaseApp);
+    next();
+  });
 
 };
