@@ -66,6 +66,11 @@
       "type": "hasMany",
       "model": "userIdentity",
       "foreignKey": "userId"
+    },
+    "transactions": {
+      "type": "hasMany",
+      "model": "transaction",
+      "foreignKey": "userId"
     }
   },
   "acls": [
@@ -95,14 +100,21 @@
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW",
-      "property": ["findOne", "findById", "update"]
+      "property": [
+        "findOne",
+        "findById",
+        "update"
+      ]
     },
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW",
-      "property": ["delete", "find"]
+      "property": [
+        "delete",
+        "find"
+      ]
     }
   ],
   "methods": {}

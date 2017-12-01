@@ -23,8 +23,7 @@
       "required": true
     },
     "status": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "walletId": {
       "type": "string",
@@ -35,8 +34,7 @@
       "required": true
     },
     "gateWayResponse": {
-      "type": "number",
-      "required": true
+      "type": "number"
     }
   },
   "validations": [],
@@ -44,13 +42,13 @@
     "user": {
       "type": "belongsTo",
       "model": "user",
-      "foreignKey": "userId",
+      "foreignKey": "",
       "primaryKey": "id"
     },
     "wallet": {
       "type": "belongsTo",
       "model": "wallet",
-      "foreignKey": "walletId",
+      "foreignKey": "",
       "primaryKey": "id"
     }
   },

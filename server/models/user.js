@@ -18,13 +18,30 @@ module.exports = function(User) {
   //make loggings for monitor purpose
   loggingModel(User);
 
-
-
   // assgin last updated time / created time to model
   updateTimeStamp(User);
 
+  User.observe('after save', (ctx, next)=>{
+    if(ctx.isNewInstance){
+      let Event = app.models.Event;
+      let Wallet = app.models.Wallet;
+      Event.find({where : {launching: true}}, (err, event)=>{
+        if(!err){
+          let newUserEvent = event.newUser;
+          let initialCoins = newUserEvent ? newUserEvent.initialCoins : 60;
+          let wallet = {
+            balance: initialCoins || 60 ,
+            userId: ctx.instance.id
+          };
+          Wallet.create(wallet, (error, wallet)=>{})
+        }
+      })
+    };
+    next();
+  });
+
   User.auth = (userInfo, cb) => {
-    console.log(userInfo)
+    // console.log(userInfo)
 
     // console log the remote method
     loggingRemote(User, 'User', 'auth');

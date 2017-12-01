@@ -85,7 +85,7 @@
     "dataSource": "mongodb",
     "public": false
   },
-   "AccessToken": {
+  "AccessToken": {
     "dataSource": "mongodb",
     "public": false
   },
@@ -96,5 +96,9 @@
   "Role": {
     "dataSource": "mongodb",
     "public": false
+  },
+  "event": {
+    "dataSource": "mongodb",
+    "public": true
   }
 }

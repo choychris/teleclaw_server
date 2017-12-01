@@ -12,7 +12,7 @@
       "id": true,
       "required": true
     },
-    "userId":{
+    "userId": {
       "type": "string",
       "required": true
     },
@@ -20,7 +20,7 @@
       "type": "date",
       "required": true
     },
-    "lastUpdated":{
+    "lastUpdated": {
       "type": "date"
     },
     "provider": {
@@ -37,7 +37,7 @@
     "photo": {
       "type": "object"
     },
-    "accesstoken":{
+    "accesstoken": {
       "type": "string"
     }
   },
@@ -50,12 +50,16 @@
     }
   },
   "acls": [
-      {
+    {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW",
-      "property": ["findOne", "findById", "update"]
+      "property": [
+        "findOne",
+        "findById",
+        "update"
+      ]
     }
   ],
   "methods": {}

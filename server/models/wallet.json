@@ -14,7 +14,7 @@
       "type": "date",
       "required": true
     },
-    "total": {
+    "balance": {
       "type": "number",
       "required": true
     },
@@ -28,7 +28,7 @@
     "user": {
       "type": "belongsTo",
       "model": "user",
-      "foreignKey": "userId",
+      "foreignKey": "",
       "primaryKey": "id"
     }
   },

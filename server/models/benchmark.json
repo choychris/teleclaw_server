@@ -26,7 +26,7 @@
       "type": "number",
       "required": true
     },
-    "realValuePerCoin" : {
+    "realValuePerCoin": {
       "type": "number",
       "required": true
     }
@@ -38,7 +38,7 @@
       "model": "product",
       "foreginKey": "productId",
       "primaryKey": "id"
-    } 
+    }
   },
   "acls": [],
   "methods": {}

@@ -63,7 +63,7 @@
       "model": "user",
       "foreginKey": "userId",
       "primaryKey": "id"
-    },    
+    },
     "machine": {
       "type": "belongsTo",
       "model": "machine",

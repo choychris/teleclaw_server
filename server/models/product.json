@@ -14,7 +14,7 @@
       "type": "date",
       "required": true
     },
-    "lastUpdated":{
+    "lastUpdated": {
       "type": "date"
     },
     "name": {
@@ -62,13 +62,8 @@
     "productRate": {
       "type": "number"
     },
-    "numOfPlay": {
-      "type": "number",
-      "default": 0
-    },
-    "numOfSuccess": {
-      "type": "number",
-      "default": 0
+    "gamePlayRate": {
+      "type": "number"
     }
   },
   "validations": [],
@@ -80,6 +75,7 @@
       "primaryKey": "id"
     }
   },
-  "acls": [],
+  "acls": [
+  ],
   "methods": {}
 }

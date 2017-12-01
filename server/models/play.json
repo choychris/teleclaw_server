@@ -15,8 +15,7 @@
       "required": true
     },
     "ended": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "duration": {
       "type": "number",
@@ -29,12 +28,10 @@
     "movement": {
       "type": [
         "object"
-      ],
-      "required": true
+      ]
     },
     "recording": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "machineId": {
       "type": "string",
@@ -63,17 +60,17 @@
       "model": "user",
       "foreginKey": "userId",
       "primaryKey": "id"
-    },    
+    },
     "machine": {
       "type": "belongsTo",
       "model": "machine",
-      "foreginKey": "machineId",
+      "foreginKey": "",
       "primaryKey": "id"
     },
     "product": {
       "type": "belongsTo",
       "model": "product",
-      "foreginKey": "productId",
+      "foreginKey": "",
       "primaryKey": "id"
     },
     "transaction": {

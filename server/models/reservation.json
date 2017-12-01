@@ -33,13 +33,13 @@
       "type": "belongsTo",
       "model": "user",
       "foreignKey": "userId",
-      "primaryKey": "id" 
+      "primaryKey": "id"
     },
     "machine": {
       "type": "belongsTo",
       "model": "machine",
       "foreignKey": "machineId",
-      "primaryKey": "id" 
+      "primaryKey": "id"
     }
   },
   "acls": [],

@@ -41,7 +41,7 @@
       "type": "belongsTo",
       "model": "user",
       "foreignKey": "userId",
-      "primaryKey": "id" 
+      "primaryKey": "id"
     },
     "transaction": {
       "type": "hasOne",
