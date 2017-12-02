@@ -160,6 +160,7 @@ describe('Attach a related models to product', function(){
     it('Success - should return status 200', function(done){
       var api = supertest.agent(baseUrl);
       var productId = global.Products[0].id;
+      console.log(productId);
       var data = {machines: global.Machines}
       api
         .patch('/api/products/' + productId)

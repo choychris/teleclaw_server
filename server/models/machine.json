@@ -1,13 +1,14 @@
 {
   "name": "machine",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true
   },
   "properties": {
     "id": {
       "type": "string",
+      "id": true,
       "required": true
     },
     "created": {
@@ -37,7 +38,7 @@
     "productId": {
       "type": "string"
     },
-    "userId": {
+    "currentUserId": {
       "type": "string"
     }
   },

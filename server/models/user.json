@@ -24,6 +24,9 @@
     "lastUpdated": {
       "type": "date"
     },
+    "name":{
+      "type": "string"
+    },
     "username": {
       "type": "string"
     },
@@ -70,6 +73,11 @@
     "transactions": {
       "type": "hasMany",
       "model": "transaction",
+      "foreignKey": "userId"
+    },
+    "wallet": {
+      "type": "hasOne",
+      "model": "wallet",
       "foreignKey": "userId"
     }
   },

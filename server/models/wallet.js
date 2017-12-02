@@ -10,4 +10,7 @@ module.exports = function(Wallet) {
 
   // assgin last updated time / created time to model
   updateTimeStamp(Wallet);
+
+  //assign an unique if its new instance 
+  assignKey(Wallet)
 };

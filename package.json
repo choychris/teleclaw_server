@@ -15,9 +15,10 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "unitest": "mocha ./test/mocha/productTest"
+    "unitest": "mocha ./test/mocha/gamePlay"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "compression": "^1.0.3",
     "cors": "^2.5.2",
     "express-session": "^1.15.6",

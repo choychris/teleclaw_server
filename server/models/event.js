@@ -9,4 +9,7 @@ module.exports = function(Event) {
   // assgin last updated time / created time to model
   updateTimeStamp(Event);
 
+  //assign an unique if its new instance 
+  assignKey(Event);
+
 };

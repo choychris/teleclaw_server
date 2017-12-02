@@ -77,13 +77,20 @@ describe('get facebook token', function(){
   // });
 
 
-  it('login current user - status 200 and token', function(done){
+  it('login / create current user - status 200 and token', function(done){
     var api = supertest.agent(baseUrl);
     var userInfo = {
+      prvoider: 'facebook',
       accessToken : 'EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
       username : 'Lap Chi',
       expiresIn: 5173511,
-      userID:  "10156122556431165"
+      userID:  "10156122556431165",
+      picture: {
+        height: 100,
+        is_silhouette: false,
+        url: "https://scontent.xx.fbcdn.net/v/t1.0-1/p100x100/1916279_10154397272841165_6485132739615337980_n.jpg?oh=838585186d56fc60e4dcfa90aa9ee10e&oe=5A8E8B2F",
+        width: 100
+      }
     }
 
     api
@@ -100,7 +107,7 @@ describe('get facebook token', function(){
 });
 
 // fbtoken : EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD
-// lbToken : vrniAqKDpDZzDS33HH3SZXFfCDNhVXaEHQOlLPRR1BIgtGdf3TifYHgwArCemKdC
+// lbToken : psxBNQl8qvDw2lcxcTLR3ftzYCuF1OTsVtQokeJP6zlNwuiLCDbnAcx35jtBzTnQ
 // ttl : 5173511
-// LBuserid : 5a1e9fccd0dbe5049cb43630
+// LBuserid : 5a227943ab2904015a7ce29b
 // fbUserid : 10156122556431165

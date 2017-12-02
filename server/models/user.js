@@ -2,6 +2,7 @@
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel, loggingRemote } from '../utils/createLogging.js';
 var request = require('request');
+var Promise = require('bluebird');
 
 const FB_APP_SECRET = 'e1af1950c0642c405a28c1e706059b7c';
 const FB_CLIENT_ID = '144167082893443';
@@ -46,54 +47,62 @@ module.exports = function(User) {
     // console log the remote method
     loggingRemote(User, 'User', 'auth');
 
-    userInfo.provider = 'facebook';
+    // userInfo.provider = 'facebook';
 
     let UserIdentity = app.models.UserIdentity;
     let Role = app.models.Role;
     let Rolemap = app.models.Rolemap;
 
-    // === check if the access token is short live token ===
-    if(userInfo.accessToken !== undefined && userInfo.expiresIn !== undefined && userInfo.expiresIn < 10000){
-      // exchange for long live Fb token
-      request(`https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=${FB_CLIENT_ID}&client_secret=${FB_APP_SECRET}&fb_exchange_token=${userInfo.accessToken}`,
-        (err, res, body) => {
-          if(err){
-            var reqError = {
-              message:'Request from facebook error',
-              status: 401
-            };
-            cb(reqError);
-            return;
-          } else {
-            let result = JSON.parse(body);
-            // console.log('facebook result : ', result);
-            if(result.error !== undefined){
-              var tokenError = {
-                type: result.error.type,
-                message: result.error.message,
-                status: 401
+    
+    checkTokenValid(userInfo.accessToken)
+      .then(res => {
+        // === check if the access token is short live token ===
+        if(userInfo.accessToken !== undefined && userInfo.expiresIn !== undefined && userInfo.expiresIn < 10000){
+          // exchange for long live Fb token
+          request(`https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=${FB_CLIENT_ID}&client_secret=${FB_APP_SECRET}&fb_exchange_token=${userInfo.accessToken}`,
+            (err, res, body) => {
+              if(err){
+                var reqError = {
+                  message:'Request from facebook error',
+                  status: 401
+                };
+                cb(reqError);
+                return;
+              } else {
+                let result = JSON.parse(body);
+                // console.log('facebook result : ', result);
+                if(result.error !== undefined){
+                  var tokenError = {
+                    type: result.error.type,
+                    message: result.error.message,
+                    status: 401
+                  }
+                  cb(tokenError);
+                } else {
+                  let { access_token, token_type, expires_in } = result;
+                  userInfo.accessToken = access_token;
+                  userInfo.expiresIn = expires_in;
+                  checkExistThenLogin(userInfo);
+                }
               }
-              cb(tokenError);
-            } else {
-              let { access_token, token_type, expires_in } = result;
-              userInfo.accessToken = access_token;
-              userInfo.expiresIn = expires_in;
-              checkExistThenLogin(userInfo);
-            }
-          }
-        });
-    } else {
-      checkExistThenLogin(userInfo)
-    } // <--- if it is short live, get long live token 
+            });
+        } else {
+          checkExistThenLogin(userInfo)
+        } // <--- if it is short live, get long live token 
+      })
+      .catch(error => {
+        cb({message: error, status: 401})
+      })
+
 
     function checkExistThenLogin(userInfo){
         if( userInfo.accessToken && userInfo.username && userInfo.userID ){
           checkUserExist(userInfo.userID) // <----- checkuserexist promise
             .then(res => {
               if(res === true){
-                let loginCred = { ttl : userInfo.expiresIn , username : userInfo.username , password : userInfo.userID };
+                let loginCred = { ttl : userInfo.expiresIn , username : userInfo.userID + '@teleclaw' , password : userInfo.userID };
                 User.login(loginCred, (err, token)=>{
-                  console.log('login success')
+                  console.log('login success : ' , loginCred.username );
                   cb(null, {Lbtoken: token, Fbtoken: userInfo.accessToken, ttl: userInfo.expiresIn})
                 })
               } else {
@@ -125,7 +134,8 @@ module.exports = function(User) {
       let userData = {
         lastLogIn: new Date().getTime(),
         logInStatus: true,
-        username: newUser.username,
+        name: newUser.username, 
+        username: newUser.userID + '@teleclaw',
         email: newUser.email || null,
         password: newUser.userID
       }
@@ -155,13 +165,13 @@ module.exports = function(User) {
                   let thisRoleId = data.id;
                   Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
                 });
-                let loginCred = { ttl : newUser.expiresIn , username : newUser.username , password : userData.password };
+                let loginCred = { ttl : newUser.expiresIn , username : newUser.userID + '@teleclaw' , password : userData.password };
                 User.login(loginCred, (loginError,token)=>{
                   if(loginError){
                     // console.log('login after error : ', loginError);
                     return reject({type: 'login after signup error', error: loginError});
                   } else {
-                    console.log('login success')
+                    console.log('login success : ', loginCred.username);
                     return resolve({type: 'sign up complete', result: {Lbtoken: token, Fbtoken: newUser.accessToken, ttl: newUser.expiresIn}});
                   }
                 });
@@ -190,7 +200,38 @@ module.exports = function(User) {
       });
     };
 
-  }; // <--- remote method : auth
+    function checkTokenValid(fbtoken){
+      return new Promise((resolve, reject)=> {
+        request(`https://graph.facebook.com/debug_token?input_token=${fbtoken}&access_token=${FB_CLIENT_ID}|${FB_APP_SECRET}`, (err, res, body)=>{
+          if(err){
+            reject(err);
+          }
+          var result = JSON.parse(body);
+          if(result.error !== undefined){
+            reject(result.error.message);
+          } else {
+            let valid = (result.data.is_valid && result.data.expires_at > new Date().getTime()/1000 ) ? 'valid' : 'invalid' ;
+            valid == 'valid' ? resolve(true) : reject('invalid token') ;
+          }
+        });
+      });
+    } //<--- end of check token valid sync function
+
+  }; // <--- end of remote method : auth
+
+  User.afterRemote('auth', (ctx, instance, next)=>{
+    //console.log(ctx.args);
+    let { username, email, picture, userID } = ctx.args.userInfo;
+    let UserIdentity = app.models.UserIdentity;
+    UserIdentity.findById(userID, (err, identity)=>{
+      if(identity){
+        identity.updateAttributes({username: username, email: email, picture: picture}, (err, instance)=>{
+          if(err){console.log('update user identity error : ', err);};
+        });
+      }
+    })
+    next();
+  });
 
   User.remoteMethod(
     'auth',
@@ -209,10 +250,11 @@ module.exports = function(User) {
     var tokenToCheck = fbtoken.token;
     request(`https://graph.facebook.com/debug_token?input_token=${tokenToCheck}&access_token=${FB_CLIENT_ID}|${FB_APP_SECRET}`, (err, res, body)=>{
       if(err){
+        // console.log(err)
         cb(err);
       } else { 
         var result = JSON.parse(body);
-        // console.log(result);
+        // console.log('check token result : ',result);
         if(result.error !== undefined){
           cb({message: result.error.message, status: 401})
         } else {
