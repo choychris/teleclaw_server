@@ -70,9 +70,11 @@ describe('Start a game play from scratch', function(){
     });
   });
 
-  describe('Check user Product play rate', function(){
-    it('should return product rate object', function(done){
+  describe('Check Product play rate', function(){
+    it('should return product rate object and canPlay == false', function(done){
       var api = supertest.agent(baseUrl);
+      var machineOpen = (global.machineInfo.status === 'open');
+      var sameUser = (global.machineInfo.currentUserId === LBuserid);
       let filter = {
         fields: ['gamePlayRate']
       }
@@ -83,28 +85,10 @@ describe('Start a game play from scratch', function(){
           global.requiredAmt = res.body.gamePlayRate;
           res.body.should.be.an('object');
           res.status.should.equal(200);
-          global.canPlay = ((global.machineInfo.status === 'open') && (global.userBalance >= global.requiredAmt));
-          global.canPlay.should.be.true;
-          done();
-        });
-    });
-  });
-
-  describe('Check user Product play rate', function(){
-    it('should return product rate object and canPlay == true', function(done){
-      var api = supertest.agent(baseUrl);
-      let filter = {
-        fields: ['gamePlayRate']
-      }
-      api
-        .get(generateJSONAPI(`/api/products/${global.machineInfo.productId}?access_token=${accessToken}`, filter))
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          global.requiredAmt = res.body.gamePlayRate;
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          global.canPlay = ((global.machineInfo.status === 'open') && (global.userBalance >= global.requiredAmt));
-          global.canPlay.should.be.true;
+          global.canPlay = ((machineOpen || sameUser) && (global.userBalance >= global.requiredAmt));
+          if(!global.canPlay){
+            console.log('Machine is busy / not enough coin')
+          }
           done();
         });
     });
@@ -120,16 +104,22 @@ describe('Start a game play from scratch', function(){
         userId: LBuserid
       }
 
-      api
-        .post(url)
-        .send({data: data})
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body);
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
+      if(global.canPlay === true){
+        api
+          .post(url)
+          .send({data: data})
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            console.log(res.body);
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+          });
+        }else{
+          global.canPlay.should.not.be.true;
+          console.log('Machine is busy / not enough coin')
           done();
-        });
+        }
     });
   });
 

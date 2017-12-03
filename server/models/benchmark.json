@@ -19,6 +19,11 @@
       "type": "object",
       "required": true
     },
+    "overheadCost": {
+      "type": "number",
+      "required": true,
+      "default": 1.5
+    },
     "marginRate": {
       "type": "number",
       "required": true

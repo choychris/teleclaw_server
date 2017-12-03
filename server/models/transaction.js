@@ -23,8 +23,8 @@ module.exports = function(Transaction) {
       Wallet.findById(walletId, (err, wallet)=>{
         //console.log('update wallet : ', wallet)
         let parsedWallet = JSON.parse(JSON.stringify(wallet));
-        console.log(wallet.updateAttribute);
-        console.log(typeof(wallet.updateAttribute));
+        // console.log(wallet.updateAttribute);
+        // console.log(typeof(wallet.updateAttribute));
         if(action === 'minus'){
           let balance = parsedWallet.balance - amount;
           wallet.updateAttributes({balance: balance}, (err, instance)=>{

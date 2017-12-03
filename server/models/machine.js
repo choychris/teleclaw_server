@@ -19,10 +19,9 @@ module.exports = function(Machine) {
 
   Machine.observe('before save', (ctx, next) => {
     if(!ctx.isNewInstance){
-      if(ctx.data && ctx.data.currentPlayer){
-        ctx.hookstate.currentPlayer = ctx.data.currentPlayer;
-        ctx.data.userId = ctx.data.currentPlayer.userId;
-        delete ctx.data.currentPlayer;
+      if(ctx.data && ctx.data.currentUserId === 'nouser'){
+        ctx.hookstate.currentUserId = ctx.data.currentUserId;
+        ctx.data.status = 'open';
       }
     } 
     next();
@@ -40,8 +39,6 @@ module.exports = function(Machine) {
           console.log("Firebase : Machine saved successfully.");
         };
       });
-    } else if (ctx.hookstate && ctx.hookstate.currentPlayer) {
-
     } else if (!ctx.isNewInstance){
       if(ctx.instance){
         let ref = firebasedb.ref(`machines/${ctx.instance.id}`);
@@ -65,27 +62,34 @@ module.exports = function(Machine) {
     let { productId, userId } = data;
     // console.log('data obj :', data)
     let User = app.models.User;
-    User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
-      let parsedUser =  JSON.parse(JSON.stringify(user));
-      // console.log('USER obj :', parsedUser);
-      let player = {
-        id: userId,
-        name: user.name,
-        picture: parsedUser.userIdentities[0].picture.url
-      }
-
+    Machine.findById(machineId, (errMsg, machine)=>{ 
       let ref = firebasedb.ref(`machines/${machineId}`);
-      ref.update({status: 'playing', currentPlayer: player}, (error)=>{
-        if(error){
-          console.log("Firebase : Machine could not be updated." + error);
-        }else{
-          ref.child('totalNumOfPlay').transaction((current_value)=>{
-            return (current_value + 1);
+      if(machine.currentUserId !== userId){
+        User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
+          let parsedUser =  JSON.parse(JSON.stringify(user));
+          // console.log('USER obj :', parsedUser);
+          let player = {
+            id: userId,
+            name: user.name,
+            picture: parsedUser.userIdentities[0].picture.url
+          }
+          machine.updateAttributes({currentUserId: userId, status: 'playing'}, (er, instance)=>{
+            ref.update({status: 'playing', currentPlayer: player}, (error)=>{
+              if(error){
+                console.log("Firebase : Machine could not be updated." + error);
+              }else{
+                console.log("Firebase : Machine updated successfully.");
+              }
+            });
           });
-          console.log("Firebase : Machine updated successfully.");
-        }
-      });
-      next();
+          next();
+        });
+      }else{
+        ref.child('totalNumOfPlay').transaction((current_value)=>{
+          return (current_value + 1);
+        });
+        next();      
+      }
     });
   });
 
@@ -158,5 +162,4 @@ module.exports = function(Machine) {
         returns: {arg: 'result', type: 'object'}
       }
   );
-
 };
