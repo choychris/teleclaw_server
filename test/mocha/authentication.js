@@ -107,7 +107,7 @@ describe('get facebook token', function(){
 });
 
 // fbToken : EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD
-// lbToken : psxBNQl8qvDw2lcxcTLR3ftzYCuF1OTsVtQokeJP6zlNwuiLCDbnAcx35jtBzTnQ
+// lbToken : GUejDdQfjJmimoEZDEGLlsPUoPnE4w2kGgfXFF19OaWsQdg3VSGfJnyRx9YVoSav
 // ttl : 5173511
 // lbUserId : 5a227943ab2904015a7ce29b
 // fbUserId : 10156122556431165

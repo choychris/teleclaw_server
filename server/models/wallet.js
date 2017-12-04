@@ -18,11 +18,14 @@ module.exports = function(Wallet) {
   assignKey(Wallet)
 
   Wallet.observe('after save', (ctx, next)=>{
-    let ref = firebasedb.ref(`userInfo/${ctx.instance.userId}/wallet`);
+    let { id, userId, balance } = ctx.instance;
+    let ref = firebasedb.ref(`userInfo/${userId}/wallet`);
     if(ctx.isNewInstance){
-      ref.set({balance: ctx.instance.balance});
+      ref.set({id: id, balance: balance});
     } else {
-      ref.update({balance: ctx.instance.balance});
+      ref.update({balance: balance});
     }
+    next();
   });
+
 };

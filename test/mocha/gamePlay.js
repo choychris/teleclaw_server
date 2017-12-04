@@ -3,8 +3,8 @@ var supertest = require('supertest');
 var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
-var accessToken = 'psxBNQl8qvDw2lcxcTLR3ftzYCuF1OTsVtQokeJP6zlNwuiLCDbnAcx35jtBzTnQ';
-var LBuserid = '5a227943ab2904015a7ce29b';
+var accessToken = 'GUejDdQfjJmimoEZDEGLlsPUoPnE4w2kGgfXFF19OaWsQdg3VSGfJnyRx9YVoSav';
+var lbUserId = '5a227943ab2904015a7ce29b';
 
 // const generateAPI = (baseUrl, filter, include) => {
 //   filter.map(fields=>{
@@ -47,123 +47,149 @@ describe('Start a game play from scratch', function(){
     });
   });
 
-  // describe('Check user wallet balance', function(){
-  //   it('should return wallet object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let url = `/api/wallets/findOne?access_token=${accessToken}`
-  //     let filterObj = {
-  //       where: {
-  //         userId: LBuserid
-  //       },
-  //       fields: ['balance']
-  //     }
-  //     api
-  //       .get(generateJSONAPI(url, filterObj))
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         // console.log(res.body)
-  //         global.userBalance = res.body.balance;
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('Check user wallet balance', function(){
+    it('should return wallet object', function(done){
+      var api = supertest.agent(baseUrl);
+      let url = `/api/wallets/findOne?access_token=${accessToken}`
+      let filterObj = {
+        where: {
+          userId: lbUserId
+        },
+        fields: ['balance']
+      }
+      //if(global.machineInfo.status === 'open'){
+        console.log('Machine open check user balance')
+        api
+          .get(generateJSONAPI(url, filterObj))
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            console.log(res.body)
+            global.userBalance = res.body.balance;
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+          });
+      // } else {
+      //   console.log('Machine not open')
+      //   done();
+      // }
+    });
+  });
 
-  // describe('Check Product play rate', function(){
-  //   it('should return product rate object and canPlay == false', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     var machineOpen = (global.machineInfo.status === 'open');
-  //     var sameUser = (global.machineInfo.currentUserId === LBuserid);
-  //     let filter = {
-  //       fields: ['gamePlayRate']
-  //     }
-  //     api
-  //       .get(generateJSONAPI(`/api/products/${global.machineInfo.productId}?access_token=${accessToken}`, filter))
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         global.requiredAmt = res.body.gamePlayRate;
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         global.canPlay = ((machineOpen || sameUser) && (global.userBalance >= global.requiredAmt));
-  //         if(!global.canPlay){
-  //           console.log('Machine is busy / not enough coin')
-  //         }
-  //         done();
-  //       });
-  //   });
-  // });
-
-  // describe('Start a game play', function(){
-  //   it('should return result object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let machineId = '596569d2-3659-4c59-a9cd-e8a25c9925e3';
-  //     let url = `/api/machines/${machineId}/gameplay?access_token=${accessToken}`
-  //     let data = {
-  //       productId: global.machineInfo.productId,
-  //       userId: LBuserid
-  //     }
-
-  //     if(global.canPlay === true){
-  //       api
-  //         .post(url)
-  //         .send({data: data})
-  //         .set('Accept', 'application/json')
-  //         .end(function(err,res){
-  //           console.log(res.body);
-  //           res.body.should.be.an('object');
-  //           res.status.should.equal(200);
-  //           done();
-  //         });
-  //       }else{
-  //         global.canPlay.should.not.be.true;
-  //         console.log('Machine is busy / not enough coin')
-  //         done();
-  //       }
-  //   });
-  // });
+  describe('Check Product play rate', function(){
+    it('should return product rate object', function(done){
+      var api = supertest.agent(baseUrl);
+      let filter = {
+        fields: ['gamePlayRate']
+      }
+      if(global.machineInfo.status === 'open'){
+        console.log('Machine open check product amt')
+        api
+          .get(generateJSONAPI(`/api/products/${global.machineInfo.productId}?access_token=${accessToken}`, filter))
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            global.requiredAmt = res.body.gamePlayRate;
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            global.canPlay =  global.userBalance >= global.requiredAmt ;
+            done();
+          });
+      } else {
+        console.log('Machine not open')
+        done();
+      }
+    });
+  });
 
   describe('Make reservation to the selected machine', function(){
     it('should return reservation object', function(done){
       var api = supertest.agent(baseUrl);
       let machineId = '596569d2-3659-4c59-a9cd-e8a25c9925e3';
-      let url = `/api/reservations?access_token=${accessToken}`;
       let reserveObj = {
         status: 'open',
-        userId: LBuserid,
         machineId: machineId
+      };
+      let findUrl = `/api/reservations/findOne?access_token=${accessToken}`;
+      let filterObj = {
+        where: {
+          userId: lbUserId
+        }
+      };
+
+      if(global.machineInfo.status !== 'open'){
+        console.log('machine is playing, make a reserve')
+        api
+          .get(generateJSONAPI(findUrl, filterObj))
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            global.reservationId = res.body.id;
+            console.log(global.reservationId);
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+
+            let url = `/api/reservations/${global.reservationId}?access_token=${accessToken}`;
+            console.log(url);
+            api
+              .patch(url)
+              .send(reserveObj)
+              .set('Accept', 'application/json')
+              .end(function(err,res){
+                res.body.should.be.an('object');
+                res.status.should.equal(200);
+                done();
+              });
+          });
+      } else {
+        console.log('can start game play');
+        done();
       }
-      api
-        .post(url)
-        .send(reserveObj)
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body)
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
     });
   });
 
- // 71979864-96bd-47f9-a8b0-7eb38c40f286
- // c2042dfb-bdb8-482f-8485-2cd0797dd7d6
-  describe('end an engagement, check reservation', function(){
-    it('should return next reservation object', function(done){
+  describe('Start a game play', function(){
+    it('should return result object', function(done){
       var api = supertest.agent(baseUrl);
       let machineId = '596569d2-3659-4c59-a9cd-e8a25c9925e3';
-      let url = `/api/reservations/${machineId}/endEngage?access_token=${accessToken}`;
-      api
-        .get(url)
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body)
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
+      let url = `/api/machines/${machineId}/gameplay?access_token=${accessToken}`
+      let data = {
+        productId: global.machineInfo.productId,
+        userId: lbUserId
+      }
+      if(global.canPlay){
+        console.log('enough coins, game play start');
+        api
+          .post(url)
+          .send({data: data})
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            console.log(res.body);
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+          });
+      } else {
+        console.log('Not enough coin / machine not open, pls purchase')
+        done();
+      }
     });
   });
 
+
+  // describe('end an engagement, check reservation', function(){
+  //   it('should return next reservation object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let machineId = '596569d2-3659-4c59-a9cd-e8a25c9925e3';
+  //     let url = `/api/reservations/${machineId}/endEngage?access_token=${accessToken}`;
+  //     api
+  //       .get(url)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body)
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
 });
