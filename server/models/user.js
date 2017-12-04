@@ -26,6 +26,7 @@ module.exports = function(User) {
     if(ctx.isNewInstance){
       let Event = app.models.Event;
       let Wallet = app.models.Wallet;
+      let Reservation = app.models.Reservation;
       Event.find({where : {launching: true}}, (err, event)=>{
         if(!err){
           let newUserEvent = event.newUser;
@@ -34,7 +35,12 @@ module.exports = function(User) {
             balance: initialCoins || 60 ,
             userId: ctx.instance.id
           };
+          let reserve = {
+            status: 'closed',
+            userId: ctx.instance.id
+          }
           Wallet.create(wallet, (error, wallet)=>{})
+          Reservation.create(reserve, (error, reserve)=>{})
         }
       })
     };
@@ -96,14 +102,14 @@ module.exports = function(User) {
 
 
     function checkExistThenLogin(userInfo){
-        if( userInfo.accessToken && userInfo.username && userInfo.userID ){
+        if( userInfo.accessToken && userInfo.username && userInfo.userId ){
           checkUserExist(userInfo) // <----- checkuserexist promise
             .then(res => {
               if(res === true){
-                let loginCred = { ttl : userInfo.expiresIn , username : userInfo.userID + '@teleclaw' , password : userInfo.userID };
+                let loginCred = { ttl : userInfo.expiresIn , username : userInfo.userId + '@teleclaw' , password : userInfo.userId };
                 User.login(loginCred, (err, token)=>{
                   console.log('login success : ' , loginCred.username );
-                  cb(null, {Lbtoken: token, Fbtoken: userInfo.accessToken, ttl: userInfo.expiresIn})
+                  cb(null, {lbToken: token, fbToken: userInfo.accessToken, ttl: userInfo.expiresIn})
                 })
               } else {
                 signUpUser(userInfo) // <----- signUp user asyn promise
@@ -135,9 +141,9 @@ module.exports = function(User) {
         lastLogIn: new Date().getTime(),
         logInStatus: true,
         name: newUser.username, 
-        username: newUser.userID + '@teleclaw',
+        username: newUser.userId + '@teleclaw',
         email: newUser.email || null,
-        password: newUser.userID
+        password: newUser.userId
       }
       return new Promise((resolve, reject)=>{ 
         User.create(userData, (userCreateErr, createdUser)=>{
@@ -146,7 +152,7 @@ module.exports = function(User) {
           };
           if(createdUser.id !== undefined){
             let identityInfo = {
-              id: newUser.userID,
+              id: newUser.userId,
               userId: createdUser.id,
               provider: 'facebook',
               username: newUser.username,
@@ -165,14 +171,14 @@ module.exports = function(User) {
                   let thisRoleId = data.id;
                   Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
                 });
-                let loginCred = { ttl : newUser.expiresIn , username : newUser.userID + '@teleclaw' , password : userData.password };
+                let loginCred = { ttl : newUser.expiresIn , username : newUser.userId + '@teleclaw' , password : userData.password };
                 User.login(loginCred, (loginError,token)=>{
                   if(loginError){
                     // console.log('login after error : ', loginError);
                     return reject({type: 'login after signup error', error: loginError});
                   } else {
                     console.log('login success : ', loginCred.username);
-                    return resolve({type: 'sign up complete', result: {Lbtoken: token, Fbtoken: newUser.accessToken, ttl: newUser.expiresIn}});
+                    return resolve({type: 'sign up complete', result: {lbToken: token, fbToken: newUser.accessToken, ttl: newUser.expiresIn}});
                   }
                 });
               }
@@ -183,8 +189,8 @@ module.exports = function(User) {
     }; // <--- loopback signup function
 
     function checkUserExist(userInfo){
-      let id = userInfo.userID;
-      let { username, accessToken, picture, email} = userInfo;
+      let id = userInfo.userId;
+      let { username, accessToken, picture, email } = userInfo;
       return new Promise((resolve, reject)=>{
         UserIdentity.findById(id, (err, identity)=>{
           if(err){
@@ -225,9 +231,9 @@ module.exports = function(User) {
 
   // User.afterRemote('auth', (ctx, instance, next)=>{
   //   //console.log(ctx.args);
-  //   let { username, email, picture, userID, accesstoken } = ctx.args.userInfo;
+  //   let { username, email, picture, userId, accesstoken } = ctx.args.userInfo;
   //   let UserIdentity = app.models.UserIdentity;
-  //   UserIdentity.findById(userID, (err, identity)=>{
+  //   UserIdentity.findById(userId, (err, identity)=>{
   //     if(identity){
   //       identity.updateAttributes({username: username, email: email, picture: picture, accesstoken: accessToken}, (err, instance)=>{
   //         if(err){console.log('update user identity error : ', err);};

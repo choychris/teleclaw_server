@@ -11,7 +11,7 @@ describe('get facebook token', function(){
   //       accessToken: "EAACDHoPDoIMBAPNZBQCRZApfnGMBGKuchGBedF46SpQ1ZAH5aVp691LIf3LvAi2VyDlVYbnX20adFRkjhCX9Md51Qm1XOqXmlGYjWxGCAiU45f00yZCGs4taKGvinTM1puIxfSZA1x3ogxZCjgBjL7j5ZB3KWRPNyPyyZByZAsseToQfCi373GQ0nov1E8786ZBtQTZAPHtJN0W9AZDZD",
   //       email: "choylapchichris@gmail.com",
   //       expiresIn: 5100,
-  //       userID: "10156122556431165",
+  //       userId: "10156122556431165",
   //       pciture: {
   //         height: 100,
   //         is_silhouette: false,
@@ -38,7 +38,7 @@ describe('get facebook token', function(){
   //     accessToken: "EAACDHoPDoIMBALCC9m4IvCZBbXAOW9oGOsKJwbkDQ7cMypbZAPolrQKxh3FATCHZAJRI5TlMZCcK0dSpgrmo5dX8c3WJ4EF6KexOmaOKorQsDd2GSlIiQIopHA05pz6s0EfUjam7YRzMZBxXpG0kd2V9lJ6bj9MSgUGqkxKVSngmX6251Ku9mgepNVokXQiHZCk26KBjBe3gZDZD",
   //     email: "choylapchichris@gmail.com",
   //     expiresIn: 4995,
-  //     userID: "10156122556431165",
+  //     userId: "10156122556431165",
   //     username: "Lap Chi",
   //     picture: {
   //       height: 100,
@@ -84,7 +84,7 @@ describe('get facebook token', function(){
       accessToken : 'EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
       username : 'Lap Chi',
       expiresIn: 5173511,
-      userID:  "10156122556431165",
+      userId:  "10156122556431165",
       picture: {
         height: 100,
         is_silhouette: false,
@@ -106,8 +106,8 @@ describe('get facebook token', function(){
   });
 });
 
-// fbtoken : EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD
+// fbToken : EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD
 // lbToken : psxBNQl8qvDw2lcxcTLR3ftzYCuF1OTsVtQokeJP6zlNwuiLCDbnAcx35jtBzTnQ
 // ttl : 5173511
-// LBuserid : 5a227943ab2904015a7ce29b
-// fbUserid : 10156122556431165
+// lbUserId : 5a227943ab2904015a7ce29b
+// fbUserId : 10156122556431165
