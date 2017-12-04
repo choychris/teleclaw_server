@@ -97,7 +97,7 @@ module.exports = function(User) {
 
     function checkExistThenLogin(userInfo){
         if( userInfo.accessToken && userInfo.username && userInfo.userID ){
-          checkUserExist(userInfo.userID) // <----- checkuserexist promise
+          checkUserExist(userInfo) // <----- checkuserexist promise
             .then(res => {
               if(res === true){
                 let loginCred = { ttl : userInfo.expiresIn , username : userInfo.userID + '@teleclaw' , password : userInfo.userID };
@@ -182,8 +182,9 @@ module.exports = function(User) {
       });
     }; // <--- loopback signup function
 
-    function checkUserExist(id){
-      let stringId = id.toString();
+    function checkUserExist(userInfo){
+      let id = userInfo.userID;
+      let { username, accessToken, picture, email} = userInfo;
       return new Promise((resolve, reject)=>{
         UserIdentity.findById(id, (err, identity)=>{
           if(err){
@@ -193,6 +194,9 @@ module.exports = function(User) {
             console.log('find no identity');
             return resolve(false)
           } else {
+            identity.updateAttributes({username: username, email: email, picture: picture, accesstoken: accessToken}, (err, instance)=>{
+              if(err){console.log('update user identity error : ', err);};
+            });
             console.log('found an identity : ', identity);
             return resolve(true);
           }
@@ -219,19 +223,19 @@ module.exports = function(User) {
 
   }; // <--- end of remote method : auth
 
-  User.afterRemote('auth', (ctx, instance, next)=>{
-    //console.log(ctx.args);
-    let { username, email, picture, userID } = ctx.args.userInfo;
-    let UserIdentity = app.models.UserIdentity;
-    UserIdentity.findById(userID, (err, identity)=>{
-      if(identity){
-        identity.updateAttributes({username: username, email: email, picture: picture}, (err, instance)=>{
-          if(err){console.log('update user identity error : ', err);};
-        });
-      }
-    })
-    next();
-  });
+  // User.afterRemote('auth', (ctx, instance, next)=>{
+  //   //console.log(ctx.args);
+  //   let { username, email, picture, userID, accesstoken } = ctx.args.userInfo;
+  //   let UserIdentity = app.models.UserIdentity;
+  //   UserIdentity.findById(userID, (err, identity)=>{
+  //     if(identity){
+  //       identity.updateAttributes({username: username, email: email, picture: picture, accesstoken: accessToken}, (err, instance)=>{
+  //         if(err){console.log('update user identity error : ', err);};
+  //       });
+  //     }
+  //   })
+  //   next();
+  // });
 
   User.remoteMethod(
     'auth',

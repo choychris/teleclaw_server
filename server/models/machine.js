@@ -19,10 +19,6 @@ module.exports = function(Machine) {
 
   Machine.observe('before save', (ctx, next) => {
     if(!ctx.isNewInstance){
-      if(ctx.data && ctx.data.currentUserId === 'nouser'){
-        ctx.hookstate.currentUserId = ctx.data.currentUserId;
-        ctx.data.status = 'open';
-      }
     } 
     next();
   });
@@ -31,7 +27,7 @@ module.exports = function(Machine) {
     // console.log(app.firebaseApp);
     if(ctx.isNewInstance){
       let ref = firebasedb.ref(`machines/${ctx.instance.id}`);
-      let { name, status, display } = ctx.instance ;
+      let { name, status, display,  } = ctx.instance ;
       ref.set({machine_name: name, status: status, display: display, numOfViewer: 0, numOfReserve: 0, currentPlayer: null, totalNumOfPlay: 0, totalNumOfSuccess: 0 }, (error)=>{
         if(error){
           console.log("Firebase : Machine could not be saved." + error);
@@ -42,7 +38,10 @@ module.exports = function(Machine) {
     } else if (!ctx.isNewInstance){
       if(ctx.instance){
         let ref = firebasedb.ref(`machines/${ctx.instance.id}`);
-        let { name, status, display } = ctx.instance ;
+        let { name, status, display, currentUserId } = ctx.instance ;
+        if(currentUserId === 'nouser'){
+          ref.update({currentPlayer: null})
+        }
         ref.update({machine_name: name, status: status, display: display}, (error)=>{
           if(error){
             console.log("Firebase : Machine could not be updated." + error);
@@ -52,7 +51,6 @@ module.exports = function(Machine) {
         });
       }  
     } 
-    
     next();
   });
 
@@ -78,7 +76,10 @@ module.exports = function(Machine) {
               if(error){
                 console.log("Firebase : Machine could not be updated." + error);
               }else{
-                console.log("Firebase : Machine updated successfully.");
+                ref.child('totalNumOfPlay').transaction((current_value)=>{
+                  return (current_value + 1);
+                  console.log("Firebase : Machine updated successfully.");
+                });
               }
             });
           });
