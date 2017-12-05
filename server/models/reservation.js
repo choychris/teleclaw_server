@@ -36,7 +36,7 @@ module.exports = function(Reservation) {
       }
     }
     next();
-  })
+  });
 
   Reservation.endEngage = (machineId, cb) => {
     // console.log('machineId : ', machineId);
@@ -52,11 +52,14 @@ module.exports = function(Reservation) {
                 return new_value;
               });
               resolve(true)
+              return true;
             })
           } else if (!error) {
             resolve(true)
+            return false;
           } else {
             reject(error)
+            return false;
           }
         });
       });
@@ -83,9 +86,7 @@ module.exports = function(Reservation) {
     .catch(err => {
       cb(err)
     });
-
   };
-
 
   Reservation.remoteMethod(
     'endEngage',

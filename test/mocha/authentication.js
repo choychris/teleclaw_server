@@ -3,6 +3,16 @@ var supertest = require('supertest');
 var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
+var accessToken = '90ICrdst7erDtkl9BMojD1N2BqvyktQohdkIMQBs9OM6MGuy1EKqXEwVNhUDf502';
+var lbUserId = '5a263230b349380354db1913';
+
+// before(function() {
+//   server.start();
+// });
+
+// after(function(){
+//   server.stop();  
+// });
 
 describe('get facebook token', function(){
   // it('token expired - status 401 and err message', function(done){
@@ -104,10 +114,23 @@ describe('get facebook token', function(){
           done();
        });
   });
+
+  // it('get current user info - status 200 and token', function(done){
+  //   var api = supertest.agent(baseUrl);
+  //   api
+  //     .get(`/api/users/${lbUserId}?access_token=${accessToken}`)
+  //     .set('Accept', 'application/json')
+  //     .end(function(err,res){
+  //         console.log(res.body);
+  //         res.body.result.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //      });
+  // });
 });
 
 // fbToken : EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD
-// lbToken : GUejDdQfjJmimoEZDEGLlsPUoPnE4w2kGgfXFF19OaWsQdg3VSGfJnyRx9YVoSav
+// lbToken : 90ICrdst7erDtkl9BMojD1N2BqvyktQohdkIMQBs9OM6MGuy1EKqXEwVNhUDf502
 // ttl : 5173511
-// lbUserId : 5a227943ab2904015a7ce29b
+// lbUserId : 5a263230b349380354db1913
 // fbUserId : 10156122556431165

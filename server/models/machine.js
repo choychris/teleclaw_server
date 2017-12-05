@@ -1,7 +1,8 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js'
+import { loggingModel } from '../utils/createLogging.js';
+var changeFirebaseDb = require('../utils/firebasedb.js');
 
 module.exports = function(Machine) {
 
@@ -24,32 +25,31 @@ module.exports = function(Machine) {
   });
 
   Machine.observe('after save', (ctx, next) => {
-    // console.log(app.firebaseApp);
     if(ctx.isNewInstance){
-      let ref = firebasedb.ref(`machines/${ctx.instance.id}`);
+      let location = `machines/${ctx.instance.id}`;
       let { name, status, display,  } = ctx.instance ;
-      ref.set({machine_name: name, status: status, display: display, numOfViewer: 0, numOfReserve: 0, currentPlayer: null, totalNumOfPlay: 0, totalNumOfSuccess: 0 }, (error)=>{
-        if(error){
-          console.log("Firebase : Machine could not be saved." + error);
-        }else{
-          console.log("Firebase : Machine saved successfully.");
-        };
-      });
+      let firebaseDataObj = {
+        machine_name: name, 
+        status: status, 
+        display: display, 
+        numOfViewer: 0, 
+        numOfReserve: 0, 
+        totalNumOfPlay: 0, 
+        totalNumOfSuccess: 0 
+      };
+      changeFirebaseDb('set', location, firebaseDataObj, 'Machine');
     } else if (!ctx.isNewInstance){
-      if(ctx.instance){
-        let ref = firebasedb.ref(`machines/${ctx.instance.id}`);
-        let { name, status, display, currentUserId } = ctx.instance ;
-        if(currentUserId === 'nouser'){
-          ref.update({currentPlayer: null})
-        }
-        ref.update({machine_name: name, status: status, display: display}, (error)=>{
-          if(error){
-            console.log("Firebase : Machine could not be updated." + error);
-          }else{
-            console.log("Firebase : Machine updated successfully.");
-          };
-        });
-      }  
+      let location = `machines/${ctx.instance.id}`;
+      let { name, status, display, currentUserId } = ctx.instance ;
+      if(currentUserId === 'nouser'){
+        changeFirebaseDb('update', location, {currentPlayer: null}, 'Machine');
+      }
+      let firebaseDataObj = {
+        machine_name: name, 
+        status: status, 
+        display: display
+      };
+      changeFirebaseDb('update', location, firebaseDataObj, 'Machine');
     } 
     next();
   });
@@ -116,23 +116,22 @@ module.exports = function(Machine) {
             userId: parsedUser.id
           }
           Transaction.create(transacObject, (error, createdTrans)=>{
-            if(!error){
+            if(error){
               // console.log(createdTrans);
-              let result = {
-                gameResult : generateResult(product.productRate),
-                transactionId: createdTrans.id,
-                userId: parsedUser.id,
-                productId: product.id
-              }
-              cb(null, result);
-            } else {
               console.log(error);
               cb(error)
             }
+            let result = {
+              gameResult : generateResult(product.productRate),
+              transactionId: createdTrans.id,
+              userId: parsedUser.id,
+              productId: product.id
+            }
+            cb(null, result);
           });
         });
       }
-    }) //<--- find product function end
+    }); //<--- find product function end
 
     // function to generate a game result
     const generateResult = (productRate) => {

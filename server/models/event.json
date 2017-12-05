@@ -31,13 +31,7 @@
     "period": {
       "type": "object"
     },
-    "newUser": {
-      "type": "object"
-    },
-    "purchase": {
-      "type": "object"
-    },
-    "delivery": {
+    "eventDetails": {
       "type": "object"
     }
   },

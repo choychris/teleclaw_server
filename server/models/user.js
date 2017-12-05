@@ -1,8 +1,8 @@
 'use strict';
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel, loggingRemote } from '../utils/createLogging.js';
-var request = require('request');
-var Promise = require('bluebird');
+let request = require('request');
+let Promise = require('bluebird');
 
 const FB_APP_SECRET = 'e1af1950c0642c405a28c1e706059b7c';
 const FB_CLIENT_ID = '144167082893443';
@@ -11,10 +11,9 @@ const FB_APP_TOKEN = 'e4eb506efe7786bf8b772e10c4eaf7e8';
 
 module.exports = function(User) {
 
-  var app = require('../server');
+  let app = require('../server');
   // Remove existing validations for email
   delete User.validations.email;
-  // delete User.validations.username;
 
   //make loggings for monitor purpose
   loggingModel(User);
@@ -27,22 +26,22 @@ module.exports = function(User) {
       let Event = app.models.Event;
       let Wallet = app.models.Wallet;
       let Reservation = app.models.Reservation;
-      Event.find({where : {launching: true}}, (err, event)=>{
-        if(!err){
-          let newUserEvent = event.newUser;
-          let initialCoins = newUserEvent ? newUserEvent.initialCoins : 60;
-          let wallet = {
-            balance: initialCoins || 60 ,
-            userId: ctx.instance.id
-          };
-          let reserve = {
-            status: 'close',
-            userId: ctx.instance.id,
-            machineId: 'none'
-          }
-          Wallet.create(wallet, (error, wallet)=>{})
-          Reservation.create(reserve, (error, reserve)=>{})
+      Event.find({'where': {'launching': true, 'eventDetails.newUser.initialCoins': {'exists': true}}}, (err, event)=>{
+        if(err){
+          next(err);
         }
+        let initialCoins = event.length > 0 ? event.eventDetails.newUser.initialCoins : 60;
+        let wallet = {
+          balance: initialCoins || 60 ,
+          userId: ctx.instance.id
+        };
+        let reserve = {
+          status: 'close',
+          userId: ctx.instance.id,
+          machineId: 'none'
+        }
+        Wallet.create(wallet, (error, wallet)=>{})
+        Reservation.create(reserve, (error, reserve)=>{})
       })
     };
     next();
@@ -60,38 +59,27 @@ module.exports = function(User) {
     let Role = app.models.Role;
     let Rolemap = app.models.Rolemap;
 
-    
     checkTokenValid(userInfo.accessToken)
       .then(res => {
         // === check if the access token is short live token ===
-        if(userInfo.accessToken !== undefined && userInfo.expiresIn !== undefined && userInfo.expiresIn < 10000){
+        if(userInfo.accessToken && userInfo.expiresIn && userInfo.expiresIn < 10000){
           // exchange for long live Fb token
           request(`https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=${FB_CLIENT_ID}&client_secret=${FB_APP_SECRET}&fb_exchange_token=${userInfo.accessToken}`,
             (err, res, body) => {
               if(err){
-                var reqError = {
-                  message:'Request from facebook error',
-                  status: 401
-                };
+                let reqError = { message:'Request from facebook error',status: 401 };
                 cb(reqError);
-                return;
-              } else {
-                let result = JSON.parse(body);
-                // console.log('facebook result : ', result);
-                if(result.error !== undefined){
-                  var tokenError = {
-                    type: result.error.type,
-                    message: result.error.message,
-                    status: 401
-                  }
-                  cb(tokenError);
-                } else {
-                  let { access_token, token_type, expires_in } = result;
-                  userInfo.accessToken = access_token;
-                  userInfo.expiresIn = expires_in;
-                  checkExistThenLogin(userInfo);
-                }
               }
+              let result = JSON.parse(body);
+              // console.log('facebook result : ', result);
+              if(result.error){
+                let tokenError = {message: result.error.message, status: 401 }
+                cb(tokenError);
+              } 
+              let { access_token, token_type, expires_in } = result;
+              userInfo.accessToken = access_token;
+              userInfo.expiresIn = expires_in;
+              checkExistThenLogin(userInfo);
             });
         } else {
           checkExistThenLogin(userInfo)
@@ -108,27 +96,23 @@ module.exports = function(User) {
             .then(res => {
               if(res === true){
                 let loginCred = { ttl : userInfo.expiresIn , username : userInfo.userId + '@teleclaw' , password : userInfo.userId };
-                User.login(loginCred, (err, token)=>{
+                User.login(loginCred, (err, token) => {
                   console.log('login success : ' , loginCred.username );
                   cb(null, {lbToken: token, fbToken: userInfo.accessToken, ttl: userInfo.expiresIn})
                 })
               } else {
-                signUpUser(userInfo) // <----- signUp user asyn promise
-                  .then(res => {
-                    cb(null, res.result)
-                  })
-                  .catch(err => {
-                    console.log(err.type, ':', err.error);
-                    cb(err.error);
-                  })
+                signUpUser(userInfo).then(res => {
+                  cb(null, res.result)
+                }).catch(err => {
+                  cb(err);
+                })
               };
-            })
-            .catch(err => {
+            }).catch(err => {
               console.log(err)
               cb(err);
             }) // <----- checkuserexist promise
         } else {
-          var authError = {
+          let authError = {
             type: 'authentication error',
             message: 'required info missing',
             status: 401
@@ -144,47 +128,47 @@ module.exports = function(User) {
         name: newUser.username, 
         username: newUser.userId + '@teleclaw',
         email: newUser.email || null,
-        password: newUser.userId
+        password: newUser.userId,
+        language: newUser.language
       }
       return new Promise((resolve, reject)=>{ 
         User.create(userData, (userCreateErr, createdUser)=>{
           if(userCreateErr){
-            return reject({type: 'create user error', error: userCreateErr})
+            reject({type: 'create user error', error: userCreateErr})
+            return false
           };
-          if(createdUser.id !== undefined){
-            let identityInfo = {
-              id: newUser.userId,
-              userId: createdUser.id,
-              provider: 'facebook',
-              username: newUser.username,
-              email: newUser.email || null,
-              picture: newUser.picture,
-              accesstoken: newUser.accessToken
-            };
-            // console.log(identityInfo);
-            // console.log(User);
-            UserIdentity.create(identityInfo, (identityErr, identity)=>{
-              if(identityErr){
-                // console.log('create identity error : ', identityErr);
-                return reject({type: 'create identity error', error: identityErr});
-              } else {
-                Role.findOne({ where: { name : 'user' }},(findRoleErr,data) => {
-                  let thisRoleId = data.id;
-                  Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
-                });
-                let loginCred = { ttl : newUser.expiresIn , username : newUser.userId + '@teleclaw' , password : userData.password };
-                User.login(loginCred, (loginError,token)=>{
-                  if(loginError){
-                    // console.log('login after error : ', loginError);
-                    return reject({type: 'login after signup error', error: loginError});
-                  } else {
-                    console.log('login success : ', loginCred.username);
-                    return resolve({type: 'sign up complete', result: {lbToken: token, fbToken: newUser.accessToken, ttl: newUser.expiresIn}});
-                  }
-                });
-              }
-            });
-          }
+          let identityInfo = {
+            id: newUser.userId,
+            userId: createdUser.id,
+            provider: 'facebook',
+            username: newUser.username,
+            email: newUser.email || null,
+            picture: newUser.picture,
+            accesstoken: newUser.accessToken
+          };
+          UserIdentity.create(identityInfo, (identityErr, identity)=>{
+            if(identityErr){
+              // console.log('create identity error : ', identityErr);
+              reject({type: 'create identity error', error: identityErr});
+              return false
+            }
+          });
+          Role.findOne({ where: { name : 'user' }},(findRoleErr,data) => {
+            let thisRoleId = data.id;
+            Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
+          });
+          let loginCred = { ttl : newUser.expiresIn , username : newUser.userId + '@teleclaw' , password : userData.password };
+          User.login(loginCred, (loginError,token)=>{
+            if(loginError){
+              // console.log('login after error : ', loginError);
+              reject({type: 'login after signup error', error: loginError});
+              return false
+            } else {
+              console.log('login success : ', loginCred.username);
+              resolve({type: 'sign up complete', result: {lbToken: token, fbToken: newUser.accessToken, ttl: newUser.expiresIn}});
+              return true
+            }
+          });
         });
       });
     }; // <--- loopback signup function
@@ -196,16 +180,19 @@ module.exports = function(User) {
         UserIdentity.findById(id, (err, identity)=>{
           if(err){
             console.log('find identity error : ', err);
-            return reject(err);
+            reject(err);
+            return false
           } else if (identity === null) {
             console.log('find no identity');
-            return resolve(false)
+            resolve(false)
+            return false
           } else {
             identity.updateAttributes({username: username, email: email, picture: picture, accesstoken: accessToken}, (err, instance)=>{
               if(err){console.log('update user identity error : ', err);};
             });
             console.log('found an identity : ', identity);
-            return resolve(true);
+            resolve(true);
+            return true
           }
         });
       });
@@ -216,18 +203,20 @@ module.exports = function(User) {
         request(`https://graph.facebook.com/debug_token?input_token=${fbtoken}&access_token=${FB_CLIENT_ID}|${FB_APP_SECRET}`, (err, res, body)=>{
           if(err){
             reject(err);
+            return false
           }
-          var result = JSON.parse(body);
+          let result = JSON.parse(body);
           if(result.error !== undefined){
             reject(result.error.message);
+            return false
           } else {
             let valid = (result.data.is_valid && result.data.expires_at > new Date().getTime()/1000 ) ? 'valid' : 'invalid' ;
             valid == 'valid' ? resolve(true) : reject('invalid token') ;
+            return true;
           }
         });
       });
     } //<--- end of check token valid sync function
-
   }; // <--- end of remote method : auth
 
   // User.afterRemote('auth', (ctx, instance, next)=>{
@@ -258,18 +247,18 @@ module.exports = function(User) {
     loggingRemote(User, 'User', 'checkTokenValid');
 
    // console.log(fbtoken.token);
-    var tokenToCheck = fbtoken.token;
+    let tokenToCheck = fbtoken.token;
     request(`https://graph.facebook.com/debug_token?input_token=${tokenToCheck}&access_token=${FB_CLIENT_ID}|${FB_APP_SECRET}`, (err, res, body)=>{
       if(err){
         // console.log(err)
         cb(err);
       } else { 
-        var result = JSON.parse(body);
+        let result = JSON.parse(body);
         // console.log('check token result : ',result);
         if(result.error !== undefined){
           cb({message: result.error.message, status: 401})
         } else {
-          var valid = (result.data.is_valid && result.data.expires_at > new Date().getTime()/1000 ) ? 'valid' : 'invalid' ;
+          let valid = (result.data.is_valid && result.data.expires_at > new Date().getTime()/1000 ) ? 'valid' : 'invalid' ;
           // console.log(valid);
           cb(null, valid);
         }

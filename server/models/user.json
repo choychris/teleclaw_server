@@ -18,9 +18,6 @@
       "type": "date",
       "required": true
     },
-    "logInStatus": {
-      "type": "boolean"
-    },
     "lastUpdated": {
       "type": "date"
     },
@@ -79,6 +76,11 @@
       "type": "hasOne",
       "model": "wallet",
       "foreignKey": "userId"
+    },
+    "reservation": {
+      "type": "hasOne",
+      "model": "reservation",
+      "foreignKey": "userId"
     }
   },
   "acls": [
@@ -111,7 +113,9 @@
       "property": [
         "findOne",
         "findById",
-        "update"
+        "update",
+        "__get__wallet",
+        "__get__reservation"
       ]
     },
     {

@@ -19,7 +19,7 @@
       "type": "date"
     },
     "name": {
-      "type": "string",
+      "type": "object",
       "required": true
     },
     "description": {
@@ -37,9 +37,8 @@
       "type": "object"
     },
     "status": {
-      "type": "boolean",
-      "required": true,
-      "default": false
+      "type": "object",
+      "required": true
     },
     "level": {
       "type": "object"

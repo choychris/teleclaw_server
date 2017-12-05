@@ -3,8 +3,16 @@ var supertest = require('supertest');
 var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
-var accessToken = 'GUejDdQfjJmimoEZDEGLlsPUoPnE4w2kGgfXFF19OaWsQdg3VSGfJnyRx9YVoSav';
-var lbUserId = '5a227943ab2904015a7ce29b';
+var accessToken = '90ICrdst7erDtkl9BMojD1N2BqvyktQohdkIMQBs9OM6MGuy1EKqXEwVNhUDf502';
+var lbUserId = '5a263230b349380354db1913';
+
+before(function() {
+  server.start();
+});
+
+after(function(){
+  server.stop();  
+});
 
 // const generateAPI = (baseUrl, filter, include) => {
 //   filter.map(fields=>{

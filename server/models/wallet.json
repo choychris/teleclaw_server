@@ -33,6 +33,14 @@
       "primaryKey": "id"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": ["find", "findOne", "update", "findById"]
+    }
+  ],
   "methods": {}
 }
