@@ -4,6 +4,20 @@ var loopback = require('loopback');
 var boot = require('loopback-boot');
 
 var app = module.exports = loopback();
+var firebaseAmdin = require('firebase-admin');
+var _process$env = process.env,
+    FIREBASE_PROJECT_ID = _process$env.FIREBASE_PROJECT_ID,
+    FIREBASE_SERVICE_KEY_NAME = _process$env.FIREBASE_SERVICE_KEY_NAME;
+
+
+console.log(process.env.FIREBASE_PROJECT_ID);
+var serviceAccount = require('../' + FIREBASE_SERVICE_KEY_NAME);
+var firebaseApp = firebaseAmdin.initializeApp({
+  credential: firebaseAmdin.credential.cert(serviceAccount),
+  databaseURL: 'https://' + FIREBASE_PROJECT_ID + '.firebaseio.com/'
+});
+
+app.firebaseApp = firebaseApp;
 
 app.start = function () {
   // start the web server

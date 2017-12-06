@@ -39,7 +39,12 @@
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW",
-      "property": ["find", "findOne", "update", "findById"]
+      "property": [
+        "find",
+        "findOne",
+        "update",
+        "findById"
+      ]
     }
   ],
   "methods": {}

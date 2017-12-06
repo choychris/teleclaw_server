@@ -1,13 +1,14 @@
 {
   "name": "transaction",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true
   },
   "properties": {
     "id": {
       "type": "string",
+      "id": true,
       "required": true
     },
     "created": {
@@ -23,8 +24,7 @@
       "required": true
     },
     "status": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "walletId": {
       "type": "string",
@@ -35,8 +35,7 @@
       "required": true
     },
     "gateWayResponse": {
-      "type": "number",
-      "required": true
+      "type": "number"
     }
   },
   "validations": [],
@@ -44,13 +43,13 @@
     "user": {
       "type": "belongsTo",
       "model": "user",
-      "foreignKey": "userId",
+      "foreignKey": "",
       "primaryKey": "id"
     },
     "wallet": {
       "type": "belongsTo",
       "model": "wallet",
-      "foreignKey": "walletId",
+      "foreignKey": "",
       "primaryKey": "id"
     }
   },

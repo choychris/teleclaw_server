@@ -2,13 +2,13 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-var changeFirebaseDb = require('../utils/firebasedb.js');
+import { changeFirebaseDb, makeDbTransaction } from '../utils/firebasedb.js';
 
 module.exports = function(Machine) {
 
   var app = require('../server');
-  var firebase = app.firebaseApp;
-  var firebasedb = firebase.database();
+  // var firebase = app.firebaseApp;
+  // var firebasedb = firebase.database();
   //make loggings for monitor purpose
   loggingModel(Machine);
 
@@ -40,9 +40,12 @@ module.exports = function(Machine) {
       changeFirebaseDb('set', location, firebaseDataObj, 'Machine');
     } else if (!ctx.isNewInstance){
       let location = `machines/${ctx.instance.id}`;
-      let { name, status, display, currentUserId } = ctx.instance ;
+      let { name, status, display, currentUserId, productId } = ctx.instance ;
       if(currentUserId === 'nouser'){
         changeFirebaseDb('update', location, {currentPlayer: null}, 'Machine');
+      }
+      if(status === 'open' || status === 'playing'){
+        updateProductStatus(productId);
       }
       let firebaseDataObj = {
         machine_name: name, 
@@ -54,6 +57,27 @@ module.exports = function(Machine) {
     next();
   });
 
+  function updateProductStatus(productId){
+    let Product = app.models.Product;
+
+    function updateProductStatus(newStatus, productId){
+      Product.findById(productId, (err, foundProduct)=>{
+        foundProduct.updateAttributes({status: {machineStatus: newStatus}})
+      })
+    };
+
+    Machine.find({where: {productId: productId, status: 'open'}}, (err, result)=>{
+      //let location = `products/${productId}/status`;
+      if(result.length !== 0){
+        updateProductStatus(true, productId)
+        //changeFirebaseDb('update', location, { machineStatus: true }, 'Product');
+      } else {
+        updateProductStatus(false, productId)
+        //changeFirebaseDb('update', location, { machineStatus: false }, 'Product');
+      }
+    });
+  };
+
   Machine.beforeRemote('gameplay', (ctx, unused, next)=>{
     //console.log('ctx.args : ', ctx.args)
     let { machineId, data } = ctx.args;
@@ -61,7 +85,7 @@ module.exports = function(Machine) {
     // console.log('data obj :', data)
     let User = app.models.User;
     Machine.findById(machineId, (errMsg, machine)=>{ 
-      let ref = firebasedb.ref(`machines/${machineId}`);
+      let location = `machines/${machineId}`;
       if(machine.currentUserId !== userId){
         User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
           let parsedUser =  JSON.parse(JSON.stringify(user));
@@ -72,23 +96,13 @@ module.exports = function(Machine) {
             picture: parsedUser.userIdentities[0].picture.url
           }
           machine.updateAttributes({currentUserId: userId, status: 'playing'}, (er, instance)=>{
-            ref.update({status: 'playing', currentPlayer: player}, (error)=>{
-              if(error){
-                console.log("Firebase : Machine could not be updated." + error);
-              }else{
-                ref.child('totalNumOfPlay').transaction((current_value)=>{
-                  return (current_value + 1);
-                  console.log("Firebase : Machine updated successfully.");
-                });
-              }
-            });
+            changeFirebaseDb('update', location, {status: 'playing', currentPlayer: player}, 'Machine');
           });
+          makeDbTransaction(location, 'totalNumOfPlay', 'plus');
           next();
         });
       }else{
-        ref.child('totalNumOfPlay').transaction((current_value)=>{
-          return (current_value + 1);
-        });
+        makeDbTransaction(location, 'totalNumOfPlay', 'plus');
         next();      
       }
     });
@@ -106,6 +120,8 @@ module.exports = function(Machine) {
     Product.findById(productId, (err, product)=>{
       if(!err){
        //  console.log('find product : ', product);
+        let location = `products/${productId}`;
+        makeDbTransaction(location, 'totalNumOfPlay', 'plus');
         User.findById(userId, {include: 'wallet'}, (err, user)=>{
           let parsedUser =  JSON.parse(JSON.stringify(user));
           let transacObject = {
@@ -125,7 +141,8 @@ module.exports = function(Machine) {
               gameResult : generateResult(product.productRate),
               transactionId: createdTrans.id,
               userId: parsedUser.id,
-              productId: product.id
+              productId: product.id,
+              newWalletBalance: parsedUser.wallet.balance - createdTrans.amount
             }
             cb(null, result);
           });

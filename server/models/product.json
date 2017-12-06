@@ -24,7 +24,7 @@
     },
     "description": {
       "type": "string"
-    },
+    },   
     "size": {
       "type": "object",
       "required": true
@@ -42,11 +42,6 @@
     },
     "level": {
       "type": "object"
-    },
-    "tags": {
-      "type": [
-        "string"
-      ]
     },
     "sku": {
       "type": "number",
@@ -75,7 +70,6 @@
       "primaryKey": "id"
     }
   },
-  "acls": [
-  ],
+  "acls": [],
   "methods": {}
 }

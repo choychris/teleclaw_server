@@ -1,13 +1,11 @@
 'use strict';
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel, loggingRemote } from '../utils/createLogging.js';
+import { changeFirebaseDb } from '../utils/firebasedb.js';
 
 module.exports = function(Wallet) {
 
   var app = require('../server');
-  var firebase = app.firebaseApp;
-  var firebasedb = firebase.database();
-
   //make loggings for monitor purpose
   loggingModel(Wallet);
 
@@ -19,11 +17,11 @@ module.exports = function(Wallet) {
 
   Wallet.observe('after save', (ctx, next)=>{
     let { id, userId, balance } = ctx.instance;
-    let ref = firebasedb.ref(`userInfo/${userId}/wallet`);
+    let location = `userInfo/${userId}/wallet`;
     if(ctx.isNewInstance){
-      ref.set({id: id, balance: balance});
+      changeFirebaseDb('set', location, {id: id, balance: balance}, 'Wallet');
     } else {
-      ref.update({balance: balance});
+      changeFirebaseDb('update', location, {balance: balance}, 'Wallet');
     }
     next();
   });

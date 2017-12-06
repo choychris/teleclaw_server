@@ -19,7 +19,7 @@ module.exports = function(Transaction) {
     if(ctx.isNewInstance){
       let Wallet = app.models.Wallet;
       let { walletId, action, amount } = ctx.instance;
-      console.log('amount : ', amount);
+      // console.log('amount : ', amount);
       Wallet.findById(walletId, (err, wallet)=>{
         //console.log('update wallet : ', wallet)
         let parsedWallet = JSON.parse(JSON.stringify(wallet));
@@ -28,11 +28,8 @@ module.exports = function(Transaction) {
         if(action === 'minus'){
           let balance = parsedWallet.balance - amount;
           wallet.updateAttributes({balance: balance}, (err, instance)=>{
-            console.log('balance : ', balance);
             if(err){
-              console.log(err);
-            }else{
-              console.log(instance);
+              next(err);
             }
           next();  
           });
@@ -40,14 +37,13 @@ module.exports = function(Transaction) {
           let balance = parsedWallet.balance + amount;
           wallet.updateAttributes({balance: balance}, (err, instance)=>{
             if(err){
-              console.log(err);
-            }else{
-              console.log(instance);
+              next(err);
             }
-          next();  
+          next();
           });
         };
       });
     }
   });
+
 };

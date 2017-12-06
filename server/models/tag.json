@@ -1,5 +1,6 @@
 {
-  "name": "exchange_rate",
+  "name": "tag",
+  "plural": "tags",
   "base": "PersistedModel",
   "idInjection": false,
   "options": {
@@ -15,29 +16,24 @@
       "type": "date",
       "required": true
     },
-    "coins": {
-      "type": "number",
-      "required": true
+    "description": {
+      "type": "string"
     },
-    "discounts": {
-      "type": "number",
-      "required": true
-    },
-    "currency": {
-      "type": "object",
-      "required": true
+    "picture": {
+      "type": "object"
     },
     "status": {
-      "type": "string",
-      "required": true
-    },
-    "images": {
-      "type": "object",
-      "required": true
+      "type": "boolean"
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "products": {
+      "type": "hasMany",
+      "model": "product",
+      "foreignKey": "tagId"
+    }
+  },
   "acls": [],
   "methods": {}
 }

@@ -1,6 +1,6 @@
 var should = require('chai').should();
 var supertest = require('supertest');
-var server = require('../../build/server.js');
+//var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
 var accessToken = 'psxBNQl8qvDw2lcxcTLR3ftzYCuF1OTsVtQokeJP6zlNwuiLCDbnAcx35jtBzTnQ';
@@ -12,31 +12,6 @@ const generateJSONAPI = (url, filter) => {
 }
 
 describe('Attach a related models to product', function(){
-
-  // describe('Create benchmark', function(){
-  //   it('should return benchmark object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     var benchmarkBody = {
-  //       costRange: {
-  //         min: 0,
-  //         max: 10
-  //       }, 
-  //       marginRate: 0,
-  //       gamePlayRate: 0.0001,
-  //       realValuePerCoin: 0.13
-  //     };
-
-  //     api
-  //       .post('/api/benchmarks')
-  //       .send(benchmarkBody)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
 
   // describe('Create Product', function(){
   //   it('should return Product object', function(done){
@@ -80,22 +55,46 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
-  // describe('Find A Product', function(){
-  //   it('should return Product object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     var productId = 'f7208d21-2b10-42cd-9487-9f44b3ac98ee';
-  //     api
-  //       .get('/api/products/' + productId)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         // console.log(res.body);
-  //         global.Product = res.body;
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('Select A Product', function(){
+    it('should return Product object', function(done){
+      var api = supertest.agent(baseUrl);
+
+      api
+        .get('/api/products')
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          // console.log(res.body[0]);
+          global.Product = res.body[0];
+          res.body.should.be.an('array');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
+
+  describe('Create a benchmark', function(){
+    it('should return Product object', function(done){
+      var api = supertest.agent(baseUrl);
+      var benchmarkBody = { 
+        "costRange" : { "min" : 0, "max" : 10 }, 
+        "overheadCost" : 1.5, 
+        "marginRate" : 0, 
+        "gamePlayRate" : 0.0001, 
+        "realValuePerCoin" : 0.13 
+      }
+      api
+        .post('/api/products')
+        .send(benchmarkBody)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          // console.log(res.body);
+          global.Benchmark = res.body;
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
   // describe('Select A benchmark', function(){
   //   it('Success - should return status 200', function(done){
@@ -112,7 +111,7 @@ describe('Attach a related models to product', function(){
   //       .get(generateJSONAPI(url,Info))
   //       .set('Accept', 'application/json')
   //       .end(function(err,res){
-  //         console.log(res.body);
+  //         //console.log(res.body);
   //         global.Benchmark = res.body;
   //         res.body.should.be.an('object');
   //         res.status.should.equal(200);
@@ -126,13 +125,13 @@ describe('Attach a related models to product', function(){
   //     var api = supertest.agent(baseUrl);
   //     var benchmarkId = global.Benchmark.id;
   //     global.Product.benchmarkId = benchmarkId;
-  //     var productId = 'f7208d21-2b10-42cd-9487-9f44b3ac98ee';
+  //     var productId = global.Product.id;
   //     api
   //       .put('/api/products/' + productId)
   //       .send(global.Product)
   //       .set('Accept', 'application/json')
   //       .end(function(err,res){
-  //         console.log(res.body);
+  //         console.log('Added benchmark to product : ',res.body);
   //         res.body.should.be.an('object');
   //         res.status.should.equal(200);
   //         done();
@@ -140,61 +139,48 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
-  describe('Create two machines', function(){
-    it('Success - should return status 200', function(done){
-      var api = supertest.agent(baseUrl);
-      var machines = [
-        {
-          name: 'dev_3'
-        },
-        {
-          name: 'dev_4'
-        }
-      ]
-      global.Machines = [];
-      machines.map(machine => {
-      api
-        .post('/api/machines')
-        .send(machine)
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          // console.log(res.body);
-          global.Machines.push(res.body);
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-        });
-      });  
-      done();
-    });
-  });
-
-  // describe('Get a product', function(){
+  // describe('Create two machines', function(){
   //   it('Success - should return status 200', function(done){
   //     var api = supertest.agent(baseUrl);
+  //     var machines = [
+  //       {
+  //         name: 'dev_3'
+  //       },
+  //       {
+  //         name: 'dev_4'
+  //       }
+  //     ]
+  //     global.Machines = [];
+  //     machines.map(machine => {
   //     api
-  //       .get('/api/products')
+  //       .post('/api/machines')
+  //       .send(machine)
   //       .set('Accept', 'application/json')
   //       .end(function(err,res){
-  //         global.Products = res.body;
-  //         res.body.should.be.an('array');
+  //         // console.log(res.body);
+  //         global.Machines.push(res.body);
+  //         res.body.should.be.an('object');
   //         res.status.should.equal(200);
-  //         done();
+  //         if(global.Machines.length == 2){
+  //           done();
+  //         }
   //       });
+  //     });  
   //   });
   // });
 
-  // describe('Add two machine to product', function(){
+  // describe('Add one machine to product', function(){
   //   it('Success - should return status 200', function(done){
   //     var api = supertest.agent(baseUrl);
-  //     var productId = global.Products[0].id;
-  //     console.log(productId);
-  //     var data = {machines: global.Machines}
+  //     var productId = global.Product.id;
+  //     // console.log(productId);
+  //     var data = {machines: [global.Machines[0]]}
   //     api
   //       .patch('/api/products/' + productId)
   //       .send(data)
   //       .set('Accept', 'application/json')
   //       .end(function(err,res){
-  //         // console.log(res.body);
+  //         //console.log('Added a machine to product : ', res.body);
   //         res.body.should.be.an('object');
   //         res.status.should.equal(200);
   //         done();
@@ -202,19 +188,75 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
-  // describe('Get the two related machines', function(){
+  // describe('Get the related machines from product', function(){
   //   it('Success - should return status 200', function(done){
   //     var api = supertest.agent(baseUrl);
-  //     var productId = global.Products[0].id;
+  //     var productId = global.Product.id;
   //     api
   //       .get(`/api/products/${productId}?filter[include]=machines` )
   //       .set('Accept', 'application/json')
   //       .end(function(err,res){
-  //         console.log(res.body);
+  //         console.log('Get Product include machine : ', res.body);
   //         res.body.should.be.an('object');
   //         res.status.should.equal(200);
   //         done();
   //       });
   //   });
   // });
+
+  // describe('Create two tags', function(){
+  //   it('Success - should return status 200', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     var tags = [
+  //       {
+  //         name: {
+  //           'en': 'Earth'
+  //         },
+  //         description: 'Mother of Earth',
+  //         status: true
+  //       },
+  //       {
+  //         name: {
+  //           'en': 'Moon'
+  //         },
+  //         status: true
+  //       }
+  //     ]
+  //     global.tagArray = [];
+  //     tags.map(tag => {
+  //     api
+  //       .post('/api/tags')
+  //       .send(tag)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         // console.log(res.body);
+  //         global.tagArray.push(res.body);
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         if(global.tagArray.length == 2){
+  //           done();
+  //         }
+  //       });
+  //     });  
+  //   });
+  // });
+
+  // describe('Add a tag to a product', function(){
+  //   it('Success - should return status 200', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     var productId = global.Product.id;
+
+  //     api
+  //       .patch(`/api/products/${productId}`)
+  //       .send({tagId: global.tagArray[0].id})
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log('product with tag : ',res.body);
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //     });  
+  //   });
+
 });

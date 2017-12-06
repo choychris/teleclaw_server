@@ -21,7 +21,7 @@
     "lastUpdated": {
       "type": "date"
     },
-    "name":{
+    "name": {
       "type": "string"
     },
     "username": {

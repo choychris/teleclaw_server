@@ -3,11 +3,7 @@ import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel, loggingRemote } from '../utils/createLogging.js';
 let request = require('request');
 let Promise = require('bluebird');
-
-const FB_APP_SECRET = 'e1af1950c0642c405a28c1e706059b7c';
-const FB_CLIENT_ID = '144167082893443';
-const FB_APP_TOKEN = 'e4eb506efe7786bf8b772e10c4eaf7e8';
-
+let { FB_APP_SECRET, FB_CLIENT_ID, FB_APP_TOKEN } = process.env ; 
 
 module.exports = function(User) {
 
@@ -98,7 +94,7 @@ module.exports = function(User) {
                 let loginCred = { ttl : userInfo.expiresIn , username : userInfo.userId + '@teleclaw' , password : userInfo.userId };
                 User.login(loginCred, (err, token) => {
                   console.log('login success : ' , loginCred.username );
-                  cb(null, {lbToken: token, fbToken: userInfo.accessToken, ttl: userInfo.expiresIn})
+                  cb(null, {newUser: false, lbToken: token, fbToken: userInfo.accessToken, ttl: userInfo.expiresIn})
                 })
               } else {
                 signUpUser(userInfo).then(res => {
@@ -165,7 +161,7 @@ module.exports = function(User) {
               return false
             } else {
               console.log('login success : ', loginCred.username);
-              resolve({type: 'sign up complete', result: {lbToken: token, fbToken: newUser.accessToken, ttl: newUser.expiresIn}});
+              resolve({type: 'sign up complete', result: {newUser: true, lbToken: token, fbToken: newUser.accessToken, ttl: newUser.expiresIn}});
               return true
             }
           });
@@ -270,6 +266,18 @@ module.exports = function(User) {
     'checkTokenValid',
     {
       accepts: {arg: 'FBtoken', type: 'object', http: {source: 'body'}},
+      returns: {arg: 'result', type: 'string'}
+    }
+  );
+
+  User.createAdmin = (info, cb) => {
+
+  }
+
+  User.createAdmin(
+    'createAdmin',
+    {
+      accepts: {arg: 'info', type: 'object', http: {source: 'body'}},
       returns: {arg: 'result', type: 'string'}
     }
   );

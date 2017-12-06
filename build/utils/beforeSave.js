@@ -10,7 +10,7 @@ var uuidv4 = require('uuid/v4');
 function updateTimeStamp(model) {
   model.observe('before save', function (ctx, next) {
     // let logData = { model : ctx.Model.modelName , functionName : 'updateTimestamp' }; 
-    console.log('ctx.instance : =====', ctx.instance);
+    // console.log('ctx.instance : =====', ctx.instance);
     if (ctx.isNewInstance) {
       ctx.instance.created = new Date().getTime();
       // logData.description = 'Assign Created Time';
@@ -18,8 +18,7 @@ function updateTimeStamp(model) {
     } else {
       if (ctx.data) {
         ctx.data.lastUpdated = new Date().getTime();
-      }
-      if (ctx.instance) {
+      } else if (ctx.instance) {
         ctx.instance.lastUpdated = new Date().getTime();
       }
       // logData.description = 'Assign Updated Time';

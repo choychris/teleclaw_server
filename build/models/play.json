@@ -1,13 +1,14 @@
 {
   "name": "play",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true
   },
   "properties": {
     "id": {
       "type": "string",
+      "id": true,
       "required": true
     },
     "created": {
@@ -15,8 +16,7 @@
       "required": true
     },
     "ended": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "duration": {
       "type": "number",
@@ -29,12 +29,10 @@
     "movement": {
       "type": [
         "object"
-      ],
-      "required": true
+      ]
     },
     "recording": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "machineId": {
       "type": "string",
@@ -67,13 +65,13 @@
     "machine": {
       "type": "belongsTo",
       "model": "machine",
-      "foreginKey": "machineId",
+      "foreginKey": "",
       "primaryKey": "id"
     },
     "product": {
       "type": "belongsTo",
       "model": "product",
-      "foreginKey": "productId",
+      "foreginKey": "",
       "primaryKey": "id"
     },
     "transaction": {

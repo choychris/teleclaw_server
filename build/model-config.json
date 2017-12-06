@@ -37,7 +37,7 @@
     "dataSource": "mongodb",
     "public": true
   },
-  "eechangeRate": {
+  "exchange_rate": {
     "dataSource": "mongodb",
     "public": true
   },
@@ -72,5 +72,37 @@
   "rolemap": {
     "dataSource": "mongodb",
     "public": false
+  },
+  "User": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "userIdentity": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "AccessToken": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "Role": {
+    "dataSource": "mongodb",
+    "public": false
+  },
+  "event": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "tag": {
+    "dataSource": "mongodb",
+    "public": true
   }
 }
