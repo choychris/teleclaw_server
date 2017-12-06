@@ -27,4 +27,21 @@ export function makeDbTransaction(location, childName, plusOrMinus){
   });
 };
 
+// export function asMessagingFunc(messageObj){
+//   let ref = firebasedb.ref('messaging');
+//   ref.once('value').then(function(snapshot)=>{
+//     if(snapshot.numChildren() >= 500){
+//       ref.remove().then(()=>{
+//         ref.push(messageObj, ()=>{
+//           console.log('Firebase message add complete.')
+//         })
+//       })
+//     }else{
+//       ref.push(messageObj, ()=>{
+//         console.log('Firebase message add complete.')
+//       })
+//     }
+//   });
+// }
+
 // module.exports = changeFirebaseDb;

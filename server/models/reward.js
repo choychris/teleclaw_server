@@ -14,4 +14,9 @@ module.exports = function(Reward) {
 
   //assign an unique if its new instance 
   assignKey(Reward)
+
+  // Reward.observe('before save', (ctx, next)=>{
+    
+  // });
+
 };

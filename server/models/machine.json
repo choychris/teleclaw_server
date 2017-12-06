@@ -30,7 +30,8 @@
       "default": false
     },
     "reservation": {
-      "type": "number"
+      "type": "number",
+      "default": 0
     },
     "iotPlatform": {
       "type": "object"
@@ -38,8 +39,8 @@
     "productId": {
       "type": "string"
     },
-    "currentUserId": {
-      "type": "string"
+    "currentUser": {
+      "type": "object"
     }
   },
   "validations": [],

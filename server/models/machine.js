@@ -38,21 +38,21 @@ module.exports = function(Machine) {
         totalNumOfSuccess: 0 
       };
       changeFirebaseDb('set', location, firebaseDataObj, 'Machine');
+      app.io.emit('test', firebaseDataObj);
     } else if (!ctx.isNewInstance){
       let location = `machines/${ctx.instance.id}`;
-      let { name, status, display, currentUserId, productId } = ctx.instance ;
-      if(currentUserId === 'nouser'){
-        changeFirebaseDb('update', location, {currentPlayer: null}, 'Machine');
-      }
-      if(status === 'open' || status === 'playing'){
-        updateProductStatus(productId);
-      }
-      let firebaseDataObj = {
-        machine_name: name, 
-        status: status, 
-        display: display
-      };
-      changeFirebaseDb('update', location, firebaseDataObj, 'Machine');
+      let { id, name, status, display, currentUser, productId, reservation } = ctx.instance ;
+      // if(currentUserId === 'nouser'){
+      //   changeFirebaseDb('update', location, {currentPlayer: null}, 'Machine');
+      // }
+      //asMessagingFunc({type: 'Machine', machineId: id, status: status, numOfReserve: reservation, currentUser: currentUser});
+      updateProductStatus(productId);
+      // let firebaseDataObj = {
+      //   machine_name: name, 
+      //   status: status, 
+      //   display: display
+      // };
+      // changeFirebaseDb('update', location, firebaseDataObj, 'Machine');
     } 
     next();
   });
@@ -62,7 +62,7 @@ module.exports = function(Machine) {
 
     function updateProductStatus(newStatus, productId){
       Product.findById(productId, (err, foundProduct)=>{
-        foundProduct.updateAttributes({status: {machineStatus: newStatus}})
+        foundProduct.updateAttributes({'status.machineStatus': newStatus})
       })
     };
 
@@ -86,7 +86,8 @@ module.exports = function(Machine) {
     let User = app.models.User;
     Machine.findById(machineId, (errMsg, machine)=>{ 
       let location = `machines/${machineId}`;
-      if(machine.currentUserId !== userId){
+      let { currentUser, reservation } = machine;
+      if(currentUser.id !== userId){
         User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
           let parsedUser =  JSON.parse(JSON.stringify(user));
           // console.log('USER obj :', parsedUser);
@@ -95,9 +96,8 @@ module.exports = function(Machine) {
             name: user.name,
             picture: parsedUser.userIdentities[0].picture.url
           }
-          machine.updateAttributes({currentUserId: userId, status: 'playing'}, (er, instance)=>{
-            changeFirebaseDb('update', location, {status: 'playing', currentPlayer: player}, 'Machine');
-          });
+          machine.updateAttributes({currentUser: player, status: 'playing'});
+          //changeFirebaseDb('update', location, {status: 'playing', currentPlayer: player}, 'Machine');
           makeDbTransaction(location, 'totalNumOfPlay', 'plus');
           next();
         });

@@ -42,12 +42,12 @@ describe('Upload images and update the related model', function(){
         .field('name', global.Product.name.en)
         .field('placement', 'one')
         .field('tag', 'product')
-        .attach('tempImage', '/Users/ChrisChoy/Documents/TeleClaw/backend_loopback_api/test/sampleImage/tsumtsumbear.jpg')
+        .attach('tempImage', './test/sampleImage/tsumtsumbear.jpg')
         .end(function(err,res){
           global.productImageUrl = res.body.imageUrl;
           res.body.should.be.an('object');
           res.status.should.equal(200);
-          done();
+          setTimeout(done, 5000)
         });
       }); 
     });
@@ -92,7 +92,7 @@ describe('Upload images and update the related model', function(){
         .field('name', global.tag.name.en)
         .field('placement', 'earth')
         .field('tag', 'tag')
-        .attach('tempImage', '/Users/ChrisChoy/Documents/TeleClaw/backend_loopback_api/test/sampleImage/tsumtsumbear.jpg')
+        .attach('tempImage', './test/sampleImage/tsumtsumbear.jpg')
         .end(function(err,res){
           global.tagImageUrl = res.body.imageUrl;
           res.body.should.be.an('object');
