@@ -15,8 +15,15 @@ module.exports = function(Reward) {
   //assign an unique if its new instance 
   assignKey(Reward)
 
-  // Reward.observe('before save', (ctx, next)=>{
+  Reward.observe('before save', (ctx, next)=>{
+    if(ctx.isNewInstance){
+      let { type, rewardAmount,  } = ctx.instance;
+    }
     
-  // });
+  });
+
+  Reward.observe('after save', (ctx, next)=>{
+
+  })
 
 };

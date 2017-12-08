@@ -24,6 +24,9 @@
     },
     "status": {
       "type": "boolean"
+    },
+    "limit": {
+      "type": "number"
     }
   },
   "validations": [],
