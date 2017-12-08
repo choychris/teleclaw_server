@@ -35,7 +35,7 @@ const generateJSONAPI = (url, filter) => {
 
 describe('Start a game play from scratch', function(){
 
-   describe('Select a machine and get related info', function(){
+  describe('Select a machine and get related info', function(){
     it('should return machine object', function(done){
       var api = supertest.agent(baseUrl);
       //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';

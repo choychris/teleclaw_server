@@ -35,9 +35,14 @@ export function asMessagingFunc(event, messageObj){
         ref.push(messageObj, ()=>{
           console.log('Firebase message add complete.')
         });
-      });
+      }).catch(error=>{
+        console.log(error)
+      })
     }else{
-      ref.push(messageObj, ()=>{
+      ref.push(messageObj, (error)=>{
+        if(error){
+          console.log(error);
+        }
         console.log('Firebase message add complete.')
       })
     }

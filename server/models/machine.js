@@ -20,7 +20,7 @@ module.exports = function(Machine) {
 
   Machine.observe('before save', (ctx, next)=>{
     if(!ctx.isNewInstance){
-      if(ctx.data && ctx.data.status){
+      if(ctx.data && ctx.data.status && !ctx.data.productId){
         ctx.hookState.statusChange = true;
       }
     }
@@ -48,9 +48,10 @@ module.exports = function(Machine) {
       // if(currentUserId === 'nouser'){
       //   changeFirebaseDb('update', location, {currentPlayer: null}, 'Machine');
       // }
-      asMessagingFunc('machine', {machineId: id, status: status, numOfReserve: reservation, currentUser: currentUser, time: new Date().getTime()});
-      if(ctx.hookState.statusChange){
+      let player = currentUser ? currentUser : null;
+      if(ctx.hookState && ctx.hookState.statusChange){
         updateProductStatus(productId);
+        asMessagingFunc('machine', {machineId: id, status: status, numOfReserve: reservation, currentUser: player, time: new Date().getTime()});
       }
       // let firebaseDataObj = {
       //   machine_name: name, 
@@ -74,10 +75,10 @@ module.exports = function(Machine) {
     };
 
     Machine.find({where: {productId: productId, status: 'open'}}, (err, result)=>{
-      //let location = `products/${productId}/status`;
-      console.log("found product result : ", result);
-      console.log(result.length);
-      console.log(result.length !== 0);
+      // let location = `products/${productId}/status`;
+      // console.log("found product result : ", result);
+      // console.log(result.length);
+      // console.log(result.length !== 0);
       if(result.length !== 0){
         updateProductStatus(true, productId)
         //changeFirebaseDb('update', location, { machineStatus: true }, 'Product');

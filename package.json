@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "unit_test": "mocha ./test/mocha/gamePlay"
+    "unit_test": "mocha ./test/mocha/productTest"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
