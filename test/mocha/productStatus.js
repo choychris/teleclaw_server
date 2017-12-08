@@ -41,8 +41,8 @@ describe('Attach change products to different status', function(){
       let runCount = 0
       let timeOut = 500*runCount + 1000;
       global.Products.map(proudct=>{
-        // setTimeout(change, timeOut);
-        // function change(){
+        setTimeout(change, timeOut);
+        function change(){
           let statusBody = statusList[changeCount];
           changeCount++
           api
@@ -58,7 +58,7 @@ describe('Attach change products to different status', function(){
                   done();
                 }
             });
-        // }
+        }
       });  
     });
   });
@@ -77,8 +77,8 @@ describe('Attach change products to different status', function(){
       let runCount = 0;
       let timeOut = 500*runCount + 1000;
       global.Products.map(proudct=>{
-        // setTimeout(change,timeOut);
-        // function change(){
+        setTimeout(change,timeOut);
+        function change(){
           api
             .patch(`/api/${model}/${proudct.id}`)
             .set('Accept', 'application/json')
@@ -92,7 +92,7 @@ describe('Attach change products to different status', function(){
                   done();
                 }
             });
-         // }
+         }
       });  
     });
   });
