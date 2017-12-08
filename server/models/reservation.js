@@ -2,7 +2,8 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { changeFirebaseDb, makeDbTransaction } from '../utils/firebasedb.js';
+import { asMessagingFunc, makeDbTransaction } from '../utils/firebasedb.js';
+import { makeTransaction } from '../utils/makeTransaction.js';
 var Promise = require('bluebird');
 
 module.exports = function(Reservation) {
@@ -39,6 +40,7 @@ module.exports = function(Reservation) {
 
   Reservation.observe('after save', (ctx, next)=>{
     let { id, status, userId, machineId } = ctx.instance;
+    const Machine = app.models.Machine;
     //let location = `userInfo/${userId}/reservation`;
     // if(ctx.isNewInstance){
     //   let firebaseDataObj = {
@@ -53,8 +55,10 @@ module.exports = function(Reservation) {
 
     if(!ctx.isNewInstance){
       if(status === 'close'){
-        //asMessagingFunc({type: 'Reservation', reservationId: id, userId: userId, machineId: machineId, status: status})
-        
+        asMessagingFunc('reservation', {reservationId: id, userId: userId.toString(), machineId: machineId, status: status})
+        makeTransaction(Machine, machineId, 'reservation', 1, 'minus');
+      } else {
+        makeTransaction(Machine, machineId, 'reservation', 1, 'plus');
       }
     }
     next();
@@ -89,7 +93,7 @@ module.exports = function(Reservation) {
       //console.log('foundReserve : ', foundReserve);
       if(foundReserve === null || foundReserve.length == 0){
         Machine.findById(machineId, (err, machine)=>{
-          machine.updateAttributes({status: 'open', currentUserId: 'nouser'}, (err, instance)=>{
+          machine.updateAttributes({status: 'open', currentUser: null}, (err, instance)=>{
             cb(null, instance);
           })
         });

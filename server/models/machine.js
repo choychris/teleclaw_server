@@ -2,7 +2,7 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { changeFirebaseDb, makeDbTransaction } from '../utils/firebasedb.js';
+import { changeFirebaseDb, makeDbTransaction, asMessagingFunc } from '../utils/firebasedb.js';
 
 module.exports = function(Machine) {
 
@@ -18,9 +18,12 @@ module.exports = function(Machine) {
   // assgin last updated time / created time to model
   updateTimeStamp(Machine);
 
-  Machine.observe('before save', (ctx, next) => {
+  Machine.observe('before save', (ctx, next)=>{
     if(!ctx.isNewInstance){
-    } 
+      if(ctx.data && ctx.data.status){
+        ctx.hookState.statusChange = true;
+      }
+    }
     next();
   });
 
@@ -38,23 +41,25 @@ module.exports = function(Machine) {
         totalNumOfSuccess: 0 
       };
       changeFirebaseDb('set', location, firebaseDataObj, 'Machine');
-      app.io.emit('test', firebaseDataObj);
+      next();
     } else if (!ctx.isNewInstance){
-      let location = `machines/${ctx.instance.id}`;
+      // let location = `machines/${ctx.instance.id}`;
       let { id, name, status, display, currentUser, productId, reservation } = ctx.instance ;
       // if(currentUserId === 'nouser'){
       //   changeFirebaseDb('update', location, {currentPlayer: null}, 'Machine');
       // }
-      //asMessagingFunc({type: 'Machine', machineId: id, status: status, numOfReserve: reservation, currentUser: currentUser});
-      updateProductStatus(productId);
+      asMessagingFunc('machine', {machineId: id, status: status, numOfReserve: reservation, currentUser: currentUser, time: new Date().getTime()});
+      if(ctx.hookState.statusChange){
+        updateProductStatus(productId);
+      }
       // let firebaseDataObj = {
       //   machine_name: name, 
       //   status: status, 
       //   display: display
       // };
       // changeFirebaseDb('update', location, firebaseDataObj, 'Machine');
+      next();
     } 
-    next();
   });
 
   function updateProductStatus(productId){
@@ -62,12 +67,17 @@ module.exports = function(Machine) {
 
     function updateProductStatus(newStatus, productId){
       Product.findById(productId, (err, foundProduct)=>{
-        foundProduct.updateAttributes({'status.machineStatus': newStatus})
+        let oldStatus = foundProduct.status
+        oldStatus.machineStatus = newStatus
+        foundProduct.updateAttributes({status : oldStatus})
       })
     };
 
     Machine.find({where: {productId: productId, status: 'open'}}, (err, result)=>{
       //let location = `products/${productId}/status`;
+      console.log("found product result : ", result);
+      console.log(result.length);
+      console.log(result.length !== 0);
       if(result.length !== 0){
         updateProductStatus(true, productId)
         //changeFirebaseDb('update', location, { machineStatus: true }, 'Product');
@@ -87,7 +97,8 @@ module.exports = function(Machine) {
     Machine.findById(machineId, (errMsg, machine)=>{ 
       let location = `machines/${machineId}`;
       let { currentUser, reservation } = machine;
-      if(currentUser.id !== userId){
+      let currentUserId = currentUser ? currentUser.id : null ;
+      if(currentUserId !== userId){
         User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
           let parsedUser =  JSON.parse(JSON.stringify(user));
           // console.log('USER obj :', parsedUser);
@@ -161,8 +172,6 @@ module.exports = function(Machine) {
 
       let int1 = getRandomIntInclusive(1, productRate);
       let int2 = getRandomIntInclusive(1, productRate);
-      console.log(int1)
-      console.log(int2)
       return (int1 === int2);
     }; // <--- generate result function end
 

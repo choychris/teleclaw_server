@@ -1,10 +1,10 @@
 var should = require('chai').should();
 var supertest = require('supertest');
-var server = require('../../build/server.js');
+//var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
-var accessToken = '90ICrdst7erDtkl9BMojD1N2BqvyktQohdkIMQBs9OM6MGuy1EKqXEwVNhUDf502';
-var lbUserId = '5a263230b349380354db1913';
+var accessToken = 'fzynTh6ygRiF4htEOvEJjiHUHAq9tHmmLbE9zLW1MSqbNFvTk1PcFDuYIYnb9CD2';
+var lbUserId = '5a2909f81deecd06749f63cc';
 
 // before(function() {
 //   server.start();

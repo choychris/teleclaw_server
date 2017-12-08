@@ -30,13 +30,9 @@ describe('Upload images and update the related model', function(){
   });
 
   describe('Upload an image for a product', function(){
+    this.timeout(3000);
     it('Success - should return status 200', function(done){
       var api = supertest.agent(baseUrl);
-      var productId = global.Product.id;
-      var body = {
-        name: global.Product.name.en,
-        placement: 'one'
-      }
       api
         .post(`/api/products/imageUpload`)
         .field('name', global.Product.name.en)
@@ -47,7 +43,7 @@ describe('Upload images and update the related model', function(){
           global.productImageUrl = res.body.imageUrl;
           res.body.should.be.an('object');
           res.status.should.equal(200);
-          setTimeout(done, 5000)
+          done();
         });
       }); 
     });
@@ -59,7 +55,7 @@ describe('Upload images and update the related model', function(){
       api
         .patch(`/api/products/${productId}`)
         .set('Accept', 'application/json')
-        .send({images: {thumnail: global.productImageUrl}})
+        .send({images: {thumbnail: global.productImageUrl}})
         .end(function(err,res){
           res.body.should.be.an('object');
           res.status.should.equal(200);
@@ -85,6 +81,7 @@ describe('Upload images and update the related model', function(){
   });
 
   describe('Upload an image for a tag', function(){
+    this.timeout(3000);
     it('Success - should return status 200', function(done){
       var api = supertest.agent(baseUrl);
       api
