@@ -24,6 +24,7 @@ describe('Attach change products to different status', function(){
   });
 
   describe('change a product status', function(){
+    this.timeout(3000);
     it('should return all status', function(done){
       var api = supertest.agent(baseUrl);
       var model = 'products'
@@ -38,27 +39,32 @@ describe('Attach change products to different status', function(){
       let statusList = [statusChange(false, true, true), statusChange(true, false, true), statusChange(true, true, false)]
       let changeCount = 0;
       let runCount = 0
+      let timeOut = 500*runCount + 1000;
       global.Products.map(proudct=>{
-        let statusBody = statusList[changeCount];
-        changeCount++
-        api
-          .patch(`/api/${model}/${proudct.id}`)
-          .set('Accept', 'application/json')
-          .send({status: statusBody})
-          .end(function(err,res){
-              runCount++
-              res.body.should.be.an('object');
-              res.status.should.equal(200);
-              console.log(res.body.status)
-              if(runCount === 3){
-                done();
-              }
-          });
+        setTimeout(change, timeOut);
+        function change(){
+          let statusBody = statusList[changeCount];
+          changeCount++
+          api
+            .patch(`/api/${model}/${proudct.id}`)
+            .set('Accept', 'application/json')
+            .send({status: statusBody})
+            .end(function(err,res){
+                runCount++
+                res.body.should.be.an('object');
+                res.status.should.equal(200);
+                console.log(res.body.status)
+                if(runCount === 3){
+                  done();
+                }
+            });
+        }
       });  
     });
   });
 
   describe('change a product status', function(){
+    this.timeout(3000);
     it('should return all status', function(done){
       var api = supertest.agent(baseUrl);
       var model = 'products'
@@ -68,21 +74,25 @@ describe('Attach change products to different status', function(){
         visible: true
       }
 
-      let runCount = 0
+      let runCount = 0;
+      let timeOut = 500*runCount + 1000;
       global.Products.map(proudct=>{
-        api
-          .patch(`/api/${model}/${proudct.id}`)
-          .set('Accept', 'application/json')
-          .send({status: statusBody})
-          .end(function(err,res){
-              runCount++
-              res.body.should.be.an('object');
-              res.status.should.equal(200);
-              console.log(res.body.status)
-              if(runCount === 3){
-                done();
-              }
-          });
+        setTimeout(change,timeOut);
+        function change(){
+          api
+            .patch(`/api/${model}/${proudct.id}`)
+            .set('Accept', 'application/json')
+            .send({status: statusBody})
+            .end(function(err,res){
+                runCount++
+                res.body.should.be.an('object');
+                res.status.should.equal(200);
+                console.log(res.body.status)
+                if(runCount === 3){
+                  done();
+                }
+            });
+         }
       });  
     });
   });

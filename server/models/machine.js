@@ -3,6 +3,7 @@
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
 import { changeFirebaseDb, makeDbTransaction, asMessagingFunc } from '../utils/firebasedb.js';
+import { createNewTransaction } from '../utils/makeTransaction.js';
 
 module.exports = function(Machine) {
 
@@ -134,31 +135,45 @@ module.exports = function(Machine) {
        //  console.log('find product : ', product);
         let location = `products/${productId}`;
         makeDbTransaction(location, 'totalNumOfPlay', 'plus');
-        User.findById(userId, {include: 'wallet'}, (err, user)=>{
-          let parsedUser =  JSON.parse(JSON.stringify(user));
-          let transacObject = {
-            action: 'minus',
-            amount: product.gamePlayRate,
-            status: 'closed',
-            walletId: parsedUser.wallet.id,
-            userId: parsedUser.id
-          }
-          Transaction.create(transacObject, (error, createdTrans)=>{
-            if(error){
-              // console.log(createdTrans);
-              console.log(error);
-              cb(error)
-            }
+        createNewTransaction(userId, product.gamePlayRate, 'minus', 'closed')
+          .then(createdTrans=>{
             let result = {
               gameResult : generateResult(product.productRate),
               transactionId: createdTrans.id,
-              userId: parsedUser.id,
+              userId: userId,
               productId: product.id,
-              newWalletBalance: parsedUser.wallet.balance - createdTrans.amount
-            }
+              newWalletBalance: createdTrans.newWalletBalance
+            };
             cb(null, result);
-          });
-        });
+          })
+          .catch(error=>{
+            cb(error);
+          })
+        // User.findById(userId, {include: 'wallet'}, (err, user)=>{
+        //   let parsedUser =  JSON.parse(JSON.stringify(user));
+        //   let transacObject = {
+        //     action: 'minus',
+        //     amount: product.gamePlayRate,
+        //     status: 'closed',
+        //     walletId: parsedUser.wallet.id,
+        //     userId: parsedUser.id
+        //   }
+        //   Transaction.create(transacObject, (error, createdTrans)=>{
+        //     if(error){
+        //       // console.log(createdTrans);
+        //       console.log(error);
+        //       cb(error)
+        //     }
+        //     let result = {
+        //       gameResult : generateResult(product.productRate),
+        //       transactionId: createdTrans.id,
+        //       userId: parsedUser.id,
+        //       productId: product.id,
+        //       newWalletBalance: parsedUser.wallet.balance - createdTrans.amount
+        //     }
+        //     cb(null, result);
+        //   });
+        // });
       }
     }); //<--- find product function end
 
