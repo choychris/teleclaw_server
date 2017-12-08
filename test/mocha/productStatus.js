@@ -64,7 +64,7 @@ describe('Attach change products to different status', function(){
       var model = 'products'
       let statusBody = {
         machineStatus: true,
-        maintainStatus: true,
+        maintainStatus: false,
         visible: true
       }
 
