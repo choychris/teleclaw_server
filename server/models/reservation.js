@@ -2,15 +2,13 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { asMessagingFunc, makeDbTransaction } from '../utils/firebasedb.js';
+// import { asMessagingFunc } from '../utils/firebasedb.js';
 import { makeTransaction } from '../utils/makeTransaction.js';
 var Promise = require('bluebird');
 
 module.exports = function(Reservation) {
 
   var app = require('../server');
-  var firebase = app.firebaseApp;
-  var firebasedb = firebase.database();
   //make loggings for monitor purpose
   loggingModel(Reservation);
 
@@ -20,47 +18,20 @@ module.exports = function(Reservation) {
   //assign an unique if its new instance 
   assignKey(Reservation)
 
-  // Reservation.observe('before save', (ctx, next)=>{
-  //   if(!ctx.isNewInstance && ctx.data){
-  //     console.log(ctx.data);
-  //     let { status, machineId } = ctx.data;
-  //     let machineLocation = `machines/${machineId}` ;
-  //     if(status === 'close'){
-  //       makeDbTransaction(machineLocation, 'numOfReserve', 'minus');
-  //       ctx.data.machineId = 'none';
-  //       next();   
-  //     }else if(status === 'open'){
-  //       makeDbTransaction(machineLocation, 'numOfReserve', 'plus');
-  //       next();
-  //     }else{
-  //       next();
-  //     }
-  //   }
-  // });
-
   Reservation.observe('after save', (ctx, next)=>{
     let { id, status, userId, machineId } = ctx.instance;
     const Machine = app.models.Machine;
-    //let location = `userInfo/${userId}/reservation`;
-    // if(ctx.isNewInstance){
-    //   let firebaseDataObj = {
-    //     id: id, 
-    //     status: status, 
-    //     machineId: machineId
-    //   };
-    //   changeFirebaseDb('set', location, firebaseDataObj, 'Reservation');
-    // }
-    
-    //changeFirebaseDb('update', location, {status: status, machineId: machineId}, 'Reservation');
-
     if(!ctx.isNewInstance){
       if(status === 'close'){
-        asMessagingFunc('reservation', {reservationId: id, userId: userId.toString(), machineId: machineId, status: status})
+        app.pusher.trigger(`reservation-${userId.toString()}`, 'yourTurn', {reservationId: id, machineId: machineId, status: status})
         makeTransaction(Machine, machineId, 'reservation', 1, 'minus');
-      } else {
+      }else{
         makeTransaction(Machine, machineId, 'reservation', 1, 'plus');
       }
     }
+    // }else{
+    //   makeTransaction(Machine, machineId, 'reservation', 1, 'plus');
+    // }
     next();
   });
 
@@ -87,18 +58,25 @@ module.exports = function(Reservation) {
     //   });
     // };
 
+    function updateMachine(machineId, status){
+      Machine.findById(machineId, (err, machine)=>{
+        machine.updateAttributes({status: status, currentUser: null}, (err, instance)=>{
+          if(err){
+            cb(err);
+          }
+        });
+      });
+    }
+
     // removeCurrentEngage(machineId)
     // .then(res =>{
-    Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'created ASC', limit: 1}, (error, foundReserve)=>{
+    Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
       //console.log('foundReserve : ', foundReserve);
       if(foundReserve === null || foundReserve.length == 0){
-        Machine.findById(machineId, (err, machine)=>{
-          machine.updateAttributes({status: 'open', currentUser: null}, (err, instance)=>{
-            cb(null, instance);
-          })
-        });
+        updateMachine(machineId, 'open')
       }else{
         //console.log(typeof foundReserve);
+        updateMachine(machineId, 'playing')
         foundReserve[0].updateAttributes({status: 'close', machineId: machineId}, (newError, instance)=>{
           //console.log('update next player to engage : ', instance);
           cb(null, {reserveUpdate: instance});

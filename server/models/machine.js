@@ -2,14 +2,12 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { changeFirebaseDb, makeDbTransaction, asMessagingFunc } from '../utils/firebasedb.js';
+import { changeFirebaseDb, makeDbTransaction } from '../utils/firebasedb.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
 
 module.exports = function(Machine) {
 
   var app = require('../server');
-  // var firebase = app.firebaseApp;
-  // var firebasedb = firebase.database();
   //make loggings for monitor purpose
   loggingModel(Machine);
 
@@ -23,6 +21,8 @@ module.exports = function(Machine) {
     if(!ctx.isNewInstance){
       if(ctx.data && ctx.data.status && !ctx.data.productId){
         ctx.hookState.statusChange = true;
+      }else if(ctx.data && ctx.data.reservation && !ctx.data.productId){
+        ctx.hookState.statusChange = true;
       }
     }
     next();
@@ -34,32 +34,18 @@ module.exports = function(Machine) {
       let { name, status, display,  } = ctx.instance ;
       let firebaseDataObj = {
         machine_name: name, 
-        status: status, 
-        display: display, 
-        numOfViewer: 0, 
-        numOfReserve: 0, 
         totalNumOfPlay: 0, 
         totalNumOfSuccess: 0 
       };
       changeFirebaseDb('set', location, firebaseDataObj, 'Machine');
       next();
     } else if (!ctx.isNewInstance){
-      // let location = `machines/${ctx.instance.id}`;
       let { id, name, status, display, currentUser, productId, reservation } = ctx.instance ;
-      // if(currentUserId === 'nouser'){
-      //   changeFirebaseDb('update', location, {currentPlayer: null}, 'Machine');
-      // }
       let player = currentUser ? currentUser : null;
       if(ctx.hookState && ctx.hookState.statusChange){
         updateProductStatus(productId);
-        asMessagingFunc('machine', {machineId: id, status: status, numOfReserve: reservation, currentUser: player, time: new Date().getTime()});
+        app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, numOfReserve: reservation, currentUser: player});
       }
-      // let firebaseDataObj = {
-      //   machine_name: name, 
-      //   status: status, 
-      //   display: display
-      // };
-      // changeFirebaseDb('update', location, firebaseDataObj, 'Machine');
       next();
     } 
   });
@@ -76,16 +62,10 @@ module.exports = function(Machine) {
     };
 
     Machine.find({where: {productId: productId, status: 'open'}}, (err, result)=>{
-      // let location = `products/${productId}/status`;
-      // console.log("found product result : ", result);
-      // console.log(result.length);
-      // console.log(result.length !== 0);
       if(result.length !== 0){
         updateProductStatus(true, productId)
-        //changeFirebaseDb('update', location, { machineStatus: true }, 'Product');
       } else {
         updateProductStatus(false, productId)
-        //changeFirebaseDb('update', location, { machineStatus: false }, 'Product');
       }
     });
   };
@@ -110,7 +90,6 @@ module.exports = function(Machine) {
             picture: parsedUser.userIdentities[0].picture.url
           }
           machine.updateAttributes({currentUser: player, status: 'playing'});
-          //changeFirebaseDb('update', location, {status: 'playing', currentPlayer: player}, 'Machine');
           makeDbTransaction(location, 'totalNumOfPlay', 'plus');
           next();
         });

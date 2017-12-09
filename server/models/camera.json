@@ -15,25 +15,33 @@
       "type": "date",
       "required": true
     },
-    "serialNumber": {
+    "name": {
       "type": "string",
       "required": true
     },
     "position": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
-    "streamingSetting": {
-      "type": "object",
-      "required": true
+    "type": {
+      "type": "string"
     },
-    "image": {
-      "type": "object",
-      "required": true
+    "webrtcServer": {
+      "type": "string"
+    },
+    "rtspDdnsUrl": {
+      "type": "string"
+    },
+    "lcoalIp": {
+      "type": "string"
+    },
+    "alibabaSetting": {
+      "type": "object"
+    },
+    "images": {
+      "type": "string"
     },
     "machineId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     }
   },
   "validations": [],
@@ -41,8 +49,7 @@
     "machine": {
       "type": "belongsTo",
       "model": "machine",
-      "foreginKey": "machineId",
-      "primaryKey": "id"
+      "foreginKey": ""
     }
   },
   "acls": [],
