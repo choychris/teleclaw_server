@@ -2,6 +2,7 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
+import { createNewTransaction } from '../utils/makeTransaction.js'
 
 module.exports = function(Reward) {
   var app = require('../server');
@@ -20,26 +21,13 @@ module.exports = function(Reward) {
       let { type, rewardAmount, userId } = ctx.instance;
       const Transaction = app.models.Transaction;
       const User = app.models.User;
-      // if(type === 'checkIn'){
-      //   User.findById(userId, {include: 'wallet'}, (err, user)=>{
-      //     let parsedUser =  JSON.parse(JSON.stringify(user));
-      //     let transacObject = {
-      //       action: 'plus',
-      //       amount: rewardAmount,
-      //       status: 'closed',
-      //       walletId: parsedUser.wallet.id,
-      //       userId: userId
-      //     }
-      //     Transaction.create(transacObject, (error, createdTrans)=>{
-            
-      //     })
-      //   });
-      // }
+      if(type === 'checkIn' || type === 'referral'){
+        createNewTransaction(userId, rewardAmount, 'plus', 'closed')
+          .then(createdTrans => {})
+          .catch(err => { next(err) })
+      }
     }
+    next();
   });
-
-  Reward.observe('after save', (ctx, next)=>{
-
-  })
 
 };

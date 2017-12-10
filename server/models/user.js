@@ -3,6 +3,8 @@ import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel, loggingRemote } from '../utils/createLogging.js';
 let request = require('request');
 let Promise = require('bluebird');
+let shortid = require('shortid');
+
 let { FB_APP_SECRET, FB_CLIENT_ID, FB_APP_TOKEN } = process.env ; 
 
 module.exports = function(User) {
@@ -16,6 +18,13 @@ module.exports = function(User) {
 
   // assgin last updated time / created time to model
   updateTimeStamp(User);
+
+  User.observe('before save', (ctx, next)=>{
+    if(ctx.isNewInstance){
+      ctx.instance.referralCode = shortid.generate();
+    }
+    next();
+  });
 
   User.observe('after save', (ctx, next)=>{
     if(ctx.isNewInstance){

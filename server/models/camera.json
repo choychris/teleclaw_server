@@ -49,7 +49,7 @@
     "machine": {
       "type": "belongsTo",
       "model": "machine",
-      "foreginKey": ""
+      "foreginKey": "machineId"
     }
   },
   "acls": [],

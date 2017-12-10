@@ -44,7 +44,13 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "cameras": {
+      "type": "hasMany",
+      "model": "camera",
+      "foreginKey": "machineId"
+    } 
+  },
   "acls": [],
   "methods": {}
 }

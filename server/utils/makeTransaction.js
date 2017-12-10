@@ -44,7 +44,7 @@ export function createNewTransaction(userId, amount, transactionAction, transact
       }
       Transaction.create(transacObject, (error, createdTrans)=>{
         if(error){
-          console.log('Find create error : ', error);
+          console.log('Create new transaction error : ', error);
           reject(error);
           return error;
         }
