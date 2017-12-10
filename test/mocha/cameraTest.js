@@ -65,7 +65,7 @@ describe('Attach a related models to product', function(){
   });
 
   describe('Attach the machineId to the cammera', function(){
-    it('should return machine object', function(done){
+    it('should return camera object', function(done){
       var api = supertest.agent(baseUrl);
       //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
       let url = `/api/cameras/${global.Camera.id}?access_token=${accessToken}`;
@@ -81,18 +81,23 @@ describe('Attach a related models to product', function(){
     });
   });
 
-  describe('Attach the machineId to the cammera', function(){
+  describe('change the machine iotPlatform info', function(){
     it('should return machine object', function(done){
       var api = supertest.agent(baseUrl);
       //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-      let url = `/api/machines/findOne?access_token=${accessToken}`;
-      let filter = {
-        include: 'camera'
-      }
+      let url = `/api/machines/${global.machineInfo.id}?access_token=${accessToken}`;
+      let iotPlatform = {
+        gizwits : {
+          machineId : 'string',
+          deviceMAC : 'string',
+          productKey : 'string'
+        }
+      };
+
       api
         .patch(url)
         .set('Accept', 'application/json')
-        .send({machineId: global.machineInfo.id})
+        .send({iotPlatform: iotPlatform})
         .end(function(err,res){
           res.body.should.be.an('object');
           res.status.should.equal(200);
