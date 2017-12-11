@@ -84,7 +84,7 @@ module.exports = function(Machine) {
         User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
           let parsedUser =  JSON.parse(JSON.stringify(user));
           // console.log('USER obj :', parsedUser);
-          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : url ;
+          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
           let player = {
             id: userId,
             name: user.name,

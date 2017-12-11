@@ -74,6 +74,7 @@ module.exports = function(Reservation) {
       //console.log('foundReserve : ', foundReserve);
       if(foundReserve === null || foundReserve.length == 0){
         updateMachine(machineId, 'open')
+        cb(null, {machineStatus: 'open'});
       }else{
         //console.log(typeof foundReserve);
         updateMachine(machineId, 'playing')
