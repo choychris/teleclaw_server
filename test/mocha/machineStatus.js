@@ -21,7 +21,7 @@ describe('Change a machine to different status', function(){
         .end(function(err,res){
             res.body.should.be.an('array');
             res.status.should.equal(200);
-            global.Product = res.body[0];
+            global.Product = res.body[2];
             done();
         });
     });

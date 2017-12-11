@@ -23,7 +23,7 @@ module.exports = function(Reservation) {
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
       if(status === 'close'){
-        app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', {reservationId: id, machineId: machineId, status: status})
+        app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', {reservationId: id, machineId: machineId, status: status, time: new Date().getTime()})
         makeTransaction(Machine, machineId, 'reservation', 1, 'minus');
       }else if(status === 'open'){
         makeTransaction(Machine, machineId, 'reservation', 1, 'plus');
