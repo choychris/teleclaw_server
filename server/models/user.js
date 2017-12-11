@@ -292,10 +292,10 @@ module.exports = function(User) {
   );
 
   User.pusherAuth = (id, req, res, cb) => {
-    var query = req.query;
-    var socketId = query.socket_id;
-    var channel = query.channel_name;
-    var callback = query.callback;
+    console.log(req.body);
+    var body = req.body;
+    var socketId = body.socket_id;
+    var channel = body.channel_name;
     var pusher = app.pusher;
     let UserIdentity = app.models.UserIdentity;
 
@@ -309,11 +309,8 @@ module.exports = function(User) {
             picture: identity.picture.url
           }
         }
-        var auth = JSON.stringify(pusher.authenticate(socketId, channel, presenceData));
-        var cb = callback.replace(/\"/g,"") + "(" + auth + ");";
-
-        res.set({"Content-Type": "application/javascript"});
-        res.send(cb);
+        var auth = pusher.authenticate(socketId, channel, presenceData);
+        res.send(auth);
       };
     });
   }
@@ -321,7 +318,7 @@ module.exports = function(User) {
   User.remoteMethod(
     'pusherAuth',
     {
-      http: {path: '/:id/pusherAuth', verb: 'get'},
+      http: {path: '/:id/pusherAuth', verb: 'post'},
       accepts: [
         {arg: 'id', type: 'string', required: true},
         {arg: 'req', type: 'object', http: {source: 'req'}}, 

@@ -33,17 +33,48 @@ describe('Upload images and update the related model', function(){
     this.timeout(3000);
     it('Success - should return status 200', function(done){
       var api = supertest.agent(baseUrl);
-      api
-        .post(`/api/products/imageUpload`)
-        .field('name', global.Product.name.en)
-        .field('placement', 'one')
-        .field('tag', 'product')
-        .attach('tempImage', './test/sampleImage/tsumtsumbear.jpg')
-        .end(function(err,res){
-          global.productImageUrl = res.body.imageUrl;
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
+      var imageArray = [
+        {
+          name: 'pikachu1.jpg',
+          placement: 'thumbnail'
+        },
+        {
+          name: 'pikachu2.jpg',
+          placement: 'product_1'
+        },
+        {
+          name: 'pikachu3.png',
+          placement: 'product_2'
+        }
+      ]
+
+      global.imageObj = {
+        images:{
+          thumbnail:'',
+          product:[]
+        }
+      }
+      let runCount = 0
+        imageArray.map(image=>{
+          api
+            .post(`/api/products/imageUpload`)
+            .field('name', global.Product.id)
+            .field('placement', image.placement)
+            .field('tag', global.Product.name.en)
+            .attach('tempImage', `./test/sampleImage/${image.name}`)
+            .end(function(err,res){
+              if(image.placement === 'thumbnail'){
+                global.imageObj.images.thumbnail = res.body.imageUrl;
+              }else{
+                global.imageObj.images.product.push(res.body.imageUrl)
+              }
+              res.body.should.be.an('object');
+              res.status.should.equal(200);
+              runCount++
+              if(runCount === imageArray.length){
+                done();
+              }
+            });
         });
       }); 
     });
@@ -55,7 +86,7 @@ describe('Upload images and update the related model', function(){
       api
         .patch(`/api/products/${productId}`)
         .set('Accept', 'application/json')
-        .send({images: {thumbnail: global.productImageUrl}})
+        .send(global.imageObj)
         .end(function(err,res){
           res.body.should.be.an('object');
           res.status.should.equal(200);
@@ -64,55 +95,55 @@ describe('Upload images and update the related model', function(){
     });
   }); 
 
-  describe('Select a tag', function(){
-    it('Success - should return status 200', function(done){
-      var api = supertest.agent(baseUrl);
-      api
-        .get('/api/tags')
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          // console.log(res.body);
-          global.tag = (res.body[0]);
-          res.body.should.be.an('array');
-          res.status.should.equal(200);
-          done();
-        });  
-    });
-  });
+  // describe('Select a tag', function(){
+  //   it('Success - should return status 200', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     api
+  //       .get('/api/tags')
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         // console.log(res.body);
+  //         global.tag = (res.body[0]);
+  //         res.body.should.be.an('array');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });  
+  //   });
+  // });
 
-  describe('Upload an image for a tag', function(){
-    this.timeout(3000);
-    it('Success - should return status 200', function(done){
-      var api = supertest.agent(baseUrl);
-      api
-        .post(`/api/products/imageUpload`)
-        .field('name', global.tag.name.en)
-        .field('placement', 'earth')
-        .field('tag', 'tag')
-        .attach('tempImage', './test/sampleImage/tsumtsumbear.jpg')
-        .end(function(err,res){
-          global.tagImageUrl = res.body.imageUrl;
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        }); 
-    });
-  });
+  // describe('Upload an image for a tag', function(){
+  //   this.timeout(3000);
+  //   it('Success - should return status 200', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     api
+  //       .post(`/api/products/imageUpload`)
+  //       .field('name', global.tag.name.en)
+  //       .field('placement', 'earth')
+  //       .field('tag', 'tag')
+  //       .attach('tempImage', './test/sampleImage/tsumtsumbear.jpg')
+  //       .end(function(err,res){
+  //         global.tagImageUrl = res.body.imageUrl;
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       }); 
+  //   });
+  // });
 
-  describe('Update the tag image url', function(){
-    it('Success - should return status 200', function(done){
-      var api = supertest.agent(baseUrl);
-      var tagId = global.tag.id;
-      api
-        .patch(`/api/tags/${tagId}`)
-        .set('Accept', 'application/json')
-        .send({image: {url: global.tagImageUrl}})
-        .end(function(err,res){
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });  
-    });
-  });
+  // describe('Update the tag image url', function(){
+  //   it('Success - should return status 200', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     var tagId = global.tag.id;
+  //     api
+  //       .patch(`/api/tags/${tagId}`)
+  //       .set('Accept', 'application/json')
+  //       .send({image: {url: global.tagImageUrl}})
+  //       .end(function(err,res){
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });  
+  //   });
+  // });
 
 });

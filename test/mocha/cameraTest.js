@@ -11,7 +11,7 @@ const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
-describe('Attach a related models to product', function(){
+describe('Attach camera to machine', function(){
 
   //  describe('Create Camera', function(){
   //   it('should return camera object', function(done){
@@ -20,7 +20,7 @@ describe('Attach a related models to product', function(){
   //       name: "camera1",
   //       position: 'front',
   //       type: 'main',
-  //       webrtcServer: 'http://webrtcstreamer-env.ap-southeast-1.elasticbeanstalk.com/',
+  //       webrtcServer: 'http:s//webrtcstreamer-env.ap-southeast-1.elasticbeanstalk.com/',
   //       rtspDdnsUrl: 'rtsp://188773sc14.iask.in:554/live/sub',
   //       localIp: '192.168.2.101',
   //       alibabaSetting: {
@@ -46,43 +46,65 @@ describe('Attach a related models to product', function(){
   //       });
   //   });
   // });
+  describe('Get the camera related info', function(){
+    it('should return machine array', function(done){
+      var api = supertest.agent(baseUrl);
+      //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
+      let url = `/api/cameras?access_token=${accessToken}`;
+      api
+        .get(url)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          global.Camera = res.body[0];
+          res.body.should.be.an('array');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
-  // describe('Select a machine and get related info', function(){
-  //   it('should return machine array', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-  //     let url = `/api/machines?access_token=${accessToken}`;
-  //     let filter = {
-  //       include: 'cameras'
-  //     }
-  //     api
-  //       .get(generateJSONAPI(url, filter))
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         global.machineInfo = res.body[0];
-  //         res.body.should.be.an('array');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
 
-  // describe('Attach the machineId to the cammera', function(){
-  //   it('should return camera object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-  //     let url = `/api/cameras/${global.Camera.id}?access_token=${accessToken}`;
-  //     api
-  //       .patch(url)
-  //       .set('Accept', 'application/json')
-  //       .send({machineId: global.machineInfo.id})
-  //       .end(function(err,res){
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('Select a machine and get related info', function(){
+    it('should return machine array', function(done){
+      var api = supertest.agent(baseUrl);
+      //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
+      let url = `/api/machines?access_token=${accessToken}`;
+      api
+        .get(url)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          global.machineList = res.body;
+
+          global.machineInfo = res.body[0];
+          res.body.should.be.an('array');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
+
+  describe('Attach the machineId to the camera', function(){
+    it('should return camera object', function(done){
+      var api = supertest.agent(baseUrl);
+      //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
+      let url = `/api/cameras/${global.Camera.id}?access_token=${accessToken}`;
+      let runCount = 0
+      global.machineList.map(machine=>{
+        api
+          .patch(url)
+          .set('Accept', 'application/json')
+          .send({machineId: machine.id})
+          .end(function(err,res){
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            runCount ++
+            if(runCount === global.machineList.length){
+              done();
+            }
+          });
+      });
+    });
+  });
 
   describe('Get machine camera info', function(){
     it('should return machine object with camera', function(done){
@@ -98,7 +120,7 @@ describe('Attach a related models to product', function(){
         .end(function(err,res){
           res.body.should.be.an('array');
           res.status.should.equal(200);
-          console.log(res.body[0]);
+          //console.log(res.body[0]);
           done();
         });
     });
