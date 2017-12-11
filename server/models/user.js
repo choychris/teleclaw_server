@@ -292,7 +292,7 @@ module.exports = function(User) {
   );
 
   User.pusherAuth = (id, req, res, cb) => {
-    console.log(req.body);
+    // console.log(req.body);
     var body = req.body;
     var socketId = body.socket_id;
     var channel = body.channel_name;

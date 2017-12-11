@@ -30,7 +30,7 @@ describe('Upload images and update the related model', function(){
   });
 
   describe('Upload an image for a product', function(){
-    this.timeout(3000);
+    this.timeout(10000);
     it('Success - should return status 200', function(done){
       var api = supertest.agent(baseUrl);
       var imageArray = [
