@@ -44,7 +44,7 @@ module.exports = function(Machine) {
       let player = currentUser ? currentUser : null;
       if(ctx.hookState && ctx.hookState.statusChange){
         updateProductStatus(productId);
-        app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, numOfReserve: reservation, currentUser: player});
+        app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player});
       }
       next();
     } 

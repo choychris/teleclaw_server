@@ -13,6 +13,10 @@ const generateJSONAPI = (url, filter) => {
 
 describe('Attach a related models to product', function(){
 
+
+  // |================== Benchmark API ==================|
+
+  // CREATE Benchmark ::
   //  describe('Create a benchmark', function(){
   //   it('should return benchmark object', function(done){
   //     var api = supertest.agent(baseUrl);
@@ -37,6 +41,7 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
+  // GET Benchmark ::
   // describe('Select A benchmark', function(){
   //   it('Success - should return status 200', function(done){
   //     var api = supertest.agent(baseUrl);
@@ -61,7 +66,9 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
+  // |================== Product API ==================|
 
+  // CREATE Product ::
   // describe('Create Products', function(){
   //   it('should return Product object', function(done){
   //     var api = supertest.agent(baseUrl);
@@ -113,23 +120,7 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
-  describe('Select A Product', function(){
-    it('should return Product object', function(done){
-      var api = supertest.agent(baseUrl);
-
-      api
-        .get('/api/products')
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          // console.log(res.body[0]);
-          global.Product = res.body[0];
-          res.body.should.be.an('array');
-          res.status.should.equal(200);
-          done();
-        });
-    });
-  });
-
+  // PUT Prodct (benchmark) ::
   // describe('Add a benchmark to product', function(){
   //   it('Success - should return status 200', function(done){
   //     var api = supertest.agent(baseUrl);
@@ -156,49 +147,18 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
-  // describe('Create three machines', function(){
-  //   it('Success - should return status 200', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     var machines = [
-  //       {
-  //         name: 'dev_1'
-  //       },
-  //       {
-  //         name: 'dev_2'
-  //       },
-  //       {
-  //         name: 'dev_3'
-  //       }
-  //     ]
-  //     global.Machines = [];
-  //     machines.map(machine => {
-  //     api
-  //       .post('/api/machines')
-  //       .send(machine)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         // console.log(res.body);
-  //         global.Machines.push(res.body);
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         if(global.Machines.length == 3){
-  //           done();
-  //         }
-  //       });
-  //     });  
-  //   });
-  // });
-
-  describe('Select all machines and get related info', function(){
-    it('should return machine array', function(done){
+  // GET Product ::
+  describe('Select Product', function(){
+    it('Success - should return Product Array | Object', function(done){
       var api = supertest.agent(baseUrl);
-      //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-      let url = `/api/machines?access_token=${accessToken}`;
+
       api
-        .get(url)
+        .get('/api/products')
         .set('Accept', 'application/json')
         .end(function(err,res){
-          global.machineList = res.body;
+          // console.log(res.body[0]);
+          global.Products = res.body;
+          global.Product = res.body[0];
           res.body.should.be.an('array');
           res.status.should.equal(200);
           done();
@@ -206,49 +166,109 @@ describe('Attach a related models to product', function(){
     });
   });
 
-  describe('Add machines to product', function(){
+  // GET Prodct (include machine) ::
+  // describe('Get the related machines from product', function(){
+  //   it('Success - should return status 200', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     var productId = global.Product.id;
+  //     api
+  //       .get(`/api/products/${productId}?filter[include]=machines` )
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log('Get Product include machine : ', res.body);
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
+
+  // |================== Machine API ==================|
+
+  // POST Machine ::
+  describe('Create two machines', function(){
     it('Success - should return status 200', function(done){
       var api = supertest.agent(baseUrl);
-      var productId = global.Product.id;
-      let addCount = 0
-      let runCount = 0
-      // global.Machines.map(machine=>{
-      //   let productId = global.Products[addCount].id
-      //   addCount++
-        api
-          .patch('/api/products/' + productId)
-          .send({machines: global.machineList})
-          .set('Accept', 'application/json')
-          .end(function(err,res){
-            //console.log('Added a machine to product : ', res.body);
-            // runCount++
-            res.body.should.be.an('object');
-            res.status.should.equal(200);
-            // if(runCount === 3){
-            //   done();
-            // }
+      var machines = [
+        {
+          name: 'dev_4'
+        },
+        {
+          name: 'dev_5'
+        }
+      ]
+      let runCount = 0;
+      machines.map(machine => {
+      api
+        .post('/api/machines')
+        .send(machine)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          // console.log(res.body);
+          // global.Machines.push(res.body);
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          runCount++
+          if(runCount == 2){
             done();
-          });
-      // });
+          }
+        });
+      });  
     });
   });
 
-  describe('Get the related machines from product', function(){
-    it('Success - should return status 200', function(done){
+  // GET Machine ::
+  describe('Get all Machines', function(){
+    it('should return Machine object', function(done){
       var api = supertest.agent(baseUrl);
-      var productId = global.Product.id;
       api
-        .get(`/api/products/${productId}?filter[include]=machines` )
+        .get('/api/machines')
         .set('Accept', 'application/json')
         .end(function(err,res){
-          console.log('Get Product include machine : ', res.body);
-          res.body.should.be.an('object');
+          // console.log(res.body[0]);
+          global.Machines = res.body;
+          global.Machine = res.body[0];
+          res.body.should.be.an('array');
           res.status.should.equal(200);
           done();
         });
     });
   });
 
+  // Patch Product (Machine) ::
+  describe('Add machines to product', function(){
+    it('Success - should return status 200', function(done){
+      var api = supertest.agent(baseUrl);
+      //var productId = global.Product.id;
+      let addCount = 0
+      let runCount = 0
+      global.Machines.map(machine=>{
+        let productId = global.Products[addCount].id
+        addCount++
+        if(addCount > (global.Products.length - 1)){
+          addCount = 0
+        }
+        api
+          .patch('/api/products/' + productId)
+          .send({machines: global.Machines})
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            //console.log('Added a machine to product : ', res.body);
+            runCount++
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            if(runCount === 3){
+              done();
+            }
+            //done();
+          });
+      });
+    });
+  });
+
+  // |================== TAG API ==================|
+
+  // CREATE Tag ::
   // describe('Create two tags', function(){
   //   it('Success - should return status 200', function(done){
   //     var api = supertest.agent(baseUrl);
@@ -286,6 +306,7 @@ describe('Attach a related models to product', function(){
   //   });
   // });
 
+  // PATCH Product (tag) ::
   // describe('Add a tag to a product', function(){
   //   it('Success - should return status 200', function(done){
   //     var api = supertest.agent(baseUrl);
