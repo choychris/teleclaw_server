@@ -14,6 +14,7 @@ export function makeTransaction(model, modelId, modelAttribute, amount, plusOrMi
       });
     }else if(plusOrMinus === 'plus'){
       let newNumber = parsedModel[modelAttribute] + amount;
+      let roundNumber = Math.round(newNumber);
        foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
           next(err);
