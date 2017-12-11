@@ -302,11 +302,12 @@ module.exports = function(User) {
     UserIdentity.findOne({where: {userId: id}}, (error, identity)=>{
       if(identity !== null){
         // console.log(identity);
+        let picture = identity.picture ? identity.picture.url : null ;
         var presenceData = {
           user_id: id,
           user_info: {
             name: identity.username,
-            picture: identity.picture.url
+            picture: picture
           }
         }
         var auth = pusher.authenticate(socketId, channel, presenceData);
