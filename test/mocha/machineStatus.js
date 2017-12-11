@@ -107,28 +107,28 @@ describe('Change a machine to different status', function(){
     });
   });
 
-  // describe('cancel a reservation', function(){
-  //   it('should return next reservation object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let reservationId = global.reservationId;
-  //     let machineId = global.Machine.id;
-  //     let url = `/api/reservations/${reservationId}?access_token=${accessToken}`;
-  //     let reserveObj = {
-  //       status: 'canceled',
-  //       machineId: machineId
-  //     };
-  //     api
-  //       .patch(url)
-  //       .send(reserveObj)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         console.log(res.body)
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('cancel a reservation', function(){
+    it('should return next reservation object', function(done){
+      var api = supertest.agent(baseUrl);
+      let reservationId = global.reservationId;
+      let machineId = global.Machine.id;
+      let url = `/api/reservations/${reservationId}?access_token=${accessToken}`;
+      let reserveObj = {
+        status: 'canceled',
+        machineId: machineId
+      };
+      api
+        .patch(url)
+        .send(reserveObj)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          console.log(res.body)
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
   describe('end an engagement, check reservation', function(){
     it('should return next reservation object', function(done){
