@@ -40,7 +40,7 @@ test:
   dependencies:
     - buildTest
   script: 
-    - NODE_ENV=staging npm run unitest
+    - NODE_ENV=staging npm run unit_test
 
 testProduction:
   stage: test
