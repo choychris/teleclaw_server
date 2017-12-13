@@ -295,4 +295,5 @@ module.exports = function(Machine) {
         returns: {arg: 'result', type: 'object'}
       }
   );
+  
 };
