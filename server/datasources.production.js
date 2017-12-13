@@ -2,8 +2,8 @@
 
 module.exports = {
   mongodb: {
-    connector: 'loopback-connector-mongodb',
-    url: process.env.KT_VAR_MONGODB_URL,
-  },
+    connector: 'mongodb',
+    url: process.env.KT_VAR_MONGODB_URL
+  }
 };
 
