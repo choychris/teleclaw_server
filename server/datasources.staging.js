@@ -6,4 +6,3 @@ module.exports = {
     url: process.env.KT_VAR_MONGODB_URL
   }
 };
-
