@@ -3,7 +3,7 @@ stages:
   - test
   - deploy
 
-build:
+buildProduction:
   stage: build
   image: node:6.11.1
   script: 
@@ -18,14 +18,14 @@ build:
         - node_modules/
         - package.json
         - build/
-
+        
 test:
   stage: test
   image: node:6.11.1
   services:
     - mongo:3.4
   dependencies:
-    - build
+    - buildProduction
   script: 
     - NODE_ENV=staging npm run unit_test
 
@@ -37,7 +37,7 @@ testProduction:
   environment:
     name: production
   dependencies:
-    - build
+    - buildProduction
   script: 
     - npm install -g mocha
     - NODE_ENV=production mocha ./test/mocha/root.js
@@ -54,7 +54,7 @@ deployDevelopment:
   environment:
     name: development
   dependencies:
-    - buildTest
+    - buildProduction
   when: manual
   only:
     - pushes
@@ -78,7 +78,7 @@ deployStaging:
     name: staging
     url: http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com/  
   dependencies:
-    - buildTest
+    - buildProduction
   when: manual
   only:
     - master
