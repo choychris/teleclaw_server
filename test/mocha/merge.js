@@ -1,12 +1,16 @@
 var should = require('chai').should();
 
-// before(function() {
-//   server.start();
-// });
+if(process.env.NODE_ENV === 'staging'){
+  var server = require('../../build/server.js');
 
-// after(function(){
-//   server.stop();  
-// });
+  before(function() {
+    server.start();
+  });
+
+  after(function(){
+    server.stop();  
+  });
+}
 
 describe.only("Game flow", function() {
   describe("CREATE", function() {
