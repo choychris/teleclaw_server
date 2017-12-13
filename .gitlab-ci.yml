@@ -2,17 +2,6 @@ stages:
   - build
   - test
   - deploy
-    
-buildTest:
-  stage: build
-  image: node:6.11.1
-  script:
-    - npm install
-  artifacts:
-    paths:
-      - node_modules/
-      - package.json
-      - server/
 
 buildProduction:
   stage: build
@@ -38,7 +27,7 @@ test:
   services:
     - mongo:3.4
   dependencies:
-    - buildTest
+    - buildProduction
   script: 
     - NODE_ENV=staging npm run unit_test
 
