@@ -4,12 +4,7 @@
     "connector": "memory"
   },
   "mongodb": {
-    "host": "localhost",
-    "port": 27017,
-    "database": "teleclaw_dev",
-    "password": "123456",
-    "name": "mongodb",
-    "user": "teleClawAdmin",
-    "connector": "loopback-connector-mongodb"
+    "connector": "loopback-connector-mongodb",
+    "url": "mongo://teleClawAdmin:123456@localhost:27017/teleclaw_dev"
   }
 }

@@ -3,11 +3,9 @@ stages:
   - test
   - deploy
 
-buildProduction:
+build:
   stage: build
   image: node:6.11.1
-  environment:
-    name: production
   script: 
     - npm install
     - npm install -g gulp
@@ -27,7 +25,7 @@ test:
   services:
     - mongo:3.4
   dependencies:
-    - buildProduction
+    - build
   script: 
     - NODE_ENV=staging npm run unit_test
 
@@ -39,7 +37,7 @@ testProduction:
   environment:
     name: production
   dependencies:
-    - buildProduction
+    - build
   script: 
     - npm install -g mocha
     - NODE_ENV=production mocha ./test/mocha/root.js
