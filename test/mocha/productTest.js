@@ -4,20 +4,20 @@ var supertest = require('supertest');
 
 var baseUrl = 'http://localhost:3000';
 
-if(process.env.NODE_ENV === 'staging'){
-  var server = require('../../build/server.js');
+// if(process.env.NODE_ENV === 'staging'){
+//   var server = require('../../build/server.js');
 
-  before(function() {
-    server.start();
-  });
+//   before(function() {
+//     server.start();
+//   });
 
-  after(function(){
-    server.stop();  
-  });
-}else{
+//   after(function(){
+//     server.stop();  
+//   });
+// }else{
   global.accessToken = 'fxMzzDFv5N4Iv1te7uLBJNORb19uJKDiV05AK0oaGWm0aQReRaXzNNQ6DL0Fboec';
   global.lbUserId = '5a30b78ebe1f49029dc8d0e2';
-}
+// }
 
 // var api = supertest.agent('localhost:3000');
 const generateJSONAPI = (url, filter) => {

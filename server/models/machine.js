@@ -14,7 +14,7 @@ module.exports = function(Machine) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  loggingModel(Machine);
+  //loggingModel(Machine);
 
   // assgin an id to each newly created model
   assignKey(Machine);
@@ -105,6 +105,13 @@ module.exports = function(Machine) {
     //   }
     // });
   // });
+
+  Machine.beforeRemote('gameplay', (ctx, unused, next)=>{
+    console.log('|=========== Game Play Start =============|')
+    next();
+  })
+
+
 
   Machine.gameplay = (machineId, data, cb) => {
     let { productId, userId } = data;
@@ -283,6 +290,11 @@ module.exports = function(Machine) {
     }; // <--- generate result function end
 
   };
+
+  Machine.afterRemote('gameplay', (ctx, unused, next)=>{
+    console.log('|=========== Game Play End =============|')
+    next();
+  })
 
   Machine.remoteMethod(
     'gameplay',
