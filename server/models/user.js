@@ -1,11 +1,11 @@
 'use strict';
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel, loggingRemote } from '../utils/createLogging.js';
-let request = require('request');
-let Promise = require('bluebird');
-let shortid = require('shortid');
+const request = require('request');
+const Promise = require('bluebird');
+const shortid = require('shortid');
 
-let { FB_APP_SECRET, FB_CLIENT_ID, FB_APP_TOKEN } = process.env ; 
+const { FB_APP_SECRET, FB_CLIENT_ID, FB_APP_TOKEN } = process.env ; 
 
 module.exports = function(User) {
 
@@ -89,6 +89,7 @@ module.exports = function(User) {
         } else {
           checkExistThenLogin(userInfo)
         } // <--- if it is short live, get long live token 
+        return null
       })
       .catch(error => {
         cb({message: error, status: 401})
@@ -101,18 +102,15 @@ module.exports = function(User) {
             .then(res => {
               if(res === true){
                 let loginCred = { ttl : userInfo.expiresIn , username : userInfo.userId + '@teleclaw' , password : userInfo.userId };
-                User.login(loginCred, (err, token) => {
-                  console.log('login success : ' , loginCred.username );
-                  cb(null, {newUser: false, lbToken: token, fbToken: userInfo.accessToken, ttl: userInfo.expiresIn})
-                })
-              } else {
-                signUpUser(userInfo).then(res => {
-                  cb(null, res.result)
-                }).catch(err => {
-                  cb(err);
-                })
-              };
-            }).catch(err => {
+                return loginUser(loginCred, userInfo, false)
+              }else{
+                return signUpUser(userInfo).then(res=>loginUser(res, userInfo, true))
+              }
+            })
+            .then(res => {
+              cb(null, res)
+            })
+            .catch(err => {
               console.log(err)
               cb(err);
             }) // <----- checkuserexist promise
@@ -125,6 +123,20 @@ module.exports = function(User) {
           cb(authError);
         }; // <---- if statement checking whether enough info provided
     };// <--- function of handling user login or signup
+
+    function loginUser(loginCred, userInfo, isNew){
+      return new Promise((resolve, reject)=>{
+        User.login(loginCred, (loginError,token)=>{
+          if(loginError){
+            console.log('login error : ', loginError);
+            reject({'loginError': loginError});
+          } else {
+            console.log('login success : ', loginCred.username);
+            resolve({newUser: isNew, lbToken: token, fbToken: userInfo.accessToken, ttl: userInfo.expiresIn});
+          }
+        });
+      });
+    }
 
     function signUpUser(newUser){
       let userData = {
@@ -140,7 +152,6 @@ module.exports = function(User) {
         User.create(userData, (userCreateErr, createdUser)=>{
           if(userCreateErr){
             reject({type: 'create user error', error: userCreateErr})
-            return false
           };
           let identityInfo = {
             id: newUser.userId,
@@ -155,7 +166,6 @@ module.exports = function(User) {
             if(identityErr){
               // console.log('create identity error : ', identityErr);
               reject({type: 'create identity error', error: identityErr});
-              return false
             }
           });
           Role.findOne({ where: { name : 'user' }},(findRoleErr,data) => {
@@ -163,17 +173,7 @@ module.exports = function(User) {
             Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
           });
           let loginCred = { ttl : newUser.expiresIn , username : newUser.userId + '@teleclaw' , password : userData.password };
-          User.login(loginCred, (loginError,token)=>{
-            if(loginError){
-              // console.log('login after error : ', loginError);
-              reject({type: 'login after signup error', error: loginError});
-              return false
-            } else {
-              console.log('login success : ', loginCred.username);
-              resolve({type: 'sign up complete', result: {newUser: true, lbToken: token, fbToken: newUser.accessToken, ttl: newUser.expiresIn}});
-              return true
-            }
-          });
+          resolve(loginCred);
         });
       });
     }; // <--- loopback signup function
@@ -186,18 +186,15 @@ module.exports = function(User) {
           if(err){
             console.log('find identity error : ', err);
             reject(err);
-            return false
           } else if (identity === null) {
             console.log('find no identity');
             resolve(false)
-            return false
           } else {
             identity.updateAttributes({username: username, email: email, picture: picture, accesstoken: accessToken}, (err, instance)=>{
               if(err){console.log('update user identity error : ', err);};
             });
             console.log('found an identity : ', identity);
             resolve(true);
-            return true
           }
         });
       });

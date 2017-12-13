@@ -57,31 +57,6 @@ describe('Attach camera to machine', function(){
   //   });
   // });
 
-  // describe('change the machine iotPlatform info', function(){
-  //   it('should return machine object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-  //     let url = `/api/machines/${global.machineInfo.id}?access_token=${accessToken}`;
-  //     let iotPlatform = {
-  //       gizwits : {
-  //         machineId : 'string',
-  //         deviceMAC : 'string',
-  //         productKey : 'string'
-  //       }
-  //     };
-
-  //     api
-  //       .patch(url)
-  //       .set('Accept', 'application/json')
-  //       .send({iotPlatform: iotPlatform})
-  //       .end(function(err,res){
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
-
   // |================== Camera API ==================|
   // CREATE Camera ::
    describe('Create Camera', function(){

@@ -1,7 +1,6 @@
 const Promise = require('bluebird');
 
 export function makeTransaction(model, modelId, modelAttribute, amount, plusOrMinus){
-  
   model.findById(modelId, (err, foundModel)=>{
     let parsedModel = JSON.parse(JSON.stringify(foundModel));
     if(plusOrMinus === 'minus'){

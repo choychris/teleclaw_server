@@ -11,7 +11,9 @@ const generateJSONAPI = (url, filter) => {
 }
 
 describe('Change a machine to different status', function(){
-  
+
+
+  // |================ GET Machine ================|
   describe('find product list', function(){
     it('shoule return list of product', function(done){
       var api = supertest.agent(baseUrl);
@@ -47,6 +49,7 @@ describe('Change a machine to different status', function(){
     });
   });
 
+  // |================ Game play API ================|
   describe('start a game play of machine', function(){
     it('should return game play object', function(done){
       var api = supertest.agent(baseUrl);
@@ -69,6 +72,7 @@ describe('Change a machine to different status', function(){
     });
   });
 
+  // |================ Reservation API ================|
   describe('Try to Make reservation to the selected machine', function(){
     it('should return reservation object', function(done){
       var api = supertest.agent(baseUrl);
@@ -130,6 +134,7 @@ describe('Change a machine to different status', function(){
     });
   });
 
+  // |================ End Engagement API ================|
   describe('end an engagement, check reservation', function(){
     it('should return next reservation object', function(done){
       var api = supertest.agent(baseUrl);
@@ -146,5 +151,31 @@ describe('Change a machine to different status', function(){
         });
     });
   });
+
+  // |================ PATCH Machine API ================|
+  // describe('change the machine iotPlatform info', function(){
+  //   it('should return machine object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
+  //     let url = `/api/machines/${global.Machine.id}?access_token=${accessToken}`;
+  //     let iotPlatform = {
+  //       gizwits : {
+  //         deviceId : 'bnyKLPJWNpoumKUYKA78V',
+  //         deviceMAC : '6001941EBCFC',
+  //         productKey : '0b20eeca92544b888db9ebcc70bee872'
+  //       }
+  //     };
+
+  //     api
+  //       .patch(url)
+  //       .set('Accept', 'application/json')
+  //       .send({iotPlatform: iotPlatform})
+  //       .end(function(err,res){
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
 });

@@ -129,6 +129,18 @@ describe('get facebook token', function(){
   // });
 });
 
+// |================ res.body =================|
+
+// { result: 
+//    { newUser: false,
+//      lbToken: 
+//       { id: 'nx3BZVnwzeCxfOb4s7Z2lDjdnVEiZSkmOFg4RM5AXe6PnDwN8bC8HXaG9oBI9eJz',
+//         ttl: 5173511,
+//         created: '2017-12-13T04:09:37.795Z',
+//         userId: '5a2909f81deecd06749f63cc' },
+//      fbToken: 'EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
+//      ttl: 5173511 } }
+
 // fbToken : EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD
 // lbToken : 90ICrdst7erDtkl9BMojD1N2BqvyktQohdkIMQBs9OM6MGuy1EKqXEwVNhUDf502
 // ttl : 5173511
