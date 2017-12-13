@@ -306,7 +306,7 @@ describe('Attach a related models to product', function(){
         }
         api
           .patch('/api/products/' + productId)
-          .send({machines: global.Machines})
+          .send({machines: [machine]})
           .set('Accept', 'application/json')
           .end(function(err,res){
             //console.log('Added a machine to product : ', res.body);

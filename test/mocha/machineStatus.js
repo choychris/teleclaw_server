@@ -3,14 +3,61 @@ var supertest = require('supertest');
 //var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
-var accessToken = 'fzynTh6ygRiF4htEOvEJjiHUHAq9tHmmLbE9zLW1MSqbNFvTk1PcFDuYIYnb9CD2';
-var lbUserId = '5a2909f81deecd06749f63cc';
+
+if(process.env.NODE_ENV === 'staging'){
+  var server = require('../../build/server.js');
+
+  before(function() {
+    server.start();
+  });
+
+  after(function(){
+    server.stop();  
+  });
+}else{
+  global.accessToken = 'fxMzzDFv5N4Iv1te7uLBJNORb19uJKDiV05AK0oaGWm0aQReRaXzNNQ6DL0Fboec';
+  global.lbUserId = '5a30b78ebe1f49029dc8d0e2';
+}
 
 const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
 describe('Change a machine to different status', function(){
+
+  // |================== Authenticate User API ==================|
+  if(process.env.NODE_ENV === 'staging'){
+    describe('Login / Create User first', function(){
+      it('login / create current user - status 200 and token', function(done){
+      var api = supertest.agent(baseUrl);
+      var userInfo = {
+        prvoider: 'facebook',
+        accessToken : 'EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
+        username : 'Lap Chi',
+        expiresIn: 5173511,
+        userId:  "10156122556431165",
+        picture: {
+          height: 100,
+          is_silhouette: false,
+          url: "https://scontent.xx.fbcdn.net/v/t1.0-1/p100x100/1916279_10154397272841165_6485132739615337980_n.jpg?oh=838585186d56fc60e4dcfa90aa9ee10e&oe=5A8E8B2F",
+          width: 100
+        }
+      }
+
+      api
+        .post(`/api/users/auth`)
+        .send(userInfo)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+            global.accessToken = req.body.result.lbToken.id;
+            global.lbUserId = req.body.result.lbToken.id;
+            res.body.result.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+         });
+      });
+    });
+  }
 
 
   // |================ GET Machine ================|
@@ -32,7 +79,7 @@ describe('Change a machine to different status', function(){
   describe('find a product include machine', function(){
     it('should return first product and machine', function(done){
       var api = supertest.agent(baseUrl);
-      var url = `/api/products/${global.Product.id}?access_token=${accessToken}`
+      var url = `/api/products/${global.Product.id}?access_token=${global.accessToken}`
       var filter = {
         include: "machines"
       }
@@ -49,15 +96,41 @@ describe('Change a machine to different status', function(){
     });
   });
 
+  // |================ PATCH Machine API ================|
+  describe('change the machine iotPlatform info', function(){
+    it('should return machine object', function(done){
+      var api = supertest.agent(baseUrl);
+      //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
+      let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
+      let iotPlatform = {
+        gizwits : {
+          deviceId : 'bnyKLPJWNpoumKUYKA78V',
+          deviceMAC : '6001941EBCFC',
+          productKey : '0b20eeca92544b888db9ebcc70bee872'
+        }
+      };
+
+      api
+        .patch(url)
+        .set('Accept', 'application/json')
+        .send({iotPlatform: iotPlatform})
+        .end(function(err,res){
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
+
   // |================ Game play API ================|
   describe('start a game play of machine', function(){
     it('should return game play object', function(done){
       var api = supertest.agent(baseUrl);
       let machineId = global.Machine.id;
-      let url = `/api/machines/${machineId}/gameplay?access_token=${accessToken}`
+      let url = `/api/machines/${machineId}/gameplay?access_token=${global.accessToken}`
       let data = {
         productId: global.Product.id,
-        userId: lbUserId
+        userId: global.lbUserId
       }
       api
         .post(url)
@@ -81,7 +154,7 @@ describe('Change a machine to different status', function(){
         status: 'open',
         machineId: machineId
       };
-      let findUrl = `/api/reservations/findOne?access_token=${accessToken}`;
+      let findUrl = `/api/reservations/findOne?access_token=${global.accessToken}`;
       let filterObj = {
         where: {
           userId: lbUserId
@@ -96,7 +169,7 @@ describe('Change a machine to different status', function(){
           res.body.should.be.an('object');
           res.status.should.equal(200);
 
-          let url = `/api/reservations/${global.reservationId}?access_token=${accessToken}`;
+          let url = `/api/reservations/${global.reservationId}?access_token=${global.accessToken}`;
           api
             .patch(url)
             .send(reserveObj)
@@ -116,7 +189,7 @@ describe('Change a machine to different status', function(){
       var api = supertest.agent(baseUrl);
       let reservationId = global.reservationId;
       let machineId = global.Machine.id;
-      let url = `/api/reservations/${reservationId}?access_token=${accessToken}`;
+      let url = `/api/reservations/${reservationId}?access_token=${global.accessToken}`;
       let reserveObj = {
         status: 'canceled',
         machineId: machineId
@@ -139,7 +212,7 @@ describe('Change a machine to different status', function(){
     it('should return next reservation object', function(done){
       var api = supertest.agent(baseUrl);
       let machineId = global.Machine.id;
-      let url = `/api/reservations/${machineId}/endEngage?access_token=${accessToken}`;
+      let url = `/api/reservations/${machineId}/endEngage?access_token=${global.accessToken}`;
       api
         .get(url)
         .set('Accept', 'application/json')
@@ -152,30 +225,6 @@ describe('Change a machine to different status', function(){
     });
   });
 
-  // |================ PATCH Machine API ================|
-  // describe('change the machine iotPlatform info', function(){
-  //   it('should return machine object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-  //     let url = `/api/machines/${global.Machine.id}?access_token=${accessToken}`;
-  //     let iotPlatform = {
-  //       gizwits : {
-  //         deviceId : 'bnyKLPJWNpoumKUYKA78V',
-  //         deviceMAC : '6001941EBCFC',
-  //         productKey : '0b20eeca92544b888db9ebcc70bee872'
-  //       }
-  //     };
 
-  //     api
-  //       .patch(url)
-  //       .set('Accept', 'application/json')
-  //       .send({iotPlatform: iotPlatform})
-  //       .end(function(err,res){
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
 
 });
