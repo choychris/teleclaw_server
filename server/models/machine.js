@@ -227,7 +227,6 @@ module.exports = function(Machine) {
       // create transaction and gamePlay callback
       Promise.all(gizwitsConfigs(userId, deviceMAC), createNewTransaction(userId, gamePlayRate, 'minus', 'closed'))
       .then(result=>{
-
           let info = {
             gameResult : generatedResult,
             transactionId: result[1].id,
@@ -259,7 +258,7 @@ module.exports = function(Machine) {
         let { status, currentUser, gizwits } = data[1];
         let { gamePlayRate, productRate } = data[2];
         //check machine is open 
-        if(status === 'open' && currentUser === null){
+        if(status === 'open' && !currentUser ){
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
             let generatedResult = generateResult(productRate);

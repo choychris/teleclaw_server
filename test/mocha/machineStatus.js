@@ -91,6 +91,7 @@ describe('Change a machine to different status', function(){
             res.body.should.be.an('object');
             res.status.should.equal(200);
             global.Machine = res.body.machines[0];
+            console.log(global.Machine);
             done();
         });
     });
