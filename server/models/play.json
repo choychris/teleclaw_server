@@ -19,12 +19,14 @@
       "type": "date"
     },
     "duration": {
-      "type": "number",
+      "type": "number"
+    },
+    "expectedResult": {
+      "type": "boolean",
       "required": true
     },
-    "result": {
-      "type": "object",
-      "required": true
+    "finalResult": {
+      "type": "boolean"
     },
     "movement": {
       "type": [

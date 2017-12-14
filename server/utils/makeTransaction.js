@@ -21,7 +21,6 @@ export function makeTransaction(model, modelId, modelAttribute, amount, plusOrMi
       });
     }
   });
-
 };
 
 export function createNewTransaction(userId, amount, transactionAction, transactionStatus){

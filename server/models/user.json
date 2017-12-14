@@ -55,6 +55,9 @@
     },
     "counrtyCode": {
       "type": "string"
+    },
+    "bindedDevice": {
+      "type": "array"
     }
   },
   "validations": [],

@@ -76,34 +76,34 @@ module.exports = function(Machine) {
   };
 
   // Machine.beforeRemote('gameplay', (ctx, unused, next)=>{
-    //console.log('ctx.args : ', ctx.args)
-    // let { machineId, data } = ctx.args;
-    // let { productId, userId } = data;
-    // // console.log('data obj :', data)
-    // let User = app.models.User;
-    // Machine.findById(machineId, (errMsg, machine)=>{ 
-    //   let location = `machines/${machineId}`;
-    //   let { currentUser, reservation } = machine;
-    //   let currentUserId = currentUser ? currentUser.id : null ;
-    //   if(currentUserId !== userId){
-    //     User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
-    //       let parsedUser =  JSON.parse(JSON.stringify(user));
-    //       // console.log('USER obj :', parsedUser);
-    //       let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
-    //       let player = {
-    //         id: userId,
-    //         name: user.name,
-    //         picture: picture
-    //       }
-    //       machine.updateAttributes({currentUser: player, status: 'playing'});
-    //       makeDbTransaction(location, 'totalNumOfPlay', 'plus');
-    //       next();
-    //     });
-    //   }else{
-    //     makeDbTransaction(location, 'totalNumOfPlay', 'plus');
-    //     next();      
-    //   }
-    // });
+  //   console.log('ctx.args : ', ctx.args)
+  //   let { machineId, data } = ctx.args;
+  //   let { productId, userId } = data;
+  //   // console.log('data obj :', data)
+  //   let User = app.models.User;
+  //   Machine.findById(machineId, (errMsg, machine)=>{ 
+  //     let location = `machines/${machineId}`;
+  //     let { currentUser, reservation } = machine;
+  //     let currentUserId = currentUser ? currentUser.id : null ;
+  //     if(currentUserId !== userId){
+  //       User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
+  //         let parsedUser =  JSON.parse(JSON.stringify(user));
+  //         // console.log('USER obj :', parsedUser);
+  //         let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
+  //         let player = {
+  //           id: userId,
+  //           name: user.name,
+  //           picture: picture
+  //         }
+  //         machine.updateAttributes({currentUser: player, status: 'playing'});
+  //         makeDbTransaction(location, 'totalNumOfPlay', 'plus');
+  //         next();
+  //       });
+  //     }else{
+  //       makeDbTransaction(location, 'totalNumOfPlay', 'plus');
+  //       next();      
+  //     }
+  //   });
   // });
 
   Machine.beforeRemote('gameplay', (ctx, unused, next)=>{
@@ -115,13 +115,13 @@ module.exports = function(Machine) {
 
   Machine.gameplay = (machineId, data, cb) => {
     let { productId, userId } = data;
-    // console.log('machineId : ', machineId)
-    // console.log('data obj :', data)
-    let User = app.models.User;
-    let Transaction = app.models.Transaction;
-    let Product = app.models.Product;
+    let Product = app.models.product;
+    let Play = app.models.play;
+    let User = app.models.user;
 
-    function gizwitsConfigs(userId, deviceMAC){
+    // POST gizwits API to login customer and bind device MAC
+    function gizwitsConfigs(userId, deviceMAC, deviceId){
+      // user authenicate API
       const createUser = {
         method: 'POST',
         url: 'http://api.gizwits.com/app/users',
@@ -131,151 +131,117 @@ module.exports = function(Machine) {
         body: JSON.stringify({
           phone_id: userId
         })
-      }
+      };
+      // first, login the user to get token
+      return new Promise((resolve, reject)=>{
+        request(createUser, (err, res, body)=>{
+          const { token, uid, expire_at } = JSON.parse(body);
+          User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
+            if(err||error){ reject(err||error)}
+            if(user.length === 0){ 
+              bindMac(deviceMAC, token) 
+              User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
+            }
+            resolve({token: token, appId: GIZWITS_APPLICATION_ID, did: deviceId})
+          })
+        });
+      })
+    }
+
+    function bindMac(deviceMAC, token){
       const now = Math.round(new Date().getTime()/1000);
+      // bind mac API 
       const bindMac = {
         method: 'POST',
         url: 'http://api.gizwits.com/app/bind_mac',
         headers: {
           'X-Gizwits-Application-Id': GIZWITS_APPLICATION_ID,
           'X-Gizwits-Timestamp': now,
-          'X-Gizwits-Signature': md5(GIZWITS_PRODUCT_SECRET+now)
+          'X-Gizwits-Signature': md5(GIZWITS_PRODUCT_SECRET+now),
+          'X-Gizwits-User-token': token
         },
         body: JSON.stringify({
           product_key: GIZWITS_PRODUCT_KEY,
           mac: deviceMAC
         })
       }
-      return new Promise((resolve, reject)=>{
-        request(createUser, (err, res, body)=>{
-          const { token, uid, expire_at } = JSON.parse(body);
-          bindMac.headers['X-Gizwits-User-token'] = token ;
-          request(bindMac, (err, res, bindBody)=>{
-            if(err){
-              reject(err)
-            };
-            let { wss_port, did, host } = JSON.parse(bindBody);
-            let configs = {
-              appid: GIZWITS_APPLICATION_ID,
-              uid: uid,
-              token: token,
-              did: did,
-              wss_port: wss_port,
-              host: host
-            }
-            resolve(configs)
-            return configs;
-          });
-        });
-      });
-    }
-
-    function checkWallet(userId){
-      return new Promise ((resolve, reject)=>{
-        User.findById(userId, {include: 'wallet'}, (err, user)=>{
-          if(err){
-            reject(err);
-            return err;
-          }
-          let parsedUser =  JSON.parse(JSON.stringify(user));
-          let walletBalance = parsedUser.wallet.balance;
-          resolve(walletBalance)
-          return walletBalance;
-        });
-      });
-    }
-
-    function checkMachineStatus(machineId){
-      return new Promise ((resolve, reject)=>{
-        Machine.findById(machineId, (err, machine)=>{
-          if(err){
-            reject(err);
-            return err;
-          }
-          let machineInfo = {
-            status: machine.status,
-            currentUser: machine.currentUser,
-            gizwits: machine.iotPlatform.gizwits
-          }
-          resolve(machineInfo)
-          return machineInfo;
-        });
-      });
-    }
-
-    function checkProductRate(productId){
-      return new Promise ((resolve, reject)=>{
-        Product.findById(productId, (err, product)=>{
-          if(err){
-            reject(err);
-            return err;
-          }
-          let rate = {
-            gamePlayRate: product.gamePlayRate,
-            productRate: product.productRate
-          }
-          resolve(rate)
-          return rate;
-        });
+      request(bindMac, (err, res, bindBody)=>{
+        if(err){
+          Promise.reject(err)
+        };
       });
     }
 
     //start game function
-    function startGame(userId, productId, gamePlayRate, generatedResult, deviceMAC){
+    function startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId){
       let location = `products/${productId}`;
       makeDbTransaction(location, 'totalNumOfPlay', 'plus');
-      // create transaction and gamePlay callback
-      Promise.all(gizwitsConfigs(userId, deviceMAC), createNewTransaction(userId, gamePlayRate, 'minus', 'closed'))
+      // perform : 1. communicate to gizwits ; 2. create a new transation 
+      Promise.all([gizwitsConfigs(userId, deviceMAC, deviceId), createNewTransaction(userId, gamePlayRate, 'minus', 'closed')])
       .then(result=>{
-          let info = {
-            gameResult : generatedResult,
-            transactionId: result[1].id,
-            userId: userId,
-            productId: productId,
+          let transactionId = result[1].id;
+          let expectedResult = initialize.result;
+          response = {
+            InitCatcher : initialize.initCatcher,
             newWalletBalance: result[1].newWalletBalance,
-            
+            gizwits: result[0],
+            afterRemote: {
+              transactionId,
+              userId,
+              machineId,
+              productId
+            }
           };
-      })
-      createNewTransaction(userId, gamePlayRate, 'minus', 'closed')
-        .then(createdTrans=>{
-          let result = {
-            gameResult : generatedResult,
-            transactionId: createdTrans.id,
-            userId: userId,
-            productId: productId,
-            newWalletBalance: createdTrans.newWalletBalance
-          };
-          cb(null, result);
-        })
-        .catch(error=>{
-          cb(error);
-        })
+          return Play.create({userId, machineId, productId, transactionId, expectedResult})
+      }).then(res=>{
+        response.afterRemote.playId = res.id;
+        cb(null, response);
+      }).catch(error=>{
+        cb(error)
+      });
     }
-
-    Promise.all([checkWallet(userId), checkMachineStatus(machineId), checkProductRate(productId)])
+    let response = {};
+    // perform : 1. get user; 2. get machine; 3. get produdct, from database
+    Promise.all([findUserInclude(userId, 'wallet'), Machine.findById(machineId), Product.findById(productId)])
       .then(data=>{
-        let walletBalance = data[0];
-        let { status, currentUser, gizwits } = data[1];
+        let walletBalance = data[0].wallet.balance;
+        let { status, currentUser, iotPlatform } = data[1];
+        let { deviceMAC, deviceId, init } = iotPlatform.gizwits;
         let { gamePlayRate, productRate } = data[2];
+        // check same user holding the machine
+        let sameUser = !currentUser ? false : (currentUser.userId === userId);
         //check machine is open 
-        if(status === 'open' && !currentUser ){
+        if(status === 'open' && !currentUser){
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
-            let generatedResult = generateResult(productRate);
-            startGame(userId, productId, gamePlayRate, generatedResult, gizwits.deviceMAC); 
+            let initialize = initializeResult(productRate, init);
+            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId); 
           //not enough balance
           }else{
             cb(null, 'insufficient balance')
           }
-
+        //machine is open but waiting user response
+        }else if(status === 'open' && sameUser){
+          //check enough coins to play
+          if(walletBalance >= gamePlayRate){
+            let initialize = initializeResult(productRate, init);
+            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId); 
+          //not enough balance
+          }else{
+            cb(null, 'insufficient balance')
+          }
+        // machine is in 'playing status'
+        }else{
+          cb(null, 'machine is playing')
         }
+        return null
       })
       .catch(error=>{
         cb(error)
       })
 
     // function to generate a game result
-    const generateResult = (productRate) => {
+    const initializeResult = (productRate, InitCatcher) => {
       // random int function
       function getRandomIntInclusive(min, max) {
         min = Math.ceil(min);
@@ -285,11 +251,61 @@ module.exports = function(Machine) {
 
       let int1 = getRandomIntInclusive(1, productRate);
       let int2 = getRandomIntInclusive(1, productRate);
-      return (int1 === int2);
+      let initCatcher = (int1 === int2) ? (InitCatcher+'101') : (InitCatcher+'001');
+      let result = (int1 === int2);
+      let expectedResult = {
+        initCatcher: initCatcher,
+        result: result
+      }
+      return expectedResult;
     }; // <--- generate result function end
 
-  };
+  };// <--- machine gamePlay remote method end
 
+  //update play in DB
+  function updatePlay(playId, persistData){
+    let Play = app.models.play;
+    return new Promise ((resolve, reject)=>{
+      Play.findById(playId, (err, instance)=>{
+        instance.updateAttributes(persistData, (error, play)=>{
+          if(err || error){reject(err || error)}
+          resolve(play);
+        })
+      });
+    })
+  }
+
+  //update machine in DB
+  function updateMachine(machineId, persistData){
+    return new Promise ((resolve, reject)=>{
+      Machine.findById(playId, (err, instance)=>{
+        instance.updateAttributes(persistData, (error, machine)=>{
+          if(err || error){reject(err || error)}
+          resolve(machine);
+        })
+      });
+    })
+  }
+
+  // find the user include relations
+  function findUserInclude(userId, include){
+    let User = app.models.User;
+    return new Promise((resolve, reject)=>{
+      User.findById(userId, {include: include},(err, user)=>{
+        if(err){
+          reject(err);
+        }
+        let parsedUser = user.toJSON();
+        resolve(parsedUser);
+      });
+    });
+  }
+
+  //find User with deviceId
+  function findUserDeviceId(userId, did){
+    User.find({where: {id: userId, bindedDevice: {elemMatch: did}}})
+  }
+  
   Machine.afterRemote('gameplay', (ctx, unused, next)=>{
     console.log('|=========== Game Play End =============|')
     next();

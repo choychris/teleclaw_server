@@ -98,30 +98,31 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ PATCH Machine API ================|
-  describe('change the machine iotPlatform info', function(){
-    it('should return machine object', function(done){
-      var api = supertest.agent(baseUrl);
-      //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-      let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
-      let iotPlatform = {
-        gizwits : {
-          deviceId : 'bnyKLPJWNpoumKUYKA78V',
-          deviceMAC : '6001941EBCFC',
-          productKey : '0b20eeca92544b888db9ebcc70bee872'
-        }
-      };
+  // describe('change the machine iotPlatform info', function(){
+  //   it('should return machine object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
+  //     let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
+  //     let iotPlatform = {
+  //       gizwits : {
+  //         init: '1E231E0A0A06060628000',
+  //         deviceId : 'bnyKLPJWNpoumKUYKA78V',
+  //         deviceMAC : '6001941EBCFC',
+  //         productKey : '0b20eeca92544b888db9ebcc70bee872'
+  //       }
+  //     };
 
-      api
-        .patch(url)
-        .set('Accept', 'application/json')
-        .send({iotPlatform: iotPlatform})
-        .end(function(err,res){
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
-    });
-  });
+  //     api
+  //       .patch(url)
+  //       .set('Accept', 'application/json')
+  //       .send({iotPlatform: iotPlatform})
+  //       .end(function(err,res){
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
   // |================ Game play API ================|
   describe('start a game play of machine', function(){

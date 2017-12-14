@@ -4,7 +4,8 @@
     "connector": "memory"
   },
   "mongodb": {
-    "connector": "mongodb",
-    "url": "mongodb://teleClawAdmin:123456@mongo:27017/teleclaw_dev"
+    "url": "mongodb://teleClawAdmin:123456@mongo:27017/teleclaw_dev",
+    "name": "mongodb",
+    "connector": "mongodb"
   }
 }

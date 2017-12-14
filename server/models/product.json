@@ -24,7 +24,7 @@
     },
     "description": {
       "type": "string"
-    },   
+    },
     "size": {
       "type": "object",
       "required": true

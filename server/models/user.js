@@ -22,6 +22,7 @@ module.exports = function(User) {
   User.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
       ctx.instance.referralCode = shortid.generate();
+      ctx.instance.bindedDevice = [];
     }
     next();
   });
