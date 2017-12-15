@@ -159,7 +159,7 @@ describe('Start a game play from scratch', function(){
     it('should return result object', function(done){
       var api = supertest.agent(baseUrl);
       //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-      let url = `/api/machines/${machineId}/gameplay?access_token=${accessToken}`
+      let url = `/api/machines/${machineId}/gamePlay?access_token=${accessToken}`
       let data = {
         productId: global.machineInfo.productId,
         userId: lbUserId

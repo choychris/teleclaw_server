@@ -66,7 +66,7 @@ module.exports = function(Machine) {
       })
     };
 
-    Machine.find({where: {productId: productId, status: 'open'}}, (err, result)=>{
+    Machine.find({where: {productId: productId, status: 'open', currentUser: null}}, (err, result)=>{
       if(result.length !== 0){
         updateProductStatus(true, productId)
       } else {
@@ -106,18 +106,16 @@ module.exports = function(Machine) {
   //   });
   // });
 
-  Machine.beforeRemote('gameplay', (ctx, unused, next)=>{
+  Machine.beforeRemote('gamePlay', (ctx, unused, next)=>{
     console.log('|=========== Game Play Start =============|')
     next();
   })
 
-
-
-  Machine.gameplay = (machineId, data, cb) => {
+  Machine.gamePlay = (machineId, data, cb) => {
     let { productId, userId } = data;
-    let Product = app.models.product;
-    let Play = app.models.play;
-    let User = app.models.user;
+    let Product = app.models.Product;
+    let Play = app.models.Play;
+    let User = app.models.User;
 
     // POST gizwits API to login customer and bind device MAC
     function gizwitsConfigs(userId, deviceMAC, deviceId){
@@ -142,7 +140,7 @@ module.exports = function(Machine) {
               bindMac(deviceMAC, token) 
               User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
             }
-            resolve({token: token, appId: GIZWITS_APPLICATION_ID, did: deviceId})
+            resolve({appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId})
           })
         });
       })
@@ -192,6 +190,7 @@ module.exports = function(Machine) {
               productId
             }
           };
+          // then create a new persited Play obj
           return Play.create({userId, machineId, productId, transactionId, expectedResult})
       }).then(res=>{
         response.afterRemote.playId = res.id;
@@ -262,31 +261,6 @@ module.exports = function(Machine) {
 
   };// <--- machine gamePlay remote method end
 
-  //update play in DB
-  function updatePlay(playId, persistData){
-    let Play = app.models.play;
-    return new Promise ((resolve, reject)=>{
-      Play.findById(playId, (err, instance)=>{
-        instance.updateAttributes(persistData, (error, play)=>{
-          if(err || error){reject(err || error)}
-          resolve(play);
-        })
-      });
-    })
-  }
-
-  //update machine in DB
-  function updateMachine(machineId, persistData){
-    return new Promise ((resolve, reject)=>{
-      Machine.findById(playId, (err, instance)=>{
-        instance.updateAttributes(persistData, (error, machine)=>{
-          if(err || error){reject(err || error)}
-          resolve(machine);
-        })
-      });
-    })
-  }
-
   // find the user include relations
   function findUserInclude(userId, include){
     let User = app.models.User;
@@ -301,20 +275,32 @@ module.exports = function(Machine) {
     });
   }
 
-  //find User with deviceId
-  function findUserDeviceId(userId, did){
-    User.find({where: {id: userId, bindedDevice: {elemMatch: did}}})
-  }
-  
-  Machine.afterRemote('gameplay', (ctx, unused, next)=>{
+  Machine.afterRemote('gamePlay', (ctx, unused, next)=>{
+    let Play = app.models.Play;
     console.log('|=========== Game Play End =============|')
+    let { afterRemote } = ctx.result.result;
+    let { transactionId, userId, machineId, productId, playId } = afterRemote;
+    
+    setTimeout(()=>{checkPlayResult(playId)}, 47000)
+
+    function checkPlayResult(playId){
+      console.log('check play result trigger HERE')
+      Play.findById(playId, (err, instance)=>{
+        if(!instance.finalResult){
+          let attri = {ended: new Date().getTime(), finalResult: false};
+          instance.updateAttributes(attri);
+          app.pusher.trigger(`play-${userId}`, 'game_end', attri);
+        }
+      });
+    };
+
     next();
   })
 
   Machine.remoteMethod(
-    'gameplay',
+    'gamePlay',
       {
-        http: {path: '/:machineId/gameplay', verb: 'post'},
+        http: {path: '/:machineId/gamePlay', verb: 'post'},
         accepts: [
           {arg: 'machineId', type: 'string', required: true},
           {arg: 'data', type: 'object', required: true}

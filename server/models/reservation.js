@@ -31,34 +31,13 @@ module.exports = function(Reservation) {
         makeTransaction(Machine, machineId, 'reservation', 1, 'minus');
       }
     }
-    // }else{
-    //   makeTransaction(Machine, machineId, 'reservation', 1, 'plus');
-    // }
     next();
   });
 
   Reservation.endEngage = (machineId, cb) => {
-    // console.log('machineId : ', machineId);
+    console.log('resercation endEngage machineId : ', machineId);
     const Machine = app.models.Machine;
-    // const removeCurrentEngage = (machineId) => {
-    //   return new Promise((resolve, reject)=>{
-    //     Reservation.findOne({where : {machineId: machineId, status: 'engage'}}, (error, reserve)=>{
-    //       console.log('find one reserve : ', reserve);
-    //       if(reserve !== null){
-    //         reserve.updateAttributes({status: 'close', machineId: machineId}, (err, inst)=>{
-    //           resolve(true)
-    //           return true;
-    //         })
-    //       }else if(!error){
-    //         resolve(true)
-    //         return false;
-    //       }else{
-    //         reject(error)
-    //         return false;
-    //       }
-    //     });
-    //   });
-    // };
+
 
     function updateMachine(machineId, status){
       Machine.findById(machineId, (err, machine)=>{
@@ -70,8 +49,6 @@ module.exports = function(Reservation) {
       });
     }
 
-    // removeCurrentEngage(machineId)
-    // .then(res =>{
     Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
       //console.log('foundReserve : ', foundReserve);
       if(foundReserve === null || foundReserve.length == 0){
@@ -86,10 +63,7 @@ module.exports = function(Reservation) {
         });
       }
     });
-    //   })
-    //   .catch(err => {
-    //     cb(err)
-    //   });
+
   };
 
   Reservation.remoteMethod(

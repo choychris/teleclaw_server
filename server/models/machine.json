@@ -15,6 +15,9 @@
       "type": "date",
       "required": true
     },
+    "lastUpdated":{
+      "type": "date"
+    },
     "name": {
       "type": "string",
       "required": true

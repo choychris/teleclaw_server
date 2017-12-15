@@ -98,38 +98,38 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ PATCH Machine API ================|
-  // describe('change the machine iotPlatform info', function(){
-  //   it('should return machine object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
-  //     let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
-  //     let iotPlatform = {
-  //       gizwits : {
-  //         init: '1E231E0A0A06060628000',
-  //         deviceId : 'bnyKLPJWNpoumKUYKA78V',
-  //         deviceMAC : '6001941EBCFC',
-  //         productKey : '0b20eeca92544b888db9ebcc70bee872'
-  //       }
-  //     };
+  describe('change the machine iotPlatform info', function(){
+    it('should return machine object', function(done){
+      var api = supertest.agent(baseUrl);
+      //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
+      let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
+      let iotPlatform = {
+        gizwits : {
+          init: '1E231E0A0A06060628000',
+          deviceId : 'bnyXLPJWNpoumbKUYKA78V',
+          deviceMAC : '6001941EBCFC',
+          productKey : '0b20eeca92544b888db9ebcc70bee872'
+        }
+      };
 
-  //     api
-  //       .patch(url)
-  //       .set('Accept', 'application/json')
-  //       .send({iotPlatform: iotPlatform})
-  //       .end(function(err,res){
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+      api
+        .patch(url)
+        .set('Accept', 'application/json')
+        .send({iotPlatform: iotPlatform})
+        .end(function(err,res){
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
   // |================ Game play API ================|
   describe('start a game play of machine', function(){
     it('should return game play object', function(done){
       var api = supertest.agent(baseUrl);
       let machineId = global.Machine.id;
-      let url = `/api/machines/${machineId}/gameplay?access_token=${global.accessToken}`
+      let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
       let data = {
         productId: global.Product.id,
         userId: global.lbUserId
@@ -140,6 +140,7 @@ describe('Change a machine to different status', function(){
         .send({data: data})
         .end(function(err,res){
             console.log(res.body)
+            global.result = res.body.result;
             res.body.should.be.an('object');
             res.status.should.equal(200);
             done();
@@ -209,14 +210,16 @@ describe('Change a machine to different status', function(){
     });
   });
 
-  // |================ End Engagement API ================|
-  describe('end an engagement, check reservation', function(){
-    it('should return next reservation object', function(done){
+  // |================ Play End API ================|
+  describe('update play end', function(){
+    it('should return play object', function(done){
       var api = supertest.agent(baseUrl);
-      let machineId = global.Machine.id;
-      let url = `/api/reservations/${machineId}/endEngage?access_token=${global.accessToken}`;
+      let playId = global.result.afterRemote.playId;
+      let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
+      let ended = new Date().getTime();
       api
-        .get(url)
+        .patch(url)
+        .send({ended: ended, fianlResult: false})
         .set('Accept', 'application/json')
         .end(function(err,res){
           console.log(res.body)
@@ -226,6 +229,24 @@ describe('Change a machine to different status', function(){
         });
     });
   });
+
+  // |================ End Engagement API ================|
+  // describe('end an engagement, check reservation', function(){
+  //   it('should return next reservation object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let machineId = global.Machine.id;
+  //     let url = `/api/reservations/${machineId}/endEngage?access_token=${global.accessToken}`;
+  //     api
+  //       .get(url)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body)
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
 
 
