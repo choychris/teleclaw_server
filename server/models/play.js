@@ -2,6 +2,7 @@
 
 import { updateTimeStamp } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
+import { checkMachineStatus } from '../utils/gamePlayTimer.js';
 const shortid = require('shortid');
 const request = require('request');
 
@@ -23,38 +24,18 @@ module.exports = function(Play) {
     }else{
       if(ctx.data && ctx.data.ended){
         let machineId = ctx.currentInstance.machineId;
-        let Machine = app.models.Machine;
+        let { Machine, Reservation } = app.models;
         Machine.findById(machineId, (err, instance)=>{
           instance.updateAttributes({status: 'open'});
         });
 
         // after 5 sec, if user reponse to play again 
-        setTimeout(()=>{checkMachineStatus(machineId)}, 5000)
+        setTimeout(()=>{
+          checkMachineStatus(machineId, Machine, Reservation)
+        }, 8000)
       }
       next();
     }
   })
-
-  function compareTimeStamp(time, duration){
-    let now = new Date().getTime();
-    console.log('compare time now : ', now);
-    if((now - time) > duration){
-      return true;
-    }else{
-      return false;
-    }
-  };
-  //if machine has not update in last 8 sec, clean it.
-  function checkMachineStatus(machineId){
-    let Machine = app.models.Machine;
-    let Reservation = app.models.Reservation;
-    Machine.findById(machineId, (err, instance)=>{
-      console.log("clean trigger : ", instance.lastUpdated);
-      if(compareTimeStamp(instance.lastUpdated, 8000)){
-        Reservation.endEngage(machineId)
-      }
-    });
-  }
-
 
 };

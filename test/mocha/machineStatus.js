@@ -105,18 +105,18 @@ describe('Change a machine to different status', function(){
       let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
       let iotPlatform = {
         gizwits : {
-          init: '1E231E0A0A06060628000',
+          init: [10,30,6,6,6,4,4,4,12,0],
           deviceId : 'bnyXLPJWNpoumbKUYKA78V',
           deviceMAC : '6001941EBCFC',
           productKey : '0b20eeca92544b888db9ebcc70bee872'
         }
       };
-
       api
         .patch(url)
         .set('Accept', 'application/json')
         .send({iotPlatform: iotPlatform})
         .end(function(err,res){
+          console.log(res.body);
           res.body.should.be.an('object');
           res.status.should.equal(200);
           done();
@@ -149,86 +149,86 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ Reservation API ================|
-  describe('Try to Make reservation to the selected machine', function(){
-    it('should return reservation object', function(done){
-      var api = supertest.agent(baseUrl);
-      let machineId = global.Machine.id;
-      let reserveObj = {
-        status: 'open',
-        machineId: machineId
-      };
-      let findUrl = `/api/reservations/findOne?access_token=${global.accessToken}`;
-      let filterObj = {
-        where: {
-          userId: lbUserId
-        }
-      };
+  // describe('Try to Make reservation to the selected machine', function(){
+  //   it('should return reservation object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let machineId = global.Machine.id;
+  //     let reserveObj = {
+  //       status: 'open',
+  //       machineId: machineId
+  //     };
+  //     let findUrl = `/api/reservations/findOne?access_token=${global.accessToken}`;
+  //     let filterObj = {
+  //       where: {
+  //         userId: lbUserId
+  //       }
+  //     };
 
-      api
-        .get(generateJSONAPI(findUrl, filterObj))
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          global.reservationId = res.body.id;
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
+  //     api
+  //       .get(generateJSONAPI(findUrl, filterObj))
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         global.reservationId = res.body.id;
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
 
-          let url = `/api/reservations/${global.reservationId}?access_token=${global.accessToken}`;
-          api
-            .patch(url)
-            .send(reserveObj)
-            .set('Accept', 'application/json')
-            .end(function(err,res){
-              res.body.should.be.an('object');
-              res.status.should.equal(200);
-              done();
-            });
-        });
+  //         let url = `/api/reservations/${global.reservationId}?access_token=${global.accessToken}`;
+  //         api
+  //           .patch(url)
+  //           .send(reserveObj)
+  //           .set('Accept', 'application/json')
+  //           .end(function(err,res){
+  //             res.body.should.be.an('object');
+  //             res.status.should.equal(200);
+  //             done();
+  //           });
+  //       });
 
-    });
-  });
+  //   });
+  // });
 
-  describe('cancel a reservation', function(){
-    it('should return next reservation object', function(done){
-      var api = supertest.agent(baseUrl);
-      let reservationId = global.reservationId;
-      let machineId = global.Machine.id;
-      let url = `/api/reservations/${reservationId}?access_token=${global.accessToken}`;
-      let reserveObj = {
-        status: 'canceled',
-        machineId: machineId
-      };
-      api
-        .patch(url)
-        .send(reserveObj)
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body)
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
-    });
-  });
+  // describe('cancel a reservation', function(){
+  //   it('should return next reservation object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let reservationId = global.reservationId;
+  //     let machineId = global.Machine.id;
+  //     let url = `/api/reservations/${reservationId}?access_token=${global.accessToken}`;
+  //     let reserveObj = {
+  //       status: 'canceled',
+  //       machineId: machineId
+  //     };
+  //     api
+  //       .patch(url)
+  //       .send(reserveObj)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body)
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
   // |================ Play End API ================|
-  describe('update play end', function(){
-    it('should return play object', function(done){
-      var api = supertest.agent(baseUrl);
-      let playId = global.result.afterRemote.playId;
-      let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
-      let ended = new Date().getTime();
-      api
-        .patch(url)
-        .send({ended: ended, fianlResult: false})
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body)
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
-    });
-  });
+  // describe('update play end', function(){
+  //   it('should return play object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let playId = global.result.afterRemote.playId;
+  //     let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
+  //     let ended = new Date().getTime();
+  //     api
+  //       .patch(url)
+  //       .send({ended: ended, finalResult: false})
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body)
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
   // |================ End Engagement API ================|
   // describe('end an engagement, check reservation', function(){

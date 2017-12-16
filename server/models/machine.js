@@ -24,13 +24,19 @@ module.exports = function(Machine) {
 
   Machine.observe('before save', (ctx, next)=>{
     if(!ctx.isNewInstance){
-      if(ctx.data && ctx.data.status && !ctx.data.productId){
-        ctx.hookState.statusChange = true;
-      }else if(ctx.data && ctx.data.reservation && !ctx.data.productId){
-        ctx.hookState.statusChange = true;
+      if(ctx.data){
+        let { status, reservation, productId, iotPlatform } = ctx.data;
+        if(!!status && !reservation && !productId){
+          ctx.hookState.pusher = true;
+          ctx.data.lastStatusChanged = new Date().getTime();
+        }else if(!!reservation && !productId){
+          ctx.hookState.pusher = true;
+        }
       }
+      next();
+    }else{
+      next();
     }
-    next();
   });
 
   Machine.observe('after save', (ctx, next) => {
@@ -47,7 +53,7 @@ module.exports = function(Machine) {
     } else if (!ctx.isNewInstance){
       let { id, name, status, display, currentUser, productId, reservation } = ctx.instance ;
       let player = currentUser ? currentUser : null;
-      if(ctx.hookState && ctx.hookState.statusChange){
+      if(ctx.hookState && ctx.hookState.pusher){
         updateProductStatus(productId);
         app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player, time: new Date()});
       }
@@ -75,37 +81,6 @@ module.exports = function(Machine) {
     });
   };
 
-  // Machine.beforeRemote('gameplay', (ctx, unused, next)=>{
-  //   console.log('ctx.args : ', ctx.args)
-  //   let { machineId, data } = ctx.args;
-  //   let { productId, userId } = data;
-  //   // console.log('data obj :', data)
-  //   let User = app.models.User;
-  //   Machine.findById(machineId, (errMsg, machine)=>{ 
-  //     let location = `machines/${machineId}`;
-  //     let { currentUser, reservation } = machine;
-  //     let currentUserId = currentUser ? currentUser.id : null ;
-  //     if(currentUserId !== userId){
-  //       User.findById(userId, {include: {relation: 'userIdentities', scope: {limit: 1}}}, (err, user)=>{
-  //         let parsedUser =  JSON.parse(JSON.stringify(user));
-  //         // console.log('USER obj :', parsedUser);
-  //         let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
-  //         let player = {
-  //           id: userId,
-  //           name: user.name,
-  //           picture: picture
-  //         }
-  //         machine.updateAttributes({currentUser: player, status: 'playing'});
-  //         makeDbTransaction(location, 'totalNumOfPlay', 'plus');
-  //         next();
-  //       });
-  //     }else{
-  //       makeDbTransaction(location, 'totalNumOfPlay', 'plus');
-  //       next();      
-  //     }
-  //   });
-  // });
-
   Machine.beforeRemote('gamePlay', (ctx, unused, next)=>{
     console.log('|=========== Game Play Start =============|')
     next();
@@ -118,7 +93,7 @@ module.exports = function(Machine) {
     let User = app.models.User;
 
     // POST gizwits API to login customer and bind device MAC
-    function gizwitsConfigs(userId, deviceMAC, deviceId){
+    function gizwitsConfigs(userId, machineId, deviceMAC, deviceId){
       // user authenicate API
       const createUser = {
         method: 'POST',
@@ -137,7 +112,7 @@ module.exports = function(Machine) {
           User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
             if(err||error){ reject(err||error)}
             if(user.length === 0){ 
-              bindMac(deviceMAC, token) 
+              bindMac(deviceMAC, token, machineId) 
               User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
             }
             resolve({appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId})
@@ -146,9 +121,10 @@ module.exports = function(Machine) {
       })
     }
 
-    function bindMac(deviceMAC, token){
+    // bind mac API to gizwits
+    function bindMac(deviceMAC, token, machineId){
       const now = Math.round(new Date().getTime()/1000);
-      // bind mac API 
+      // bind mac API to gizwits
       const bindMac = {
         method: 'POST',
         url: 'http://api.gizwits.com/app/bind_mac',
@@ -164,18 +140,23 @@ module.exports = function(Machine) {
         })
       }
       request(bindMac, (err, res, bindBody)=>{
+        const { host, wss_port } = JSON.parse(body);
         if(err){
           Promise.reject(err)
         };
+        let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
+        updateMachineAttri(machineId, update);
       });
     }
 
     //start game function
     function startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId){
-      let location = `products/${productId}`;
-      makeDbTransaction(location, 'totalNumOfPlay', 'plus');
+      let locationP = `products/${productId}`;
+      let locationM = `machines/${machineId}`;
+      makeDbTransaction(locationP, 'totalNumOfPlay', 'plus');
+      makeDbTransaction(locationM, 'totalNumOfPlay', 'plus');
       // perform : 1. communicate to gizwits ; 2. create a new transation 
-      Promise.all([gizwitsConfigs(userId, deviceMAC, deviceId), createNewTransaction(userId, gamePlayRate, 'minus', 'closed')])
+      Promise.all([gizwitsConfigs(userId, machineId, deviceMAC, deviceId), createNewTransaction(userId, gamePlayRate, 'minus', 'closed')])
       .then(result=>{
           let transactionId = result[1].id;
           let expectedResult = initialize.result;
@@ -208,29 +189,37 @@ module.exports = function(Machine) {
         let { deviceMAC, deviceId, init } = iotPlatform.gizwits;
         let { gamePlayRate, productRate } = data[2];
         // check same user holding the machine
-        let sameUser = !currentUser ? false : (currentUser.userId === userId);
+        let sameUser = !currentUser ? false : (currentUser.id === userId);
         //check machine is open 
         if(status === 'open' && !currentUser){
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
             let initialize = initializeResult(productRate, init);
-            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId); 
+            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
+            updateCurrentUser(userId, machineId)
           //not enough balance
           }else{
             cb(null, 'insufficient balance')
           }
         //machine is open but waiting user response
         }else if(status === 'open' && sameUser){
+
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
             let initialize = initializeResult(productRate, init);
-            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId); 
+            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
+            if(!currentUser.name){
+              updateCurrentUser(userId, machineId)
+            }else{
+              updateMachineAttri(machineId, {status: 'playing'})
+            }
           //not enough balance
           }else{
             cb(null, 'insufficient balance')
           }
         // machine is in 'playing status'
         }else{
+          makeReserve(userId, machineId)
           cb(null, 'machine is playing')
         }
         return null
@@ -250,7 +239,7 @@ module.exports = function(Machine) {
 
       let int1 = getRandomIntInclusive(1, productRate);
       let int2 = getRandomIntInclusive(1, productRate);
-      let initCatcher = (int1 === int2) ? (InitCatcher+'101') : (InitCatcher+'001');
+      let initCatcher = (int1 === int2) ? InitCatcher.concat([1,1]) : InitCatcher.concat([0,1]);
       let result = (int1 === int2);
       let expectedResult = {
         initCatcher: initCatcher,
@@ -260,6 +249,13 @@ module.exports = function(Machine) {
     }; // <--- generate result function end
 
   };// <--- machine gamePlay remote method end
+
+  // update Machine attributies function
+  function updateMachineAttri(machineId, updateObj){
+    Machine.findById(machineId, (err, instance)=>{
+      instance.updateAttributes(updateObj);
+    })
+  }
 
   // find the user include relations
   function findUserInclude(userId, include){
@@ -275,26 +271,57 @@ module.exports = function(Machine) {
     });
   }
 
+  //find user identity to update machine status
+  function updateCurrentUser(userId, machineId){
+    findUserInclude(userId, {relation: 'userIdentities', scope: {limit: 1}})
+      .then(parsedUser=>{
+          // console.log('USER obj :', parsedUser);
+          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
+          let player = {
+            id: userId,
+            name: parsedUser.name,
+            picture: picture
+          }
+        updateMachineAttri(machineId, {status: 'playing', currentUser: player})
+        return null
+      })
+      .catch(err=>{console.log('error in finding user identity : ', err)})
+  }
+
+  //make a reservation of user
+  function makeReserve(userId, machineId){
+    let Reservation = app.models.Reservation;
+    Reservation.findOne({where: {userId: userId}}, (err, instance)=>{
+      instance.updateAttributes({status: 'open', machineId: machineId})
+    })
+  }
+
   Machine.afterRemote('gamePlay', (ctx, unused, next)=>{
-    let Play = app.models.Play;
     console.log('|=========== Game Play End =============|')
-    let { afterRemote } = ctx.result.result;
-    let { transactionId, userId, machineId, productId, playId } = afterRemote;
+    console.log(ctx.result.result)
+    if(ctx.result.result.afterRemote !== undefined){
+      let Play = app.models.Play;
+      let { afterRemote } = ctx.result.result;
+      let { transactionId, userId, machineId, productId, playId } = afterRemote;
+      
+      setTimeout(()=>{checkPlayResult(playId)}, 47000)
+
+      function checkPlayResult(playId){
+        console.log('check play result trigger HERE')
+        Play.findById(playId, (err, instance)=>{
+          console.log('final play instance : ', instance);
+          if(instance.finalResult === undefined){
+            let attri = {ended: new Date().getTime(), finalResult: false};
+            instance.updateAttributes(attri);
+            app.pusher.trigger(`play-${userId}`, 'game_end', attri);
+          }
+        });
+      };
+      next();
+    }else{
+      next();
+    }
     
-    setTimeout(()=>{checkPlayResult(playId)}, 47000)
-
-    function checkPlayResult(playId){
-      console.log('check play result trigger HERE')
-      Play.findById(playId, (err, instance)=>{
-        if(!instance.finalResult){
-          let attri = {ended: new Date().getTime(), finalResult: false};
-          instance.updateAttributes(attri);
-          app.pusher.trigger(`play-${userId}`, 'game_end', attri);
-        }
-      });
-    };
-
-    next();
   })
 
   Machine.remoteMethod(

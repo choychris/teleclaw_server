@@ -18,6 +18,9 @@
     "lastUpdated":{
       "type": "date"
     },
+    "lastStatusChanged":{
+      "type": "date"
+    },
     "name": {
       "type": "string",
       "required": true

@@ -2,7 +2,7 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-// import { asMessagingFunc } from '../utils/firebasedb.js';
+import { checkMachineStatus } from '../utils/gamePlayTimer.js';
 import { makeTransaction } from '../utils/makeTransaction.js';
 var Promise = require('bluebird');
 
@@ -10,7 +10,7 @@ module.exports = function(Reservation) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  loggingModel(Reservation);
+  //loggingModel(Reservation);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Reservation);
@@ -35,36 +35,43 @@ module.exports = function(Reservation) {
   });
 
   Reservation.endEngage = (machineId, cb) => {
-    console.log('resercation endEngage machineId : ', machineId);
-    const Machine = app.models.Machine;
-
-
-    function updateMachine(machineId, status){
-      Machine.findById(machineId, (err, machine)=>{
-        machine.updateAttributes({status: status, currentUser: null}, (err, instance)=>{
-          if(err){
-            cb(err);
-          }
-        });
-      });
-    }
-
     Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
-      //console.log('foundReserve : ', foundReserve);
-      if(foundReserve === null || foundReserve.length == 0){
-        updateMachine(machineId, 'open')
-        cb(null, {machineStatus: 'open'});
+      if(foundReserve === null || foundReserve.length === 0){
+        console.log('when no reserve');
+        updateMachine(machineId, 'open', null)
+        if(!!cb){ cb(null, {machineStatus: 'open'}); }
       }else{
         //console.log(typeof foundReserve);
-        updateMachine(machineId, 'playing')
         foundReserve[0].updateAttributes({status: 'close', machineId: machineId}, (newError, instance)=>{
           //console.log('update next player to engage : ', instance);
-          cb(null, {reserveUpdate: instance});
+          updateMachine(machineId, 'open', {userId: instance.userId})
+          timeOutReserve(machineId, Reservation);
+          if(!!cb){ cb(null, instance); }
         });
       }
     });
-
   };
+
+  function updateMachine(machineId, status, userId){
+    let Machine = app.models.Machine;
+    Machine.findById(machineId, (err, machine)=>{
+      machine.updateAttributes({status: status, currentUser: userId}, (err, instance)=>{
+        if(err){
+          console.log(err);
+        }
+        console.log('machine instance :', instance);
+      });
+    });
+  }
+
+  function timeOutReserve(machineId, Reservation){
+      let Machine = app.models.Machine;
+      setTimeout(()=>{
+        checkMachineStatus(machineId, Machine, Reservation)
+      }, 8000)
+  }
+
+
 
   Reservation.remoteMethod(
     'endEngage',
