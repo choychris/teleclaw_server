@@ -15,12 +15,12 @@ if(process.env.NODE_ENV === 'staging'){
 }
 
 describe.only("Game flow", function() {
-  // describe("CREATE", function() {
-  //   it('status 200', function(done){
-  //     require("./productTest.js")
-  //     done();
-  //   });
-  // });
+  describe("CREATE", function() {
+    it('status 200', function(done){
+      require("./productTest.js")
+      done();
+    });
+  });
 
   describe("PLAY", function() {
     it('status 200', function(done){

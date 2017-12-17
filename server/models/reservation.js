@@ -45,13 +45,13 @@ module.exports = function(Reservation) {
           if(foundReserve === null || foundReserve.length === 0){
             console.log('when no reserve');
             updateMachine(machineId, 'open', null)
-            if(!!cb){ cb(null, {machineStatus: 'open'}); }
+            if(!!cb){ cb(null, 'machine_open'); }
           }else{
             //update the next reserve and trigger pusher in after save
             foundReserve[0].updateAttributes({status: 'close', machineId: machineId}, (newError, instance)=>{
               updateMachine(machineId, 'open', {id: instance.userId})
               timeOutReserve(machineId, Reservation);
-              if(!!cb){ cb(null, instance); }
+              if(!!cb){ cb(null, 'next_reserve'); }
             });
           }
         });
