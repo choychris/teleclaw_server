@@ -61,6 +61,7 @@ module.exports = function(Machine) {
     } 
   });
 
+  // function to check whether all machine not available
   function updateProductStatus(productId){
     let Product = app.models.Product;
 
@@ -164,17 +165,18 @@ module.exports = function(Machine) {
             InitCatcher : initialize.initCatcher,
             newWalletBalance: result[1].newWalletBalance,
             gizwits: result[0],
-            afterRemote: {
-              transactionId,
-              userId,
-              machineId,
-              productId
-            }
+            // afterRemote: {
+            //   transactionId,
+            //   userId,
+            //   machineId,
+            //   productId
+            // }
+            userId: userId
           };
           // then create a new persited Play obj
           return Play.create({userId, machineId, productId, transactionId, expectedResult})
       }).then(res=>{
-        response.afterRemote.playId = res.id;
+        response.playId = res.id;
         cb(null, response);
       }).catch(error=>{
         cb(error)
@@ -202,7 +204,7 @@ module.exports = function(Machine) {
             cb(null, 'insufficient balance')
           }
         //machine is open but waiting user response
-        }else if(status === 'open' && sameUser){
+        }else if(status !== 'close' && sameUser){
 
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
@@ -215,12 +217,12 @@ module.exports = function(Machine) {
             }
           //not enough balance
           }else{
-            cb(null, 'insufficient balance')
+            cb(null, 'insufficient_balance')
           }
         // machine is in 'playing status'
-        }else{
+        }else if(status !== 'close'){
           makeReserve(userId, machineId)
-          cb(null, 'machine is playing')
+          cb(null, 'reservation_made')
         }
         return null
       })
@@ -285,7 +287,7 @@ module.exports = function(Machine) {
         updateMachineAttri(machineId, {status: 'playing', currentUser: player})
         return null
       })
-      .catch(err=>{console.log('error in finding user identity : ', err)})
+      .catch(err=>{console.log('error in finding user identity when play start : ', err)})
   }
 
   //make a reservation of user
@@ -299,10 +301,10 @@ module.exports = function(Machine) {
   Machine.afterRemote('gamePlay', (ctx, unused, next)=>{
     console.log('|=========== Game Play End =============|')
     console.log(ctx.result.result)
-    if(ctx.result.result.afterRemote !== undefined){
+    if(ctx.result.result.InitCatcher !== undefined){
       let Play = app.models.Play;
-      let { afterRemote } = ctx.result.result;
-      let { transactionId, userId, machineId, productId, playId } = afterRemote;
+      let { userId, playId } = ctx.result.result;
+      //let { transactionId, userId, machineId, productId, playId } = afterRemote;
       
       setTimeout(()=>{checkPlayResult(playId)}, 47000)
 

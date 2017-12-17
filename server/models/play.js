@@ -29,7 +29,7 @@ module.exports = function(Play) {
           instance.updateAttributes({status: 'open'});
         });
 
-        // after 5 sec, if user reponse to play again 
+        // after 8 sec, if user reponse to play again 
         setTimeout(()=>{
           checkMachineStatus(machineId, Machine, Reservation)
         }, 8000)

@@ -35,21 +35,32 @@ module.exports = function(Reservation) {
   });
 
   Reservation.endEngage = (machineId, cb) => {
-    Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
-      if(foundReserve === null || foundReserve.length === 0){
-        console.log('when no reserve');
-        updateMachine(machineId, 'open', null)
-        if(!!cb){ cb(null, {machineStatus: 'open'}); }
-      }else{
-        //console.log(typeof foundReserve);
-        foundReserve[0].updateAttributes({status: 'close', machineId: machineId}, (newError, instance)=>{
-          //console.log('update next player to engage : ', instance);
-          updateMachine(machineId, 'open', {userId: instance.userId})
-          timeOutReserve(machineId, Reservation);
-          if(!!cb){ cb(null, instance); }
+    let Machine = app.models.Machine;
+
+    Machine.findById(machineId, (err, machine)=>{
+      // check if machine is still in playing
+      if(machine.status !== 'playing'){
+        //find next reservation
+        Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
+          if(foundReserve === null || foundReserve.length === 0){
+            console.log('when no reserve');
+            updateMachine(machineId, 'open', null)
+            if(!!cb){ cb(null, {machineStatus: 'open'}); }
+          }else{
+            //update the next reserve and trigger pusher in after save
+            foundReserve[0].updateAttributes({status: 'close', machineId: machineId}, (newError, instance)=>{
+              updateMachine(machineId, 'open', {id: instance.userId})
+              timeOutReserve(machineId, Reservation);
+              if(!!cb){ cb(null, instance); }
+            });
+          }
         });
+
+      }else{
+        if(!!cb){ cb(null, 'machine_playing'); }
       }
     });
+
   };
 
   function updateMachine(machineId, status, userId){

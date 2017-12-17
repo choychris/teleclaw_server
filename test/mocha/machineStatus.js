@@ -149,43 +149,43 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ Reservation API ================|
-  // describe('Try to Make reservation to the selected machine', function(){
-  //   it('should return reservation object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let machineId = global.Machine.id;
-  //     let reserveObj = {
-  //       status: 'open',
-  //       machineId: machineId
-  //     };
-  //     let findUrl = `/api/reservations/findOne?access_token=${global.accessToken}`;
-  //     let filterObj = {
-  //       where: {
-  //         userId: lbUserId
-  //       }
-  //     };
+  describe('Try to Make reservation to the selected machine', function(){
+    it('should return reservation object', function(done){
+      var api = supertest.agent(baseUrl);
+      let machineId = global.Machine.id;
+      let reserveObj = {
+        status: 'open',
+        machineId: machineId
+      };
+      let findUrl = `/api/reservations/findOne?access_token=${global.accessToken}`;
+      let filterObj = {
+        where: {
+          userId: lbUserId
+        }
+      };
 
-  //     api
-  //       .get(generateJSONAPI(findUrl, filterObj))
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         global.reservationId = res.body.id;
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
+      api
+        .get(generateJSONAPI(findUrl, filterObj))
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          global.reservationId = res.body.id;
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
 
-  //         let url = `/api/reservations/${global.reservationId}?access_token=${global.accessToken}`;
-  //         api
-  //           .patch(url)
-  //           .send(reserveObj)
-  //           .set('Accept', 'application/json')
-  //           .end(function(err,res){
-  //             res.body.should.be.an('object');
-  //             res.status.should.equal(200);
-  //             done();
-  //           });
-  //       });
+          let url = `/api/reservations/${global.reservationId}?access_token=${global.accessToken}`;
+          api
+            .patch(url)
+            .send(reserveObj)
+            .set('Accept', 'application/json')
+            .end(function(err,res){
+              res.body.should.be.an('object');
+              res.status.should.equal(200);
+              done();
+            });
+        });
 
-  //   });
-  // });
+    });
+  });
 
   // describe('cancel a reservation', function(){
   //   it('should return next reservation object', function(done){
