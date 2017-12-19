@@ -2,7 +2,7 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { makeTransaction } from '../utils/makeTransaction.js';
+import { makeCalculation } from '../utils/makeTransaction.js';
 
 module.exports = function(Transaction) {
 
@@ -20,32 +20,8 @@ module.exports = function(Transaction) {
     if(ctx.isNewInstance){
       let Wallet = app.models.Wallet;
       let { walletId, action, amount } = ctx.instance;
-      // console.log('amount : ', amount);
-      makeTransaction(Wallet, walletId, 'balance', amount, action)
+      makeCalculation(Wallet, walletId, 'balance', amount, action)
       next();
-      // Wallet.findById(walletId, (err, wallet)=>{
-      //   //console.log('update wallet : ', wallet)
-      //   let parsedWallet = JSON.parse(JSON.stringify(wallet));
-      //   // console.log(wallet.updateAttribute);
-      //   // console.log(typeof(wallet.updateAttribute));
-      //   if(action === 'minus'){
-      //     let balance = parsedWallet.balance - amount;
-      //     wallet.updateAttributes({balance: balance}, (err, instance)=>{
-      //       if(err){
-      //         next(err);
-      //       }
-      //     next();  
-      //     });
-      //   }else if(action === 'plus'){
-      //     let balance = parsedWallet.balance + amount;
-      //     wallet.updateAttributes({balance: balance}, (err, instance)=>{
-      //       if(err){
-      //         next(err);
-      //       }
-      //     next();
-      //     });
-      //   };
-      // });
     }
   });
 

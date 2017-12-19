@@ -40,7 +40,14 @@
       "default": 0
     },
     "iotPlatform": {
-      "type": "object"
+      "gizwits":{
+        "init": "array",
+        "deviceId": "string",
+        "deviceMAC": "string",
+        "productKey": "string",
+        "host": "string",
+        "wss_port": "string"
+      }
     },
     "productId": {
       "type": "string"

@@ -16,24 +16,19 @@
       "required": true
     },
     "coins": {
-      "type": "number",
-      "required": true
+      "type": "number"
     },
     "discounts": {
-      "type": "number",
-      "required": true
+      "type": "number"
     },
     "currency": {
-      "type": "object",
-      "required": true
+      "type": "object"
     },
     "status": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "images": {
-      "type": "object",
-      "required": true
+      "type": "object"
     }
   },
   "validations": [],

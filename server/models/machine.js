@@ -50,7 +50,7 @@ module.exports = function(Machine) {
       };
       changeFirebaseDb('set', location, firebaseDataObj, 'Machine');
       next();
-    } else if (!ctx.isNewInstance){
+    }else if (!ctx.isNewInstance){
       let { id, name, status, display, currentUser, productId, reservation } = ctx.instance ;
       let player = currentUser ? currentUser : null;
       if(ctx.hookState && ctx.hookState.pusher){
@@ -87,68 +87,59 @@ module.exports = function(Machine) {
     next();
   })
 
+  // machine game play remote method
   Machine.gamePlay = (machineId, data, cb) => {
     let { productId, userId } = data;
     let Product = app.models.Product;
     let Play = app.models.Play;
     let User = app.models.User;
 
-    // POST gizwits API to login customer and bind device MAC
-    function gizwitsConfigs(userId, machineId, deviceMAC, deviceId){
-      // user authenicate API
-      const createUser = {
-        method: 'POST',
-        url: 'http://api.gizwits.com/app/users',
-        headers: {
-          'X-Gizwits-Application-Id': GIZWITS_APPLICATION_ID
-        },
-        body: JSON.stringify({
-          phone_id: userId
-        })
-      };
-      // first, login the user to get token
-      return new Promise((resolve, reject)=>{
-        request(createUser, (err, res, body)=>{
-          const { token, uid, expire_at } = JSON.parse(body);
-          User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
-            if(err||error){ reject(err||error)}
-            if(user.length === 0){ 
-              bindMac(deviceMAC, token, machineId) 
-              User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
+    let response = {};
+    // perform : 1. get user; 2. get machine; 3. get produdct, from database
+    Promise.all([findUserInclude(userId, 'wallet'), Machine.findById(machineId), Product.findById(productId)])
+      .then(data=>{
+        let walletBalance = data[0].wallet.balance;
+        let { status, currentUser, iotPlatform } = data[1];
+        let { deviceMAC, deviceId, init } = iotPlatform.gizwits;
+        let { gamePlayRate, productRate } = data[2];
+        // check same user holding the machine
+        let sameUser = !currentUser ? false : (currentUser.id === userId);
+        //check machine is open 
+        if(status === 'open' && !currentUser){
+          //check enough coins to play
+          if(walletBalance >= gamePlayRate){
+            let initialize = initializeResult(productRate, init);
+            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
+            updateCurrentUser(userId, machineId)
+          //not enough balance
+          }else{
+            cb(null, 'insufficient balance')
+          }
+        //machine is open but waiting user response
+        }else if(status !== 'close' && sameUser){
+          //check enough coins to play
+          if(walletBalance >= gamePlayRate){
+            let initialize = initializeResult(productRate, init);
+            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
+            if(!currentUser.name){
+              updateCurrentUser(userId, machineId)
+            }else{
+              updateMachineAttri(machineId, {status: 'playing'})
             }
-            resolve({appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId})
-          })
-        });
+          //not enough balance
+          }else{
+            cb(null, 'insufficient_balance')
+          }
+        // machine is in 'playing status'
+        }else if(status !== 'close'){
+          makeReserve(userId, machineId)
+          cb(null, 'reservation_made')
+        }
+        return null
       })
-    }
-
-    // bind mac API to gizwits
-    function bindMac(deviceMAC, token, machineId){
-      const now = Math.round(new Date().getTime()/1000);
-      // bind mac API to gizwits
-      const bindMac = {
-        method: 'POST',
-        url: 'http://api.gizwits.com/app/bind_mac',
-        headers: {
-          'X-Gizwits-Application-Id': GIZWITS_APPLICATION_ID,
-          'X-Gizwits-Timestamp': now,
-          'X-Gizwits-Signature': md5(GIZWITS_PRODUCT_SECRET+now),
-          'X-Gizwits-User-token': token
-        },
-        body: JSON.stringify({
-          product_key: GIZWITS_PRODUCT_KEY,
-          mac: deviceMAC
-        })
-      }
-      request(bindMac, (err, res, bindBody)=>{
-        const { host, wss_port } = JSON.parse(body);
-        if(err){
-          Promise.reject(err)
-        };
-        let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
-        updateMachineAttri(machineId, update);
-      });
-    }
+      .catch(error=>{
+        cb(error)
+      })
 
     //start game function
     function startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId){
@@ -181,54 +172,71 @@ module.exports = function(Machine) {
       }).catch(error=>{
         cb(error)
       });
-    }
-    let response = {};
-    // perform : 1. get user; 2. get machine; 3. get produdct, from database
-    Promise.all([findUserInclude(userId, 'wallet'), Machine.findById(machineId), Product.findById(productId)])
-      .then(data=>{
-        let walletBalance = data[0].wallet.balance;
-        let { status, currentUser, iotPlatform } = data[1];
-        let { deviceMAC, deviceId, init } = iotPlatform.gizwits;
-        let { gamePlayRate, productRate } = data[2];
-        // check same user holding the machine
-        let sameUser = !currentUser ? false : (currentUser.id === userId);
-        //check machine is open 
-        if(status === 'open' && !currentUser){
-          //check enough coins to play
-          if(walletBalance >= gamePlayRate){
-            let initialize = initializeResult(productRate, init);
-            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
-            updateCurrentUser(userId, machineId)
-          //not enough balance
-          }else{
-            cb(null, 'insufficient balance')
-          }
-        //machine is open but waiting user response
-        }else if(status !== 'close' && sameUser){
+    }//<--- start game function end
 
-          //check enough coins to play
-          if(walletBalance >= gamePlayRate){
-            let initialize = initializeResult(productRate, init);
-            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
-            if(!currentUser.name){
-              updateCurrentUser(userId, machineId)
+    // POST gizwits API to login customer and bind device MAC
+    function gizwitsConfigs(userId, machineId, deviceMAC, deviceId){
+      // user authenicate API
+      const createUser = {
+        method: 'POST',
+        url: 'http://api.gizwits.com/app/users',
+        headers: {
+          'X-Gizwits-Application-Id': GIZWITS_APPLICATION_ID
+        },
+        body: JSON.stringify({
+          phone_id: userId
+        })
+      };
+      // first, login the user to get token
+      return new Promise((resolve, reject)=>{
+        request(createUser, (err, res, body)=>{
+          const { token, uid, expire_at } = JSON.parse(body);
+          User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
+            if(err||error){ reject(err||error)}
+            // check whether the user has already bind this machine
+            let gizwits = {appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId}
+            if(user.length === 0){ 
+              bindMac(deviceMAC, token, machineId, gizwits, resolve) 
+              User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
             }else{
-              updateMachineAttri(machineId, {status: 'playing'})
+              resolve(gizwits);
             }
-          //not enough balance
-          }else{
-            cb(null, 'insufficient_balance')
-          }
-        // machine is in 'playing status'
-        }else if(status !== 'close'){
-          makeReserve(userId, machineId)
-          cb(null, 'reservation_made')
-        }
-        return null
-      })
-      .catch(error=>{
-        cb(error)
-      })
+            
+          })//<--- find user end
+        });//<--- request end
+      })//<--- promise end
+    }
+
+    // bind mac API to gizwits
+    function bindMac(deviceMAC, token, machineId, gizwits, resolve){
+      const now = Math.round(new Date().getTime()/1000);
+      // bind mac API to gizwits
+      const bindMac = {
+        method: 'POST',
+        url: 'http://api.gizwits.com/app/bind_mac',
+        headers: {
+          'X-Gizwits-Application-Id': GIZWITS_APPLICATION_ID,
+          'X-Gizwits-Timestamp': now,
+          'X-Gizwits-Signature': md5(GIZWITS_PRODUCT_SECRET+now),
+          'X-Gizwits-User-token': token
+        },
+        body: JSON.stringify({
+          product_key: GIZWITS_PRODUCT_KEY,
+          mac: deviceMAC
+        })
+      }
+      request(bindMac, (err, res, bindBody)=>{
+        const { host, wss_port } = JSON.parse(bindBody);
+        if(err){
+          Promise.reject(err)
+        };
+        let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
+        updateMachineAttri(machineId, update);
+        gizwits.host = host;
+        gizwits.wss_port = wss_port;
+        resolve(gizwits);
+      });
+    }//<--- bind mac API function end
 
     // function to generate a game result
     const initializeResult = (productRate, InitCatcher) => {
@@ -237,7 +245,7 @@ module.exports = function(Machine) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
-      } // <--- random int function end
+      } //<--- random int function end
 
       let int1 = getRandomIntInclusive(1, productRate);
       let int2 = getRandomIntInclusive(1, productRate);
@@ -248,16 +256,9 @@ module.exports = function(Machine) {
         result: result
       }
       return expectedResult;
-    }; // <--- generate result function end
+    }; //<--- generate result function end
 
-  };// <--- machine gamePlay remote method end
-
-  // update Machine attributies function
-  function updateMachineAttri(machineId, updateObj){
-    Machine.findById(machineId, (err, instance)=>{
-      instance.updateAttributes(updateObj);
-    })
-  }
+  };//<--- machine gamePlay remote method end
 
   // find the user include relations
   function findUserInclude(userId, include){
@@ -290,6 +291,13 @@ module.exports = function(Machine) {
       .catch(err=>{console.log('error in finding user identity when play start : ', err)})
   }
 
+  // update Machine attributies function
+  function updateMachineAttri(machineId, updateObj){
+    Machine.findById(machineId, (err, instance)=>{
+      instance.updateAttributes(updateObj);
+    })
+  }
+
   //make a reservation of user
   function makeReserve(userId, machineId){
     let Reservation = app.models.Reservation;
@@ -306,12 +314,14 @@ module.exports = function(Machine) {
       let { userId, playId } = ctx.result.result;
       //let { transactionId, userId, machineId, productId, playId } = afterRemote;
       
+      // check the result after 47s
       setTimeout(()=>{checkPlayResult(playId)}, 47000)
 
+      //check if the result is updated manually
       function checkPlayResult(playId){
-        console.log('check play result trigger HERE')
+        //console.log('check play result trigger HERE')
         Play.findById(playId, (err, instance)=>{
-          console.log('final play instance : ', instance);
+          //console.log('final play instance : ', instance);
           if(instance.finalResult === undefined){
             let attri = {ended: new Date().getTime(), finalResult: false};
             instance.updateAttributes(attri);

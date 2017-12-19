@@ -15,8 +15,7 @@
       "required": true
     },
     "lastLogIn": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "lastUpdated": {
       "type": "date"
@@ -33,8 +32,8 @@
     "address": {
       "type": "string"
     },
-    "referralCode": {
-      "type": "string"
+    "referral": {
+      "type": "object"
     },
     "email": {
       "type": "string"

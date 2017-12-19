@@ -19,15 +19,51 @@ module.exports = function(Reward) {
   Reward.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
       let { type, rewardAmount, userId } = ctx.instance;
-      const Transaction = app.models.Transaction;
       const User = app.models.User;
-      if(type === 'checkIn' || type === 'referral'){
-        createNewTransaction(userId, rewardAmount, 'plus', 'closed')
-          .then(createdTrans => {})
-          .catch(err => { next(err) })
-      }
+      createNewTransaction(userId, rewardAmount, 'plus', 'closed')
+        .then(createdTrans => {
+          ctx.instance.id = createdTrans.id;
+          next();
+          return null;
+        })
+        .catch(err => { next(err) })
+    }else{
+      next();     
     }
-    next();
   });
+
+  Reward.refer = (data, cb) => {
+    let { userId, referralCode } = data;
+    let User = app.models.User;
+    let Event = app.models.Event;
+    User.findById(userId).then(user=>{
+      if(user.referral.isRefer){
+        cb(null, 'already_referred')
+      }else{
+
+      }
+    })
+    .catch(error=>{
+      cb(error)
+    })
+
+    function findUserByCode(referralCode){
+      let User = app.models.User;
+      User.findOne({where:{'referral.code': referralCode}}, (err, user)=>{
+
+      })
+    }
+
+
+  };
+
+  Reward.remoteMethod(
+    'refer',
+    {
+      http: {path: '/refer', verb: 'post'},
+      accepts: {arg: 'data', type: 'object', required: true},
+      returns: {arg: 'result', type: 'object'}
+    }
+  );
 
 };

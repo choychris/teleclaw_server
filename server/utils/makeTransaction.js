@@ -1,10 +1,10 @@
 const Promise = require('bluebird');
 
-export function makeTransaction(model, modelId, modelAttribute, amount, plusOrMinus){
+export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMinus){
   model.findById(modelId, (err, foundModel)=>{
     let parsedModel = JSON.parse(JSON.stringify(foundModel));
     if(plusOrMinus === 'minus'){
-      let newNumber = parsedModel[modelAttribute] - amount < 0 ? 0 : parsedModel[modelAttribute] - amount;
+      let newNumber = parsedModel[modelAttribute] - amount;
       let roundNumber = Math.round(newNumber);
       foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
@@ -57,6 +57,6 @@ export function createNewTransaction(userId, amount, transactionAction, transact
         return createdTrans
       });
     });//<--- find User function ended
- });
+ });//<--- promise ended
 };
 

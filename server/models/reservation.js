@@ -3,7 +3,7 @@
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
 import { checkMachineStatus } from '../utils/gamePlayTimer.js';
-import { makeTransaction } from '../utils/makeTransaction.js';
+import { makeCalculation } from '../utils/makeTransaction.js';
 var Promise = require('bluebird');
 
 module.exports = function(Reservation) {
@@ -24,11 +24,11 @@ module.exports = function(Reservation) {
     if(!ctx.isNewInstance){
       if(status === 'close'){
         app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', {reservationId: id, machineId: machineId, status: status, time: new Date().getTime()})
-        makeTransaction(Machine, machineId, 'reservation', 1, 'minus');
+        makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
       }else if(status === 'open'){
-        makeTransaction(Machine, machineId, 'reservation', 1, 'plus');
+        makeCalculation(Machine, machineId, 'reservation', 1, 'plus');
       }else{
-        makeTransaction(Machine, machineId, 'reservation', 1, 'minus');
+        makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
       }
     }
     next();
@@ -81,8 +81,6 @@ module.exports = function(Reservation) {
         checkMachineStatus(machineId, Machine, Reservation)
       }, 8000)
   }
-
-
 
   Reservation.remoteMethod(
     'endEngage',

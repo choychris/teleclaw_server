@@ -2,7 +2,10 @@
 
 import { updateTimeStamp } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
+import { makeDbTransaction } from '../utils/firebasedb.js';
 import { checkMachineStatus } from '../utils/gamePlayTimer.js';
+import { makeCalculation } from '../utils/makeTransaction.js';
+
 const shortid = require('shortid');
 const request = require('request');
 
@@ -22,13 +25,21 @@ module.exports = function(Play) {
       ctx.instance.id = shortid.generate();
       next();
     }else{
-      if(ctx.data && ctx.data.ended){
-        let machineId = ctx.currentInstance.machineId;
-        let { Machine, Reservation } = app.models;
+      if(ctx.data && ctx.data.ended && ctx.data.finalResult !== undefined ){
+        let { Machine, Reservation, Product } = app.models;
+        let { productId, machineId } = ctx.currentInstance;
         Machine.findById(machineId, (err, instance)=>{
           instance.updateAttributes({status: 'open'});
         });
 
+        // if the user win, update product sku
+        if(ctx.data.finalResult){
+          let locationP = `products/${productId}`;
+          let locationM = `machines/${machineId}`;
+          makeDbTransaction(locationP, 'totalNumOfSuccess', 'plus')
+          makeDbTransaction(locationM, 'totalNumOfSuccess', 'plus')
+          makeCalculation(Product, id, sku, 1, 'minus');
+        }
         // after 8 sec, if user reponse to play again 
         setTimeout(()=>{
           checkMachineStatus(machineId, Machine, Reservation)
