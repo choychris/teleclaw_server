@@ -153,7 +153,6 @@ module.exports = function(Machine) {
           let transactionId = result[1].id;
           let expectedResult = initialize.result;
           response = {
-            InitCatcher : initialize.initCatcher,
             newWalletBalance: result[1].newWalletBalance,
             gizwits: result[0],
             // afterRemote: {
@@ -164,6 +163,7 @@ module.exports = function(Machine) {
             // }
             userId: userId
           };
+          response.gizwits.init.InitCatcher = initialize.initCatcher;
           // then create a new persited Play obj
           return Play.create({userId, machineId, productId, transactionId, expectedResult})
       }).then(res=>{
@@ -194,7 +194,7 @@ module.exports = function(Machine) {
           User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
             if(err||error){ reject(err||error)}
             // check whether the user has already bind this machine
-            let gizwits = {appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId}
+            let gizwits = {init: {appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId}, websocket: {}}
             if(user.length === 0){ 
               bindMac(deviceMAC, token, machineId, gizwits, resolve) 
               User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
@@ -232,8 +232,7 @@ module.exports = function(Machine) {
         };
         let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
         updateMachineAttri(machineId, update);
-        gizwits.host = host;
-        gizwits.wss_port = wss_port;
+        gizwits.websocket = {host: host, wss_port: wss_port};
         resolve(gizwits);
       });
     }//<--- bind mac API function end

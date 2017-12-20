@@ -35,8 +35,8 @@ describe('Change a machine to different status', function(){
         .send(userInfo)
         .set('Accept', 'application/json')
         .end(function(err,res){
-            global.accessToken = req.body.result.lbToken.id;
-            global.lbUserId = req.body.result.lbToken.id;
+            global.accessToken = res.body.result.lbToken.id;
+            global.lbUserId = res.body.result.lbToken.userId;
             res.body.result.should.be.an('object');
             res.status.should.equal(200);
             done();
@@ -85,13 +85,13 @@ describe('Change a machine to different status', function(){
   // |================ PATCH Machine API ================|
   describe('Change the machine iotPlatform info', function(){
       it('should return machine object', function(done){
-        if(!global.Machine.iotPlatform){
+        //if(!global.Machine.iotPlatform){
         var api = supertest.agent(baseUrl);
         //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
         let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
         let iotPlatform = {
           gizwits : {
-            init: [10,30,6,6,6,4,4,4,12,0],
+            init: [35,30,2,2,2,4,4,4,12,0],
             deviceId : 'bnyXLPJWNpoumbKUYKA78V',
             deviceMAC : '6001941EBCFC',
             productKey : '0b20eeca92544b888db9ebcc70bee872'
@@ -107,10 +107,10 @@ describe('Change a machine to different status', function(){
             res.status.should.equal(200);
             done();
           });
-        }else{
-          global.Machine.iotPlatform.should.be.an('object');
-          done();
-        }
+        // }else{
+        //   global.Machine.iotPlatform.should.be.an('object');
+        //   done();
+        // }
       });
   });
 
@@ -120,6 +120,7 @@ describe('Change a machine to different status', function(){
       var api = supertest.agent(baseUrl);
       let machineId = global.Machine.id;
       let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
+      console.log('userId : ', global.lbUserId)
       let data = {
         productId: global.Product.id,
         userId: global.lbUserId
@@ -131,6 +132,7 @@ describe('Change a machine to different status', function(){
         .end(function(err,res){
             console.log(res.body)
             global.result = res.body.result;
+            console.log(res.body.result.gizwits)
             res.body.should.be.an('object');
             res.status.should.equal(200);
             done();
