@@ -28,6 +28,7 @@ module.exports = function(Play) {
         let { Machine, Reservation, Product } = app.models;
         let { productId, machineId } = ctx.currentInstance;
         Machine.findById(machineId, (err, instance)=>{
+          
           instance.updateAttributes({status: 'open'});
         });
         // if the user win, update product sku

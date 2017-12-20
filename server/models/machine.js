@@ -101,6 +101,7 @@ module.exports = function(Machine) {
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
             let initialize = initializeResult(productRate, init);
+            console.log('initialize : ', initialize);
             startGame(userId, machineId, productId, gamePlayRate, initialize, iotPlatform.gizwits);
             updateCurrentUser(userId, machineId)
           //not enough balance
@@ -235,6 +236,7 @@ module.exports = function(Machine) {
     // function to generate a game result
     const initializeResult = (productRate, InitCatcher) => {
       // random int function
+      console.log('productRate : ', productRate);
       function getRandomIntInclusive(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
@@ -245,6 +247,8 @@ module.exports = function(Machine) {
       let int2 = getRandomIntInclusive(1, productRate);
       let initCatcher = (int1 === int2) ? InitCatcher.concat([1,1]) : InitCatcher.concat([0,1]);
       let result = (int1 === int2);
+      console.log('int1 :: ', int1 )
+      console.log('int2 :: ', int2 )
       let expectedResult = {
         initCatcher: initCatcher,
         result: result
