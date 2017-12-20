@@ -23,7 +23,7 @@ module.exports = function(Reservation) {
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
       if(ctx.data && ctx.data.machineId){
-        if(ctx.data.status === 'open' && machineId !== null){
+        if(status === 'open' && machineId !== null){
           makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
       }
@@ -73,7 +73,7 @@ module.exports = function(Reservation) {
             if(!!cb){ cb(null, 'machine_open'); }
           }else{
             //update the next reserve and trigger pusher in after save
-            foundReserve[0].updateAttributes({status: 'close', machineId: machineId}, (newError, instance)=>{
+            foundReserve[0].updateAttributes({status: 'close'}, (newError, instance)=>{
               updateMachine(machineId, 'open', {id: instance.userId})
               timeOutReserve(machineId, Reservation);
               if(!!cb){ cb(null, 'next_reserve'); }
