@@ -36,15 +36,27 @@ module.exports = function(Reservation) {
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
       if(status === 'close'){
-        app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', {reservationId: id, machineId: machineId, status: status, time: new Date().getTime()})
+        Machine.findById(machineId, (error, machine)=>{
+          let productId = machine.productId;
+          let pusherObj = {
+            reservationId: id, 
+            machineId: machineId,
+            productId:  productId,
+            status: status, 
+            time: new Date().getTime()
+          };
+          app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', pusherObj)
+        });
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
       }else if(status === 'open'){
         makeCalculation(Machine, machineId, 'reservation', 1, 'plus');
       }else{
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
       }
+      next();
+    }else{
+      next();
     }
-    next();
   });
 
   Reservation.endEngage = (machineId, cb) => {
