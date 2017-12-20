@@ -146,7 +146,7 @@ module.exports = function(Machine) {
             gizwits: result[0],
             userId: userId
           };
-          response.gizwits.init.InitCatcher = initialize.initCatcher;
+          response.gizwits.control.InitCatcher = initialize.initCatcher;
           response.gizwits.init.heartbeat_interval = heartbeat_interval;
           // then create a new persited Play obj
           return Play.create({userId, machineId, productId, transactionId, expectedResult})
@@ -178,7 +178,18 @@ module.exports = function(Machine) {
           User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
             if(err||error){ reject(err||error)}
             // check whether the user has already bind this machine
-            let gizwits = {init: {appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId}}
+            let gizwits = {
+              init: {
+                appid: GIZWITS_APPLICATION_ID, 
+                uid: uid, 
+                token: token, 
+                p0_type: "attrs_v4", 
+                auto_subscribe: false
+              }, 
+              control: {
+                did: deviceId
+              }
+            }
             if(user.length === 0){ 
               bindMac(deviceMAC, token, machineId, gizwits, resolve) 
               User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })

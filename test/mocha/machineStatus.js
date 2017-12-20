@@ -85,7 +85,7 @@ describe('Change a machine to different status', function(){
   // |================ PATCH Machine API ================|
   describe('Change the machine iotPlatform info', function(){
       it('should return machine object', function(done){
-        //if(!global.Machine.iotPlatform){
+        if(!global.Machine.iotPlatform){
         var api = supertest.agent(baseUrl);
         //let machineId = 'f0348d84-a1ae-48c5-ab9a-bdd45cb54759';
         let url = `/api/machines/${global.Machine.id}?access_token=${global.accessToken}`;
@@ -108,10 +108,10 @@ describe('Change a machine to different status', function(){
             res.status.should.equal(200);
             done();
           });
-        // }else{
-        //   global.Machine.iotPlatform.should.be.an('object');
-        //   done();
-        // }
+        }else{
+          global.Machine.iotPlatform.should.be.an('object');
+          done();
+        }
       });
   });
 
@@ -121,7 +121,6 @@ describe('Change a machine to different status', function(){
       var api = supertest.agent(baseUrl);
       let machineId = global.Machine.id;
       let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
-      console.log('userId : ', global.lbUserId)
       let data = {
         productId: global.Product.id,
         userId: global.lbUserId
@@ -142,52 +141,52 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ Reservation API ================|
-  describe('Make reservation when machine is playing', function(){
-    it('should return reservation_made object', function(done){
-      var api = supertest.agent(baseUrl);
-      let machineId = global.Machine.id;
-      let secondUser = '5a378cfe3d4405006a68798a';
-      let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
-      let data = {
-        productId: global.Product.id,
-        userId: secondUser
-      }
-      api
-        .post(url)
-        .set('Accept', 'application/json')
-        .send({data: data})
-        .end(function(err,res){
-          console.log(res.body);
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
-    });
-  });
+  // describe('Make reservation when machine is playing', function(){
+  //   it('should return reservation_made object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let machineId = global.Machine.id;
+  //     let secondUser = '5a378cfe3d4405006a68798a';
+  //     let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
+  //     let data = {
+  //       productId: global.Product.id,
+  //       userId: secondUser
+  //     }
+  //     api
+  //       .post(url)
+  //       .set('Accept', 'application/json')
+  //       .send({data: data})
+  //       .end(function(err,res){
+  //         console.log(res.body);
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
   //GET:: reservation
-  describe('Get a users reservation', function(){
-    it('should return reservation object', function(done){
-      var api = supertest.agent(baseUrl);
-      let secondUser = '5a378cfe3d4405006a68798a';
-      let findUrl = `/api/reservations/findOne?access_token=${accessToken}`;
-      let filterObj = {
-        where: {
-          userId: secondUser
-        }
-      };
-      api
-        .get(generateJSONAPI(findUrl, filterObj))
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body);
-          global.reservationId = res.body.id;
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
-    });
-  });
+  // describe('Get a users reservation', function(){
+  //   it('should return reservation object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let secondUser = '5a378cfe3d4405006a68798a';
+  //     let findUrl = `/api/reservations/findOne?access_token=${accessToken}`;
+  //     let filterObj = {
+  //       where: {
+  //         userId: secondUser
+  //       }
+  //     };
+  //     api
+  //       .get(generateJSONAPI(findUrl, filterObj))
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body);
+  //         global.reservationId = res.body.id;
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
   //PATCH:: reservation
   // describe('cancel a reservation', function(){
