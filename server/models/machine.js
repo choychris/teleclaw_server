@@ -35,6 +35,9 @@ module.exports = function(Machine) {
       }
       next();
     }else{
+      if(!ctx.instance.iotPlatform){
+        ctx.instance.iotPlatform = { gizwits:{} }
+      }
       next();
     }
   });
@@ -42,7 +45,7 @@ module.exports = function(Machine) {
   Machine.observe('after save', (ctx, next) => {
     if(ctx.isNewInstance){
       let location = `machines/${ctx.instance.id}`;
-      let { name, status, display,  } = ctx.instance ;
+      let { name, status, display } = ctx.instance ;
       let firebaseDataObj = {
         machine_name: name, 
         totalNumOfPlay: 0, 
@@ -194,7 +197,7 @@ module.exports = function(Machine) {
           User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
             if(err||error){ reject(err||error)}
             // check whether the user has already bind this machine
-            let gizwits = {init: {appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId}, websocket: {}}
+            let gizwits = {init: {appId: GIZWITS_APPLICATION_ID, uid: uid, token: token, did: deviceId}}
             if(user.length === 0){ 
               bindMac(deviceMAC, token, machineId, gizwits, resolve) 
               User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
@@ -308,7 +311,7 @@ module.exports = function(Machine) {
   Machine.afterRemote('gamePlay', (ctx, unused, next)=>{
     console.log('|=========== Game Play End =============|')
     console.log(ctx.result.result)
-    if(ctx.result.result.InitCatcher !== undefined){
+    if(ctx.result.result.gizwits !== undefined){
       let Play = app.models.Play;
       let { userId, playId } = ctx.result.result;
       //let { transactionId, userId, machineId, productId, playId } = afterRemote;
