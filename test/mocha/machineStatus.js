@@ -94,7 +94,8 @@ describe('Change a machine to different status', function(){
             init: [35,30,2,2,2,4,4,4,12,0],
             deviceId : 'bnyXLPJWNpoumbKUYKA78V',
             deviceMAC : '6001941EBCFC',
-            productKey : '0b20eeca92544b888db9ebcc70bee872'
+            productKey : '0b20eeca92544b888db9ebcc70bee872',
+            heartbeat_interval: 45
           }
         };
         api

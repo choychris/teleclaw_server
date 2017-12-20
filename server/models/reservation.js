@@ -18,6 +18,19 @@ module.exports = function(Reservation) {
   //assign an unique if its new instance 
   assignKey(Reservation)
 
+  Reservation.observe('before save', (ctx, next)=>{
+    let { id, status, userId, machineId } = ctx.currentInstance;
+    const Machine = app.models.Machine;
+    if(!ctx.isNewInstance){
+      if(ctx.data && ctx.data.machineId){
+        if(ctx.data.status === 'open' && machineId !== 'none'){
+          makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
+        }
+      };
+    };
+    next();
+  });
+
   Reservation.observe('after save', (ctx, next)=>{
     let { id, status, userId, machineId } = ctx.instance;
     const Machine = app.models.Machine;

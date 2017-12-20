@@ -103,7 +103,7 @@ module.exports = function(Machine) {
       .then(data=>{
         let walletBalance = data[0].wallet.balance;
         let { status, currentUser, iotPlatform } = data[1];
-        let { deviceMAC, deviceId, init } = iotPlatform.gizwits;
+        let { init } = iotPlatform.gizwits;
         let { gamePlayRate, productRate } = data[2];
         // check same user holding the machine
         let sameUser = !currentUser ? false : (currentUser.id === userId);
@@ -112,7 +112,7 @@ module.exports = function(Machine) {
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
             let initialize = initializeResult(productRate, init);
-            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
+            startGame(userId, machineId, productId, gamePlayRate, initialize, iotPlatform.gizwits);
             updateCurrentUser(userId, machineId)
           //not enough balance
           }else{
@@ -123,7 +123,7 @@ module.exports = function(Machine) {
           //check enough coins to play
           if(walletBalance >= gamePlayRate){
             let initialize = initializeResult(productRate, init);
-            startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId);
+            startGame(userId, machineId, productId, gamePlayRate, initialize, iotPlatform.gizwits);
             if(!currentUser.name){
               updateCurrentUser(userId, machineId)
             }else{
@@ -145,11 +145,12 @@ module.exports = function(Machine) {
       })
 
     //start game function
-    function startGame(userId, machineId, productId, gamePlayRate, initialize, deviceMAC, deviceId){
+    function startGame(userId, machineId, productId, gamePlayRate, initialize, gizwits){
       let locationP = `products/${productId}`;
       let locationM = `machines/${machineId}`;
       makeDbTransaction(locationP, 'totalNumOfPlay', 'plus');
       makeDbTransaction(locationM, 'totalNumOfPlay', 'plus');
+      let { deviceMAC, deviceId, heartbeat_interval } = gizwits;
       // perform : 1. communicate to gizwits ; 2. create a new transation 
       Promise.all([gizwitsConfigs(userId, machineId, deviceMAC, deviceId), createNewTransaction(userId, gamePlayRate, 'minus', 'closed')])
       .then(result=>{
@@ -167,6 +168,7 @@ module.exports = function(Machine) {
             userId: userId
           };
           response.gizwits.init.InitCatcher = initialize.initCatcher;
+          response.gizwits.init.heartbeat_interval = heartbeat_interval;
           // then create a new persited Play obj
           return Play.create({userId, machineId, productId, transactionId, expectedResult})
       }).then(res=>{
