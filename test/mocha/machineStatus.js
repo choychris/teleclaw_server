@@ -46,42 +46,42 @@ describe('Change a machine to different status', function(){
   }
 
   // |================ GET Machine ================|
-  // describe('Find product list', function(){
-  //   it('shoule return list of product', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     api
-  //       .get(`/api/products`)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //           res.body.should.be.an('array');
-  //           res.status.should.equal(200);
-  //           global.Product = res.body[2];
-  //           console.log(global.Product.id)
-  //           done();
-  //       });
-  //   });
-  // });
+  describe('Find product list', function(){
+    it('shoule return list of product', function(done){
+      var api = supertest.agent(baseUrl);
+      api
+        .get(`/api/products`)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+            res.body.should.be.an('array');
+            res.status.should.equal(200);
+            global.Product = res.body[2];
+            console.log(global.Product.id)
+            done();
+        });
+    });
+  });
 
-  // describe('Find a product include machines', function(){
-  //   it('should return first product and machine', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     var url = `/api/products/${global.Product.id}?access_token=${global.accessToken}`
-  //     var filter = {
-  //       include: "machines"
-  //     }
-  //     api
-  //       .get(generateJSONAPI(url, filter))
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //           //console.log(res.body)
-  //           res.body.should.be.an('object');
-  //           res.status.should.equal(200);
-  //           global.Machine = res.body.machines[0];
-  //           //console.log(global.Machine);
-  //           done();
-  //       });
-  //   });
-  // });
+  describe('Find a product include machines', function(){
+    it('should return first product and machine', function(done){
+      var api = supertest.agent(baseUrl);
+      var url = `/api/products/${global.Product.id}?access_token=${global.accessToken}`
+      var filter = {
+        include: "machines"
+      }
+      api
+        .get(generateJSONAPI(url, filter))
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+            //console.log(res.body)
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            global.Machine = res.body.machines[0];
+            //console.log(global.Machine);
+            done();
+        });
+    });
+  });
 
   // |================ PATCH Machine API ================|
   describe('Change the machine iotPlatform info', function(){

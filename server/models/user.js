@@ -44,7 +44,8 @@ module.exports = function(User) {
         let reserve = {
           status: 'close',
           userId: ctx.instance.id,
-          machineId: null
+          machineId: null,
+          productId: null
         }
         Wallet.create(wallet, (error, wallet)=>{})
         Reservation.create(reserve, (error, reserve)=>{})

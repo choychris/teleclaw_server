@@ -47,7 +47,7 @@ module.exports = function(Machine) {
       let player = currentUser ? currentUser : null;
       if(ctx.hookState && ctx.hookState.pusher){
         updateProductStatus(productId);
-        app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player, time: new Date()});
+        app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player, lastUpdated: new Date().getTime()});
       }
     } 
     next();
@@ -125,8 +125,10 @@ module.exports = function(Machine) {
           }
         // machine is in 'playing status'
         }else if(status !== 'close'){
-          makeReserve(userId, machineId)
-          cb(null, 'reservation_made')
+          makeReserve(userId, machineId, productId).then(res=>{
+            cb(null, {reservation: res})
+            return null
+          })
         }
         return null
       })
@@ -297,12 +299,24 @@ module.exports = function(Machine) {
   }
 
   //make a reservation of user
-  function makeReserve(userId, machineId){
+  function makeReserve(userId, machineId, productId){
     let Reservation = app.models.Reservation;
-    Reservation.findOne({where: {userId: userId}}, (err, instance)=>{
-      instance.updateAttributes({status: 'open', machineId: machineId})
-    })
-  }
+    return new Promise((resolve, reject)=>{
+      Reservation.findOne({where: {userId: userId}}, (err, instance)=>{
+        instance.updateAttributes({status: 'open', machineId: machineId, productId: productId}, (error, updatedReserve)=>{
+          if(err || error){reject(err || error)}
+          let { status, machineId, productId, lastUpdated } = updatedReserve;
+          let resObj = {
+            status: status,
+            machineId: machineId,
+            productId: productId,
+            lastUpdated: lastUpdated
+          }
+          resolve(resObj)
+        })
+      })
+    });
+  };
 
   Machine.afterRemote('gamePlay', (ctx, unused, next)=>{
     console.log('|=========== Game Play End =============|')

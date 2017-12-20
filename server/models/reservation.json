@@ -28,6 +28,9 @@
     },
     "machineId": {
       "type": "string"
+    },
+    "productId":{
+      "type": "string"
     }
   },
   "validations": [],
