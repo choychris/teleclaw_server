@@ -26,7 +26,10 @@ module.exports = function(Reservation) {
         if(ctx.data.status === 'open' && machineId !== 'none'){
           makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
-      };
+      }
+      if(ctx.data && ctx.data.status === 'cancel'){
+        ctx.data.machineId = 'none';
+      }
     };
     next();
   });
