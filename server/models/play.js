@@ -32,7 +32,7 @@ module.exports = function(Play) {
         });
         // if the user win, update product sku
         if(ctx.data.finalResult){
-          makeCalculation(Product, id, sku, 1, 'minus');
+          makeCalculation(Product, productId, 'sku', 1, 'minus');
         }
         // after 8 sec, if user reponse to play again 
         setTimeout(()=>{

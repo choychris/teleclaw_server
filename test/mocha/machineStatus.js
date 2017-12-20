@@ -213,33 +213,15 @@ describe('Change a machine to different status', function(){
   // });
 
   // |================ Play End API ================|
-  // describe('update play end', function(){
-  //   it('should return play object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let playId = global.result.afterRemote.playId;
-  //     let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
-  //     let ended = new Date().getTime();
-  //     api
-  //       .patch(url)
-  //       .send({ended: ended, finalResult: false})
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         console.log(res.body)
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
-
-  // |================ End Engagement API ================|
-  describe('end an engagement, check reservation', function(){
-    it('should return next reservation object', function(done){
+  describe('update play end', function(){
+    it('should return play object', function(done){
       var api = supertest.agent(baseUrl);
-      let machineId = global.Machine.id;
-      let url = `/api/reservations/${machineId}/endEngage?access_token=${global.accessToken}`;
+      let playId = global.result.playId;
+      let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
+      let ended = new Date().getTime();
       api
-        .get(url)
+        .patch(url)
+        .send({ended: ended, finalResult: true})
         .set('Accept', 'application/json')
         .end(function(err,res){
           console.log(res.body)
@@ -249,6 +231,24 @@ describe('Change a machine to different status', function(){
         });
     });
   });
+
+  // |================ End Engagement API ================|
+  // describe('end an engagement, check reservation', function(){
+  //   it('should return next reservation object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let machineId = global.Machine.id;
+  //     let url = `/api/reservations/${machineId}/endEngage?access_token=${global.accessToken}`;
+  //     api
+  //       .get(url)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body)
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
 
 
