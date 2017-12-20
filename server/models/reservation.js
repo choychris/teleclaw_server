@@ -23,30 +23,29 @@ module.exports = function(Reservation) {
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
       if(ctx.data && ctx.data.machineId){
-        if(ctx.data.status === 'open' && machineId !== 'none'){
+        if(ctx.data.status === 'open' && machineId !== null){
           makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
       }
       if(ctx.data && ctx.data.status === 'cancel'){
-        ctx.data.machineId = 'none';
+        ctx.data.machineId = null ;
       }
     };
     next();
   });
 
   Reservation.observe('after save', (ctx, next)=>{
-    let { id, status, userId, machineId } = ctx.instance;
+    let { id, status, userId, machineId, lastUpdated } = ctx.instance;
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
       if(status === 'close'){
         Machine.findById(machineId, (error, machine)=>{
           let productId = machine.productId;
           let pusherObj = {
-            reservationId: id, 
             machineId: machineId,
             productId:  productId,
             status: status, 
-            time: new Date().getTime()
+            lastUpdated: lastUpdated
           };
           app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', pusherObj)
         });
