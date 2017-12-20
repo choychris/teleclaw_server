@@ -2,7 +2,6 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { changeFirebaseDb, makeDbTransaction } from '../utils/firebasedb.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
 const request = require('request');
 const Promise = require('bluebird');
@@ -43,25 +42,15 @@ module.exports = function(Machine) {
   });
 
   Machine.observe('after save', (ctx, next) => {
-    if(ctx.isNewInstance){
-      let location = `machines/${ctx.instance.id}`;
-      let { name, status, display } = ctx.instance ;
-      let firebaseDataObj = {
-        machine_name: name, 
-        totalNumOfPlay: 0, 
-        totalNumOfSuccess: 0 
-      };
-      changeFirebaseDb('set', location, firebaseDataObj, 'Machine');
-      next();
-    }else if (!ctx.isNewInstance){
+    if(!ctx.isNewInstance){
       let { id, name, status, display, currentUser, productId, reservation } = ctx.instance ;
       let player = currentUser ? currentUser : null;
       if(ctx.hookState && ctx.hookState.pusher){
         updateProductStatus(productId);
         app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player, time: new Date()});
       }
-      next();
     } 
+    next();
   });
 
   // function to check whether all machine not available
@@ -146,10 +135,6 @@ module.exports = function(Machine) {
 
     //start game function
     function startGame(userId, machineId, productId, gamePlayRate, initialize, gizwits){
-      let locationP = `products/${productId}`;
-      let locationM = `machines/${machineId}`;
-      makeDbTransaction(locationP, 'totalNumOfPlay', 'plus');
-      makeDbTransaction(locationM, 'totalNumOfPlay', 'plus');
       let { deviceMAC, deviceId, heartbeat_interval } = gizwits;
       // perform : 1. communicate to gizwits ; 2. create a new transation 
       Promise.all([gizwitsConfigs(userId, machineId, deviceMAC, deviceId), createNewTransaction(userId, gamePlayRate, 'minus', 'closed')])
@@ -159,12 +144,6 @@ module.exports = function(Machine) {
           response = {
             newWalletBalance: result[1].newWalletBalance,
             gizwits: result[0],
-            // afterRemote: {
-            //   transactionId,
-            //   userId,
-            //   machineId,
-            //   productId
-            // }
             userId: userId
           };
           response.gizwits.init.InitCatcher = initialize.initCatcher;
