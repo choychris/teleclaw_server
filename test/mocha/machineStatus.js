@@ -193,7 +193,7 @@ describe('Change a machine to different status', function(){
   // describe('cancel a reservation', function(){
   //   it('should return next reservation object', function(done){
   //     var api = supertest.agent(baseUrl);
-  //     let reservationId = global.reservationId;
+  //     let reservationId = global.result.reservation.id;
   //     let url = `/api/reservations/${reservationId}?access_token=${global.accessToken}`;
   //     let reserveObj = {
   //       status: 'cancel'

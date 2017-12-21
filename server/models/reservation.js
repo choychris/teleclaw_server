@@ -21,7 +21,7 @@ module.exports = function(Reservation) {
   Reservation.observe('before save', (ctx, next)=>{
     let { id, status, userId, machineId } = ctx.currentInstance;
     const Machine = app.models.Machine;
-    console.log( 'after save : ctx.currentInstance resere : ', ctx.currentInstance);
+    console.log( 'before save : ctx.currentInstance resere : ', ctx.currentInstance);
     console.log( 'before save : ctx.data resere : ', ctx.data);
     if(!ctx.isNewInstance){
       if(ctx.data && ctx.data.machineId){
@@ -31,6 +31,7 @@ module.exports = function(Reservation) {
         }
       }
       if(ctx.data && ctx.data.status === 'cancel'){
+        makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         ctx.data.machineId = null ;
         ctx.data.productId = null ;
       }
@@ -55,8 +56,6 @@ module.exports = function(Reservation) {
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
       }else if(status === 'open'){
         makeCalculation(Machine, machineId, 'reservation', 1, 'plus');
-      }else{
-        makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
       }
       next();
     }else{
