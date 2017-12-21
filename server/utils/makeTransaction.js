@@ -8,7 +8,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
       let roundNumber = Math.round(newNumber);
       foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
-          next(err);
+          console.log('err in ', modelAttribute, 'calculation : ', err)
         }
       });
     }else if(plusOrMinus === 'plus'){
@@ -16,7 +16,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
       let roundNumber = Math.round(newNumber);
        foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
-          next(err);
+          console.log('err in ', modelAttribute, 'calculation : ', err)
         }
       });
     }
