@@ -24,12 +24,15 @@ module.exports = function(Machine) {
   Machine.observe('before save', (ctx, next)=>{
     if(!ctx.isNewInstance){
       if(ctx.data){
-        let { status, reservation, productId, iotPlatform } = ctx.data;
+        let { status, sku, reservation, productId, iotPlatform } = ctx.data;
         if(!!status && !reservation && !productId){
           ctx.hookState.pusher = true;
           ctx.data.lastStatusChanged = new Date().getTime();
         }else if(!!reservation && !productId){
           ctx.hookState.pusher = true;
+        }else if(sku == 0){
+          ctx.hookState.pusher = true;
+          ctx.data.status = 'close'
         }
       }
       next();
@@ -43,7 +46,7 @@ module.exports = function(Machine) {
 
   Machine.observe('after save', (ctx, next) => {
     if(!ctx.isNewInstance){
-      let { id, name, status, display, currentUser, productId, reservation } = ctx.instance ;
+      let { id, name, status, sku, currentUser, productId, reservation } = ctx.instance ;
       let player = currentUser ? currentUser : null;
       if(ctx.hookState && ctx.hookState.pusher){
         updateProductStatus(productId);
@@ -56,7 +59,6 @@ module.exports = function(Machine) {
   // function to check whether all machine not available
   function updateProductStatus(productId){
     let Product = app.models.Product;
-
     function updateProductStatus(newStatus, productId){
       Product.findById(productId, (err, foundProduct)=>{
         let oldStatus = foundProduct.status

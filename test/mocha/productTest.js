@@ -3,7 +3,7 @@ var supertest = require('supertest');
 
 var baseUrl = 'http://localhost:3000';
 global.accessToken = 'fxMzzDFv5N4Iv1te7uLBJNORb19uJKDiV05AK0oaGWm0aQReRaXzNNQ6DL0Fboec';
-global.lbUserId = '5a30b78ebe1f49029dc8d0e2';
+global.lbUserId = '5a3b720bbf73350182f3d254';
 
 const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
@@ -117,7 +117,7 @@ describe('Attach a related models to product', function(){
           },
           weight: {
             unit: 'g',
-            weight: 20
+            value: 20
           },
           sku: 20,
           cost: {
@@ -125,7 +125,7 @@ describe('Attach a related models to product', function(){
             value: cost
           },
           status: {
-            maintainStatus: true,
+            stockStatus: true,
             machineStatus: true,
             visible: true
           }

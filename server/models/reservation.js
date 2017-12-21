@@ -15,13 +15,15 @@ module.exports = function(Reservation) {
   // assgin last updated time / created time to model
   updateTimeStamp(Reservation);
 
+  Reservation.disableRemoteMethod("deleteById", true);
+
   //assign an unique if its new instance 
   assignKey(Reservation)
 
   Reservation.observe('before save', (ctx, next)=>{
-    let { id, status, userId, machineId } = ctx.currentInstance;
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
+      let { id, status, userId, machineId } = ctx.currentInstance;
       if(ctx.data && ctx.data.machineId){
         let sameMachine = (machineId === ctx.data.machineId);
         if(status === 'open' && !!machineId){
@@ -29,6 +31,7 @@ module.exports = function(Reservation) {
         }
       }
       if(ctx.data && ctx.data.status === 'cancel'){
+        let { id, status, userId, machineId } = ctx.currentInstance;
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         ctx.data.machineId = null ;
         ctx.data.productId = null ;
@@ -41,7 +44,7 @@ module.exports = function(Reservation) {
     let { id, status, userId, machineId, lastUpdated, productId } = ctx.instance;
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
-      if(status === 'close'){
+      if(status === 'close' && !!machineId){
         let pusherObj = {
           id: id,
           status: status, 
@@ -51,7 +54,7 @@ module.exports = function(Reservation) {
         };
         app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', pusherObj)
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
-      }else if(status === 'open'){
+      }else if(status === 'open' && !!machineId){
         makeCalculation(Machine, machineId, 'reservation', 1, 'plus');
       }
       next();
@@ -60,12 +63,12 @@ module.exports = function(Reservation) {
     }
   });
 
-  Reservation.endEngage = (machineId, cb) => {
+  Reservation.endEngage = (machineId, userId, cb) => {
     let Machine = app.models.Machine;
-
     Machine.findById(machineId, (err, machine)=>{
       // check if machine is still in playing
-      if(machine.status !== 'playing'){
+      let currentId = machine.currentUser ? machine.currentUser.id : null
+      if(machine.status != 'playing' && currentId == userId){
         //find next reservation
         Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
           if(foundReserve === null || foundReserve.length === 0){
@@ -86,7 +89,6 @@ module.exports = function(Reservation) {
         if(!!cb){ cb(null, 'machine_playing'); }
       }
     });
-
   };
 
   function updateMachine(machineId, status, userId){
@@ -101,18 +103,21 @@ module.exports = function(Reservation) {
     });
   }
 
-  function timeOutReserve(machineId, Reservation){
+  function timeOutReserve(machineId, userId, Reservation){
       let Machine = app.models.Machine;
       setTimeout(()=>{
-        checkMachineStatus(machineId, Machine, Reservation)
+        checkMachineStatus(machineId, userId, Machine, Reservation)
       }, 8000)
   }
 
   Reservation.remoteMethod(
     'endEngage',
     {
-      http: {path: '/:machineId/endEngage', verb: 'get'},
-      accepts: [{arg: 'machineId', type: 'string', required: true}],
+      http: {path: '/:machineId/:userId/endEngage', verb: 'get'},
+      accepts: [
+        {arg: 'machineId', type: 'string', required: true},
+        {arg: 'userId', type: 'string', required: true}
+      ],
       returns: {arg: 'result', type: 'object'} 
     }
   );

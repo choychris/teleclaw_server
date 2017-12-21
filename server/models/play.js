@@ -26,18 +26,20 @@ module.exports = function(Play) {
     }else{
       if(ctx.data && ctx.data.ended && ctx.data.finalResult !== undefined ){
         let { Machine, Reservation, Product } = app.models;
-        let { productId, machineId } = ctx.currentInstance;
+        let { productId, machineId, userId, created } = ctx.currentInstance;
         Machine.findById(machineId, (err, instance)=>{
-          
           instance.updateAttributes({status: 'open'});
         });
+        let duration = (new Date(ctx.data.ended).getTime() - new Date(created).getTime())/1000
+        ctx.data.duration = duration;
         // if the user win, update product sku
         if(ctx.data.finalResult){
           makeCalculation(Product, productId, 'sku', 1, 'minus');
+          makeCalculation(Machine, machineId, 'sku', 1, 'minus');
         }
         // after 8 sec, if user reponse to play again 
         setTimeout(()=>{
-          checkMachineStatus(machineId, Machine, Reservation)
+          checkMachineStatus(machineId, userId, Machine, Reservation)
         }, 8000)
       }
       next();

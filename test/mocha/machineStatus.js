@@ -3,7 +3,7 @@ var supertest = require('supertest');
 
 var baseUrl = 'http://localhost:3000';
 global.accessToken = 'rKnYeooBr2sPOhu9R4WeswMY1M96C6GK3difz06GzY19KrZOVUygmpxK3fGJCLBp';
-global.lbUserId = '5a38ff3ac331e2062eda20b9';
+global.lbUserId = '5a3b720bbf73350182f3d254';
 
 const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
@@ -117,29 +117,29 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ Game play API ================|
-  describe('Start a game play of machine', function(){
-    it('should return game play object', function(done){
-      var api = supertest.agent(baseUrl);
-      let machineId = global.Machine.id;
-      let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
-      let data = {
-        productId: global.Product.id,
-        userId: global.lbUserId
-      }
-      api
-        .post(url)
-        .set('Accept', 'application/json')
-        .send({data: data})
-        .end(function(err,res){
-            console.log(res.body)
-            global.result = res.body.result;
-            console.log(res.body.result.gizwits)
-            res.body.should.be.an('object');
-            res.status.should.equal(200);
-            done();
-        });
-    });
-  });
+  // describe('Start a game play of machine', function(){
+  //   it('should return game play object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     let machineId = global.Machine.id;
+  //     let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
+  //     let data = {
+  //       productId: global.Product.id,
+  //       userId: global.lbUserId
+  //     }
+  //     api
+  //       .post(url)
+  //       .set('Accept', 'application/json')
+  //       .send({data: data})
+  //       .end(function(err,res){
+  //           console.log(res.body)
+  //           global.result = res.body.result;
+  //           console.log(res.body.result.gizwits)
+  //           res.body.should.be.an('object');
+  //           res.status.should.equal(200);
+  //           done();
+  //       });
+  //   });
+  // });
 
   // |================ Reservation API ================|
   // describe('Make reservation when machine is playing', function(){
@@ -232,22 +232,22 @@ describe('Change a machine to different status', function(){
   // });
 
   // |================ End Engagement API ================|
-  // describe('end an engagement, check reservation', function(){
-  //   it('should return next reservation object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let machineId = global.Machine.id;
-  //     let url = `/api/reservations/${machineId}/endEngage?access_token=${global.accessToken}`;
-  //     api
-  //       .get(url)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         console.log(res.body)
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('end an engagement, check reservation', function(){
+    it('should return next reservation object', function(done){
+      var api = supertest.agent(baseUrl);
+      let machineId = global.Machine.id;
+      let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
+      api
+        .get(url)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          console.log(res.body)
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
 
 

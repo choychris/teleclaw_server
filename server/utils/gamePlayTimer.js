@@ -10,11 +10,11 @@ function compareTimeStamp(time, duration){
   }
 };
 //if machine has not update in last 8 sec, clean it.
-export function checkMachineStatus(machineId, Machine, Reservation){
+export function checkMachineStatus(machineId, userId, Machine, Reservation){
   Machine.findById(machineId, (err, instance)=>{
     console.log("clean trigger : ", instance.lastStatusChanged);
     if(compareTimeStamp(instance.lastStatusChanged, 6000)){
-      Reservation.endEngage(machineId, null);
+      Reservation.endEngage(machineId, userId, null);
     }
   });
 }

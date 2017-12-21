@@ -47,7 +47,7 @@
   },
   "wallet": {
     "dataSource": "mongodb",
-    "public": true
+    "public": false
   },
   "reward": {
     "dataSource": "mongodb",
