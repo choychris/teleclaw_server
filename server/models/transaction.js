@@ -25,4 +25,20 @@ module.exports = function(Transaction) {
     }
   });
 
+  Transaction.clientToken = (userId, cb) => {
+    let User = app.models.User ;
+    User.findById(userId, (error, user)=>{
+      
+    })
+  }
+
+  Transaction.remoteMethod(
+    'clientToken',
+    {
+      http: { path: '/:userId/clientToken', verb: 'get'},
+      accetps: { arg: 'userId', type: 'string', required: true },
+      returns: { arg: 'result', type: 'string' }
+    }
+  )
+
 };

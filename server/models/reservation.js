@@ -21,8 +21,6 @@ module.exports = function(Reservation) {
   Reservation.observe('before save', (ctx, next)=>{
     let { id, status, userId, machineId } = ctx.currentInstance;
     const Machine = app.models.Machine;
-    console.log( 'before save : ctx.currentInstance resere : ', ctx.currentInstance);
-    console.log( 'before save : ctx.data resere : ', ctx.data);
     if(!ctx.isNewInstance){
       if(ctx.data && ctx.data.machineId){
         let sameMachine = (machineId === ctx.data.machineId);
@@ -41,7 +39,6 @@ module.exports = function(Reservation) {
 
   Reservation.observe('after save', (ctx, next)=>{
     let { id, status, userId, machineId, lastUpdated, productId } = ctx.instance;
-    console.log( 'after save : ctx.instance resere : ', ctx.instance);
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
       if(status === 'close'){

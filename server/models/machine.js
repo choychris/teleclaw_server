@@ -95,7 +95,7 @@ module.exports = function(Machine) {
         let { init } = iotPlatform.gizwits;
         let { gamePlayRate, productRate } = data[2];
         // check same user holding the machine
-        let sameUser = !currentUser ? false : (currentUser.id === userId);
+        let sameUser = !currentUser ? false : (currentUser.id == userId);
         //check machine is open 
         if(status === 'open' && !currentUser){
           //check enough coins to play

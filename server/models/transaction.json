@@ -35,7 +35,7 @@
       "required": true
     },
     "gateWayResponse": {
-      "type": "number"
+      "type": "object"
     }
   },
   "validations": [],

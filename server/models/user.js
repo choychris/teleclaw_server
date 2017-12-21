@@ -14,7 +14,7 @@ module.exports = function(User) {
   delete User.validations.email;
 
   //make loggings for monitor purpose
-  loggingModel(User);
+  // loggingModel(User);
 
   // assgin last updated time / created time to model
   updateTimeStamp(User);
@@ -67,7 +67,7 @@ module.exports = function(User) {
   User.auth = (userInfo, cb) => {
     // console.log(userInfo)
     // console log the remote method
-    loggingRemote(User, 'User', 'auth');
+    //loggingRemote(User, 'User', 'auth');
 
     let UserIdentity = app.models.UserIdentity;
     let Role = app.models.Role;
