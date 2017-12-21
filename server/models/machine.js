@@ -305,8 +305,9 @@ module.exports = function(Machine) {
       Reservation.findOne({where: {userId: userId}}, (err, instance)=>{
         instance.updateAttributes({status: 'open', machineId: machineId, productId: productId}, (error, updatedReserve)=>{
           if(err || error){reject(err || error)}
-          let { status, machineId, productId, lastUpdated } = updatedReserve;
+          let { id, status, machineId, productId, lastUpdated } = updatedReserve;
           let resObj = {
+            id: id,
             status: status,
             machineId: machineId,
             productId: productId,

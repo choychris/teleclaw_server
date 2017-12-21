@@ -24,7 +24,7 @@ module.exports = function(Reservation) {
     if(!ctx.isNewInstance){
       if(ctx.data && ctx.data.machineId){
         if(status === 'open' && machineId !== null){
-          makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
+            makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
       }
       if(ctx.data && ctx.data.status === 'cancel'){
@@ -41,6 +41,7 @@ module.exports = function(Reservation) {
     if(!ctx.isNewInstance){
       if(status === 'close'){
         let pusherObj = {
+          id: id,
           status: status, 
           machineId: machineId,
           productId:  productId,
