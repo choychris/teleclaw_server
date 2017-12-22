@@ -68,7 +68,7 @@ module.exports = function(Reservation) {
     Machine.findById(machineId, (err, machine)=>{
       // check if machine is still in playing
       let currentId = machine.currentUser ? machine.currentUser.id : null
-      if(machine.status != 'playing' && currentId == userId){
+      if(machine.status == 'open' && currentId == userId){
         //find next reservation
         Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
           if(foundReserve === null || foundReserve.length === 0){

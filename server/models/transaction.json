@@ -34,6 +34,10 @@
       "type": "string",
       "required": true
     },
+    "transactionType":{
+      "type": "string",
+      "required": true
+    },
     "gateWayResponse": {
       "type": "object"
     }

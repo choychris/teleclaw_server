@@ -19,12 +19,12 @@ var baseUrl = 'http://localhost:3000';
 describe.only("Status Change integation", function() {
   describe("change sku to 1", function() {
     it('status 200', function(done){
-      require("./productTest.js")
+      require("./admin.js")
       done();
     });
   });
 
-  describe("PLAY", function() {
+  describe("PLAY and WIN", function() {
     it('status 200', function(done){
       require("./machineStatus.js")
       done();

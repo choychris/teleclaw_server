@@ -211,24 +211,29 @@ describe('Change a machine to different status', function(){
   // });
 
   // |================ Play End API ================|
-  // describe('update play end', function(){
-  //   it('should return play object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let playId = global.result.playId;
-  //     let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
-  //     let ended = new Date().getTime();
-  //     api
-  //       .patch(url)
-  //       .send({ended: ended, finalResult: false})
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         console.log(res.body)
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('update play end', function(){
+    it('should return play object', function(done){
+      if(global.result.userId !== undefined){
+        var api = supertest.agent(baseUrl);
+        let playId = global.result.playId;
+        let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
+        let ended = new Date().getTime();
+        api
+          .patch(url)
+          .send({ended: ended, finalResult: true})
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            console.log(res.body)
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+          });
+      }else{
+        global.result.userId.should.not.be.a('string')
+        done();
+      }
+    });
+  });
 
   // |================ End Engagement API ================|
   // describe('end an engagement, check reservation', function(){

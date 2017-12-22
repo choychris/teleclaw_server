@@ -131,6 +131,8 @@ module.exports = function(Machine) {
             cb(null, {reservation: res})
             return null
           })
+        }else{
+          cb(null, 'machine_closed')
         }
         return null
       })

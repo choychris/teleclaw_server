@@ -69,12 +69,13 @@ describe('Change machine / product attributes', function(){
     });
   });
 
-  describe('PATCH Machine and Product sku to 1', function(){
+  describe('PATCH Machine sku to 1', function(){
     it('update success - status 200', function(done){
     var api = supertest.agent(baseUrl);
     var machineId = global.Machine.id
     var data = {
-      sku: 1
+      sku: 1,
+      status: 'open'
     }
 
     api
@@ -94,6 +95,11 @@ describe('Change machine / product attributes', function(){
     var api = supertest.agent(baseUrl);
     var productId = global.Product.id
     var data = {
+      status:{
+        maintainStatus: false,
+        machineStatus: true,
+        visible: true
+      },
       sku: 1
     }
 
