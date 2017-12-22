@@ -38,7 +38,7 @@
     },
     "status": {
       "machineStatus": "boolean",
-      "stockStatus": "boolean",
+      "maintainStatus": "boolean",
       "visible": "boolean"
     },
     "level": {

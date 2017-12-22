@@ -35,8 +35,8 @@ describe('Attach a related models to product', function(){
         .send(userInfo)
         .set('Accept', 'application/json')
         .end(function(err,res){
-            global.accessToken = req.body.result.lbToken.id;
-            global.lbUserId = req.body.result.lbToken.id;
+            global.accessToken = res.body.result.lbToken.id;
+            global.lbUserId = res.body.result.lbToken.userId;
             res.body.result.should.be.an('object');
             res.status.should.equal(200);
             done();

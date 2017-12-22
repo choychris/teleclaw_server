@@ -79,7 +79,7 @@ module.exports = function(Reservation) {
             //update the next reserve and trigger pusher in after save
             foundReserve[0].updateAttributes({status: 'close'}, (newError, instance)=>{
               updateMachine(machineId, 'open', {id: instance.userId})
-              timeOutReserve(machineId, Reservation);
+              timeOutReserve(machineId, userId, Machine, Reservation);
               if(!!cb){ cb(null, 'next_reserve'); }
             });
           }
@@ -103,8 +103,7 @@ module.exports = function(Reservation) {
     });
   }
 
-  function timeOutReserve(machineId, userId, Reservation){
-      let Machine = app.models.Machine;
+  function timeOutReserve(machineId, userId, Machine, Reservation){
       setTimeout(()=>{
         checkMachineStatus(machineId, userId, Machine, Reservation)
       }, 8000)
