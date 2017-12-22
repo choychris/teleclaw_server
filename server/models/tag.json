@@ -37,7 +37,7 @@
       "foreignKey": "tagId"
     }
   },
-  "acls": [    
+  "acls": [
     {
       "accessType": "*",
       "principalType": "ROLE",

@@ -15,10 +15,10 @@
       "type": "date",
       "required": true
     },
-    "lastUpdated":{
+    "lastUpdated": {
       "type": "date"
     },
-    "lastStatusChanged":{
+    "lastStatusChanged": {
       "type": "date"
     },
     "name": {
@@ -36,16 +36,18 @@
     },
     "sku": {
       "type": "number",
-      "default": 0 
+      "default": 0
     },
     "iotPlatform": {
-      "gizwits":{
-        "init": "array",
-        "deviceId": "string",
-        "deviceMAC": "string",
-        "productKey": "string",
-        "host": "string",
-        "wss_port": "string"
+      "type": {
+        "gizwits": {
+          "init": "array",
+          "deviceId": "string",
+          "deviceMAC": "string",
+          "productKey": "string",
+          "host": "string",
+          "wss_port": "string"
+        }
       }
     },
     "productId": {

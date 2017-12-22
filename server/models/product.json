@@ -37,9 +37,11 @@
       "type": "object"
     },
     "status": {
-      "machineStatus": "boolean",
-      "maintainStatus": "boolean",
-      "visible": "boolean"
+      "type": {
+        "machineStatus": "boolean",
+        "maintainStatus": "boolean",
+        "visible": "boolean"
+      }
     },
     "level": {
       "type": "object"

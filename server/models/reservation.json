@@ -29,7 +29,7 @@
     "machineId": {
       "type": "string"
     },
-    "productId":{
+    "productId": {
       "type": "string"
     }
   },

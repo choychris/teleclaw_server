@@ -23,7 +23,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
   });
 };
 
-export function createNewTransaction(userId, amount, transactionAction, transactionStatus){
+export function createNewTransaction(userId, amount, type, transactionAction, transactionStatus){
  var app = require('../server');
  let User = app.models.User;
  let Transaction = app.models.Transaction;
@@ -38,6 +38,7 @@ export function createNewTransaction(userId, amount, transactionAction, transact
       let transacObject = {
         action: transactionAction,
         amount: amount,
+        transactionType: type,
         status: transactionStatus,
         walletId: parsedUser.wallet.id,
         userId: parsedUser.id

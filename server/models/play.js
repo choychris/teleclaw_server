@@ -6,10 +6,6 @@ import { checkMachineStatus } from '../utils/gamePlayTimer.js';
 import { makeCalculation } from '../utils/makeTransaction.js';
 
 const shortid = require('shortid');
-const request = require('request');
-
-let { GIZWITS_APPLICATION_ID, GIZWITS_PRODUCT_SECRET, GIZWITS_PRODUCT_KEY } = process.env;
-
 module.exports = function(Play) {
 
   var app = require('../server');

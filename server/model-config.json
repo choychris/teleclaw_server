@@ -104,5 +104,9 @@
   "tag": {
     "dataSource": "mongodb",
     "public": true
+  },
+  "paymentGateway": {
+    "dataSource": "mongodb",
+    "public": false
   }
 }

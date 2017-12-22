@@ -144,7 +144,7 @@ module.exports = function(Machine) {
     function startGame(userId, machineId, productId, gamePlayRate, initialize, gizwits){
       let { deviceMAC, deviceId, heartbeat_interval } = gizwits;
       // perform : 1. communicate to gizwits ; 2. create a new transation 
-      Promise.all([gizwitsConfigs(userId, machineId, deviceMAC, deviceId), createNewTransaction(userId, gamePlayRate, 'minus', 'closed')])
+      Promise.all([gizwitsConfigs(userId, machineId, deviceMAC, deviceId), createNewTransaction(userId, gamePlayRate, 'play', 'minus', 'closed')])
       .then(result=>{
           let transactionId = result[1].id;
           let expectedResult = initialize.result;
