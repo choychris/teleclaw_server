@@ -53,7 +53,7 @@ describe('Change a machine to different status', function(){
         .set('Accept', 'application/json')
         .end(function(err,res){
             console.log(res.body);
-            res.body.result.should.be.an('object');
+            res.body.result.should.be.an('string');
             res.status.should.equal(200);
             done();
          });

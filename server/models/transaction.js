@@ -58,13 +58,13 @@ module.exports = function(Transaction) {
     });
 
     function generateToken(id, cb){
-      app.braintreeGateway.clientToken.generate({customerId: id}, function(err, res){
+      app.braintreeGateway.clientToken.generate({customerId: id}, function(err, response){
         if(err){
           console.log('Generate BrainTree Token Error : ', err)
           cb(err)
         }
-        console.log('Generate BrainTree Token Response : ', res)
-        cb(null, res)
+        console.log('Generate BrainTree Token Response : ', response.clientToken)
+        cb(null, response.clientToken)
       })
     }
   };
