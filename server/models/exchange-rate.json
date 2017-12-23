@@ -1,5 +1,5 @@
 {
-  "name": "exchange_rate",
+  "name": "exchangeRate",
   "base": "PersistedModel",
   "idInjection": false,
   "options": {
@@ -15,10 +15,13 @@
       "type": "date",
       "required": true
     },
+    "lastUpdated":{
+      "type": "date"
+    },
     "coins": {
       "type": "number"
     },
-    "discounts": {
+    "bonus": {
       "type": "number"
     },
     "currency": {

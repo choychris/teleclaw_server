@@ -37,7 +37,7 @@
     "dataSource": "mongodb",
     "public": true
   },
-  "exchange_rate": {
+  "exchangeRate": {
     "dataSource": "mongodb",
     "public": true
   },

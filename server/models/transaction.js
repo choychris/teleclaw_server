@@ -2,9 +2,10 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { makeCalculation } from '../utils/makeTransaction.js';
+import { makeCalculation, createNewTransaction } from '../utils/makeTransaction.js';
 
 const shortid = require('shortid');
+const Promise = require('bluebird');
 
 module.exports = function(Transaction) {
 
@@ -26,14 +27,15 @@ module.exports = function(Transaction) {
   Transaction.observe('after save', (ctx, next)=>{
     if(ctx.isNewInstance){
       let Wallet = app.models.Wallet;
-      let { walletId, action, amount } = ctx.instance;
-      makeCalculation(Wallet, walletId, 'balance', amount, action)
+      let { walletId, action, amount, success } = ctx.instance;
+      if(success){
+        makeCalculation(Wallet, walletId, 'balance', amount, action)
+      }
     }
     next();
   });
 
-  Transaction.clientToken = function(userId, cb){
-    console.log("userId :::: ", userId);
+  Transaction.clientToken = (userId, cb) => {
     let Paymentgateway = app.models.PaymentGateway;
     Paymentgateway.findOne({where:{userId: userId}}).then(gateway=>{
       if(gateway === null){
@@ -63,13 +65,12 @@ module.exports = function(Transaction) {
           console.log('Generate BrainTree Token Error : ', err)
           cb(err)
         }
-        console.log('Generate BrainTree Token Response : ', response.clientToken)
-        cb(null, response.clientToken)
+        let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
+        console.log('Generate BrainTree Token Response : ', response)
+        cb(null, token)
       })
     }
   };
-
-
 
   Transaction.remoteMethod(
     'clientToken',
@@ -77,6 +78,74 @@ module.exports = function(Transaction) {
       http: {path: '/:userId/clientToken', verb: 'get'},
       accepts: [
         {arg: 'userId', type: 'string', required: true}
+      ],
+      returns: {arg: 'result', type: 'object'}
+    }
+  );
+
+
+  Transaction.createSale = (userId, data, cb) => {
+    let { paymentNonce, rateId } = data;
+    let ExchangeRate = app.models.ExchangeRate;
+    let Paymentgateway = app.models.PaymentGateway;
+    Promise.all([
+      ExchangeRate.findById(rateId), 
+      Paymentgateway.findOne({where: {userId: userId}})
+    ]).then(result=>{
+      let foundRate = result[0];
+      let foundGateway = result[1];
+      return brainTreeSale(userId, foundRate.currency.usd, paymentNonce, foundGateway.id)
+    }).then(result=>{
+      let { success, amount, res } = result;
+      console.log('result ==== :', result);
+      if(success){
+        console.log('success here :', success)
+      }
+      //createNewTransaction(userId, amount, 'topUp', 'plus', success, res)
+      return null
+    }).catch(error=>{
+      if(error.res){
+        console.log('manul error here :', error)
+      }
+      cb(error)
+    });
+
+    function brainTreeSale(userId, amount, paymentNonce, gatewayId){
+      return new Promise((resolve, reject)=>{
+        app.braintreeGateway.transaction.sale({
+          amount: `${amount}.00`,
+          paymentMethodNonce: paymentNonce,
+          customerId: gatewayId,
+          options: {
+            submitForSettlement: true,
+            storeInVaultOnSuccess: true
+          }
+        }, function(err, result){
+          if(err){
+            console.log("BrainTree create transaction error : ", err)
+            reject(err)
+          }else if(result.success){
+            let { id, status, type, currencyIsoCode, amount, merchantAccountId, paymentInstrumentType } = result.transaction;
+            let response = { id, status, type, currencyIsoCode, amount, merchantAccountId, paymentInstrumentType };
+            console.log("BrainTree create transaction result : ", result)
+            resolve({success: result.success, amount: amount, res: reponse})
+          }else{
+            console.log("BrainTree create transaction fail : ", result)
+            reject(result)
+          }
+        });
+      })
+    };
+
+  }
+
+  Transaction.remoteMethod(
+    'createSale',
+    {
+      http: {path: '/:userId/createSale', verb: 'post'},
+      accepts: [
+        {arg: 'userId', type: 'string', required: true},
+        {arg: 'data', type: 'object', required: true},
       ],
       returns: {arg: 'result', type: 'object'}
     }

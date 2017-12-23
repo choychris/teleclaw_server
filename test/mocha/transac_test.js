@@ -7,7 +7,7 @@ const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
-describe('Change a machine to different status', function(){
+describe('Test a payment flow', function(){
 
   // |================== Authenticate User API ==================|
   if(process.env.NODE_ENV === 'staging'){
@@ -43,21 +43,71 @@ describe('Change a machine to different status', function(){
     });
   }
 
-  describe('Get ClientToken from BrainTree', function(){
-    this.timeout(4000);
-    it('create success - status 200 and token', function(done){
+  // |================== Exchange Rate API ==================|
+  // GET:: an exchange-rate
+  describe('Get an exchange-rate from loopback', function(){
+    it('Get success - status 200 and object', function(done){
       var api = supertest.agent(baseUrl);
-
+      var url = `/api/exchangeRates/findOne?access_token=${global.accessToken}`
+      var filter = {
+        where: {
+          coins: 60
+        }
+      }
       api
-        .get(`/api/transactions/${global.lbUserId}/clientToken?access_token=${global.accessToken}`)
+        .get(generateJSONAPI(url, filter))
         .set('Accept', 'application/json')
         .end(function(err,res){
             console.log(res.body);
-            res.body.result.should.be.an('string');
+            global.rateId = res.body.id;
+            res.body.should.be.an('object');
             res.status.should.equal(200);
             done();
          });
     })
   })
+
+  // |================== Transactions API ==================|
+  // GET:: Client Token
+  // describe('Get ClientToken from BrainTree', function(){
+  //   this.timeout(4000);
+  //   it('create success - status 200 and token', function(done){
+  //     var api = supertest.agent(baseUrl);
+
+  //     api
+  //       .get(`/api/transactions/${global.lbUserId}/clientToken?access_token=${global.accessToken}`)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //           console.log(res.body);
+  //           res.body.result.should.be.an('string');
+  //           res.status.should.equal(200);
+  //           done();
+  //        });
+  //   })
+  // })
+
+  // POST:: Create Sale
+  describe('Post a transaction to BrainTree', function(){
+    this.timeout(4000);
+    it('create success - status 200 and response', function(done){
+      var api = supertest.agent(baseUrl);
+      var data = {
+        paymentNonce: '22ceab9a-4987-06b9-565c-36d76c5e6a7b',
+        rateId: global.rateId
+      }
+
+      api
+        .post(`/api/transactions/${global.lbUserId}/createSale?access_token=${global.accessToken}`)
+        .set('Accept', 'application/json')
+        .send({data: data})
+        .end(function(err,res){
+            console.log(res.body);
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+         });
+    })
+  })
+
 
 })

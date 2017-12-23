@@ -19,7 +19,7 @@ module.exports = function(Reward) {
   Reward.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
       let { type, rewardAmount, userId } = ctx.instance;
-      createNewTransaction(userId, rewardAmount, type, 'plus', 'closed')
+      createNewTransaction(userId, rewardAmount, type, 'plus', true)
         .then(createdTrans => {
           ctx.instance.id = createdTrans.id;
           next();

@@ -23,37 +23,37 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
   });
 };
 
-export function createNewTransaction(userId, amount, type, transactionAction, transactionStatus){
+export function createNewTransaction(userId, amount, type, action, status, gateway){
  var app = require('../server');
- let User = app.models.User;
+ let Wallet = app.models.User;
  let Transaction = app.models.Transaction;
  return new Promise((resolve, reject)=>{
-    User.findById(userId, {include: 'wallet'}, (err, user)=>{
+    Wallet.findOne({where: {userId:userId}}, (err, wallet)=>{
       if(err){
-        console.log('Find user in transaction error : ', err);
+        console.log('Find wallet in transaction error : ', err);
         reject(err);
         return err;
       }
-      let parsedUser =  JSON.parse(JSON.stringify(user));
       let transacObject = {
-        action: transactionAction,
+        action: action,
         amount: amount,
         transactionType: type,
-        status: transactionStatus,
-        walletId: parsedUser.wallet.id,
-        userId: parsedUser.id
+        success: status,
+        walletId: wallet.id,
+        userId: userId
       }
+      if(!!gateway){transacObject.gateway = gateway};
       Transaction.create(transacObject, (error, createdTrans)=>{
         if(error){
           console.log('Create new transaction error : ', error);
           reject(error);
           return error;
         }
-         if(transactionAction === 'minus'){
-          createdTrans.newWalletBalance = parsedUser.wallet.balance - createdTrans.amount;
-         }else if(transactionAction === 'plus'){
-          createdTrans.newWalletBalance = parsedUser.wallet.balance + createdTrans.amount;
-         }
+        if(action === 'minus' && status){
+          createdTrans.newWalletBalance = wallet.balance - createdTrans.amount;
+        }else if(action === 'plus' && status){
+          createdTrans.newWalletBalance = wallet.balance + createdTrans.amount;
+        }
         resolve(createdTrans);
         return createdTrans
       });
