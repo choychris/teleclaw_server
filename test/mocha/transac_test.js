@@ -43,8 +43,9 @@ describe('Change a machine to different status', function(){
     });
   }
 
-  describe('Login / Create User first', function(){
-    it('login / create current user - status 200 and token', function(done){
+  describe('Get ClientToken from BrainTree', function(){
+    this.timeout(4000);
+    it('create success - status 200 and token', function(done){
       var api = supertest.agent(baseUrl);
 
       api

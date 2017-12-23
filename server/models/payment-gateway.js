@@ -12,13 +12,12 @@ module.exports = function(Paymentgateway) {
     let now = new Date().getTime();
     if(ctx.isNewInstance){
       ctx.instance.created = now;
-      ctx.instance.lastUpdated = now;
     }else{
       if(!!ctx.instance){
-        ctx.instance.lastUpdated = now;
+        ctx.instance.lastTopUp = now;
       }
       if(!!ctx.data){
-        ctx.data.lastUpdated = now;
+        ctx.data.lastTopUp = now;
       } 
     }
     next();

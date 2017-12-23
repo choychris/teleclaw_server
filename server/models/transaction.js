@@ -35,12 +35,41 @@ module.exports = function(Transaction) {
   Transaction.clientToken = function(userId, cb){
     console.log("userId :::: ", userId);
     let Paymentgateway = app.models.PaymentGateway;
-    Paymentgateway.findOne({where:{userId: userId}}, (error, payment)=>{
-      console.log("payment ::", payment);
+    Paymentgateway.findOne({where:{userId: userId}}).then(gateway=>{
+      if(gateway === null){
+        return Paymentgateway.create({userId: userId})
+      }else{
+        generateToken(gateway.id, cb)
+        return null
+      }
+    }).then(newGateway=>{
+      if(newGateway !== null){
+        let customerId = newGateway.id
+        app.braintreeGateway.customer.create({id: customerId}, function(brainTreeErr, result){
+          if(brainTreeErr){
+            console.log('Create BrainTree customer error : ', brainTreeErr)
+            cb(brainTreeErr)
+          }
+          generateToken(customerId, cb)
+        })
+      }
+    }).catch(err=>{
+      cb(err)
     });
-    //app.braintreeGateway.clientToken.generate({customerId: userId})
-    cb(null, 'done');
+
+    function generateToken(id, cb){
+      app.braintreeGateway.clientToken.generate({customerId: id}, function(err, res){
+        if(err){
+          console.log('Generate BrainTree Token Error : ', err)
+          cb(err)
+        }
+        console.log('Generate BrainTree Token Response : ', res)
+        cb(null, res)
+      })
+    }
   };
+
+
 
   Transaction.remoteMethod(
     'clientToken',
