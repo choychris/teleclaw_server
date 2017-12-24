@@ -28,16 +28,14 @@
       "required": true
     },
     "status": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "transactionId": {
       "type": "string",
       "required": true
     },
     "courier": {
-      "type": "object",
-      "required": true
+      "type": "object"
     }
   },
   "validations": [],

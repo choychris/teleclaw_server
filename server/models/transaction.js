@@ -41,17 +41,20 @@ module.exports = function(Transaction) {
       if(gateway === null){
         return Paymentgateway.create({userId: userId})
       }else{
+        // calling the function to generate braintree token
         generateToken(gateway.id, cb)
         return null
       }
     }).then(newGateway=>{
       if(newGateway !== null){
         let customerId = newGateway.id
+        // create a customer in braintree
         app.braintreeGateway.customer.create({id: customerId}, function(brainTreeErr, result){
           if(brainTreeErr){
             console.log('Create BrainTree customer error : ', brainTreeErr)
             cb(brainTreeErr)
           }
+          // calling the function to generate braintree token
           generateToken(customerId, cb)
         })
       }
@@ -59,15 +62,16 @@ module.exports = function(Transaction) {
       cb(err)
     });
 
+    // function to generate a braintree client token
     function generateToken(id, cb){
       app.braintreeGateway.clientToken.generate({customerId: id}, function(err, response){
         if(err){
           console.log('Generate BrainTree Token Error : ', err)
           cb(err)
         }
-        let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
+        //let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
         console.log('Generate BrainTree Token Response : ', response)
-        cb(null, token)
+        cb(null, response.clientToken)
       })
     }
   };
@@ -94,50 +98,42 @@ module.exports = function(Transaction) {
     ]).then(result=>{
       let foundRate = result[0];
       let foundGateway = result[1];
-      return brainTreeSale(userId, foundRate.currency.usd, paymentNonce, foundGateway.id)
-    }).then(result=>{
-      let { success, amount, res } = result;
-      console.log('result ==== :', result);
-      if(success){
-        console.log('success here :', success)
+      let saleConfig = {
+        amount: `${foundRate.currency.usd}.00`,
+        paymentMethodNonce: paymentNonce,
+        customerId: foundGateway.id,
+        options: {
+          submitForSettlement: true,
+          storeInVaultOnSuccess: true
+        }
       }
-      //createNewTransaction(userId, amount, 'topUp', 'plus', success, res)
-      return null
+      return [app.braintreeGateway.transaction.sale(saleConfig), foundRate];
+    }).spread((result, rate)=>{
+      let { coins, bonus } = rate;
+      let tolalCoins = (coins + bonus);
+      if(result.success){
+        let { success, transaction } = result;
+        let { id, status, amount, currencyIsoCode, merchantAccountId, paymentInstrumentType, creditCard } = transaction;
+        let { cardType } = creditCard;
+        let gatewayReponse = { id, status, amount, currencyIsoCode, merchantAccountId, paymentInstrumentType, cardType };
+        console.log('result success ==== :', result);
+        createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
+          .then(trans=>{
+            return cb(null, {success: success, message: status, balance: trans.newWalletBalance})
+          });
+      } else {
+        console.error('result error ==== :', result);
+        let { success, message, params } = result;
+        let gatewayReponse = {message: message, amount: params.transaction.amount }
+        createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
+          .then(trans=>{
+            return cb(null, {success: success, message: message, balance: trans.newWalletBalance})
+          });
+      }
     }).catch(error=>{
-      if(error.res){
-        console.log('manul error here :', error)
-      }
       cb(error)
     });
-
-    function brainTreeSale(userId, amount, paymentNonce, gatewayId){
-      return new Promise((resolve, reject)=>{
-        app.braintreeGateway.transaction.sale({
-          amount: `${amount}.00`,
-          paymentMethodNonce: paymentNonce,
-          customerId: gatewayId,
-          options: {
-            submitForSettlement: true,
-            storeInVaultOnSuccess: true
-          }
-        }, function(err, result){
-          if(err){
-            console.log("BrainTree create transaction error : ", err)
-            reject(err)
-          }else if(result.success){
-            let { id, status, type, currencyIsoCode, amount, merchantAccountId, paymentInstrumentType } = result.transaction;
-            let response = { id, status, type, currencyIsoCode, amount, merchantAccountId, paymentInstrumentType };
-            console.log("BrainTree create transaction result : ", result)
-            resolve({success: result.success, amount: amount, res: reponse})
-          }else{
-            console.log("BrainTree create transaction fail : ", result)
-            reject(result)
-          }
-        });
-      })
-    };
-
-  }
+  };
 
   Transaction.remoteMethod(
     'createSale',

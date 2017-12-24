@@ -25,7 +25,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
 
 export function createNewTransaction(userId, amount, type, action, status, gateway){
  var app = require('../server');
- let Wallet = app.models.User;
+ let Wallet = app.models.Wallet;
  let Transaction = app.models.Transaction;
  return new Promise((resolve, reject)=>{
     Wallet.findOne({where: {userId:userId}}, (err, wallet)=>{
@@ -40,9 +40,9 @@ export function createNewTransaction(userId, amount, type, action, status, gatew
         transactionType: type,
         success: status,
         walletId: wallet.id,
-        userId: userId
+        userId: userId,
       }
-      if(!!gateway){transacObject.gateway = gateway};
+      if(!!gateway){transacObject.gatewayResponse = gateway};
       Transaction.create(transacObject, (error, createdTrans)=>{
         if(error){
           console.log('Create new transaction error : ', error);
@@ -53,6 +53,8 @@ export function createNewTransaction(userId, amount, type, action, status, gatew
           createdTrans.newWalletBalance = wallet.balance - createdTrans.amount;
         }else if(action === 'plus' && status){
           createdTrans.newWalletBalance = wallet.balance + createdTrans.amount;
+        }else{
+          createdTrans.newWalletBalance = wallet.balance;
         }
         resolve(createdTrans);
         return createdTrans
