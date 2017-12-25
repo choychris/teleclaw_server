@@ -22,17 +22,12 @@ module.exports = function(Delivery) {
     let { products, countryCode, postalCode } = data;
     console.log('data : ', data)
     let Product = app.models.Product;
-    let orFilter = [];
-    let body = { 
-     origin_country_alpha2: 'HK',
-     origin_postal_code: null,
-     destination_country_alpha2: countryCode,
-     destination_postal_code: postalCode,
-     items:[]
-    };
+    let items = [];
 
-    Product.find({where: {or: products}}).then(result=>{
-      console.log('result of products : ', result)
+    Product.find({ 
+      where: {or: products}, 
+      fields: {weight: true, size: true}
+    }).then(result=>{
       return Promise.map(result, each=>{
         let { weight, size } = each;
         let { height, width, length } = size;
@@ -46,9 +41,9 @@ module.exports = function(Delivery) {
           declared_currency: 'HKD',
           declared_customs_value: 0
         }
-        return body.items.push(item);
+        items.push(item);
       })
-    }).then(body=>{
+    }).then(res=>{
       var options = { 
         method: 'POST',
         url: 'https://api.easyship.com/rate/v1/rates',
@@ -58,15 +53,24 @@ module.exports = function(Delivery) {
           'content-type': 'application/json',
           'accept': 'application/json' 
         },
-        body: body
+        body: JSON.stringify({
+          origin_country_alpha2: 'HK',
+          origin_postal_code: null,
+          destination_country_alpha2: countryCode,
+          destination_postal_code: postalCode,
+          items:items
+        })
       }
-      // request(options, function(err, res, body){
-      //   if (error) throw new Error(error);
-      //   console.log(body);
-      // })
-      console.log('body here : ===== ', body)
-      console.log('options here : ===== ', options)
-      cb(null, options)
+      console.log('options : ', options);
+      request(options, function(err, res, body){
+        if (err){
+          console.log(err);
+          cb(err)
+        } 
+        console.log('res body from easyship : ==', body.rates);
+        cb(null, body.rates);
+      })
+      // cb(null, 'ok');
     }).catch(error=>{
       cb(error)
     });
