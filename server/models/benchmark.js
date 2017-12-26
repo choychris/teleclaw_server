@@ -13,7 +13,6 @@ module.exports = function(Benchmark) {
 
   // assgin last updated time / created time to model
   updateTimeStamp(Benchmark);
-  //console.log('this is Benchmark');
-
+  
 
 };

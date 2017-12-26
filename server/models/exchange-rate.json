@@ -12,23 +12,30 @@
       "required": true
     },
     "created": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "lastUpdated":{
       "type": "date"
     },
     "coins": {
-      "type": "number"
+      "type": "number",
+      "required": true
     },
     "bonus": {
-      "type": "number"
+      "type": "number",
+      "required": true,
+      "default": 0
     },
     "currency": {
+      "type": "object",
+      "required": true
+    },
+    "realValuePerCoin": {
       "type": "object"
     },
     "status": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "images": {
       "type": "object"

@@ -23,16 +23,19 @@
       "type": "number",
       "required": true
     },
-    "type": {
-      "type": "string",
-      "required": true
-    },
     "status": {
       "type": "string"
+    },
+    "userId":{
+      "type": "string",
+      "required": true
     },
     "transactionId": {
       "type": "string",
       "required": true
+    },
+    "products": {
+      "type": "string"
     },
     "courier": {
       "type": "object"

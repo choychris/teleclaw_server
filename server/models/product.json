@@ -37,11 +37,12 @@
       "type": "object"
     },
     "status": {
-      "type": {
-        "machineStatus": "boolean",
-        "maintainStatus": "boolean",
-        "visible": "boolean"
-      }
+      "machineStatus": "boolean",
+      "maintainStatus": "boolean",
+      "visible": "boolean"
+    },
+    "deliveryType": {
+      "type": "string"
     },
     "level": {
       "type": "object"
