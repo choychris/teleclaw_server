@@ -24,7 +24,7 @@
       "required": true
     },
     "success": {
-      "type": "string"
+      "type": "boolean"
     },
     "walletId": {
       "type": "string",

@@ -119,7 +119,8 @@ module.exports = function(Transaction) {
         console.log('result success ==== :', result);
         createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
           .then(trans=>{
-            return cb(null, {success: success, message: status, balance: trans.newWalletBalance})
+            cb(null, {success: success, message: status, balance: trans.newWalletBalance})
+            return null;
           });
       } else {
         console.error('result error ==== :', result);
@@ -127,7 +128,8 @@ module.exports = function(Transaction) {
         let gatewayReponse = {message: message, amount: params.transaction.amount }
         createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
           .then(trans=>{
-            return cb(null, {success: success, message: message, balance: trans.newWalletBalance})
+            cb(null, {success: success, message: message, balance: trans.newWalletBalance})
+            return null;
           });
       }
     }).catch(error=>{

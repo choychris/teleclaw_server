@@ -40,29 +40,30 @@ describe('Login / Create User first', function(){
 });
 
 // |================ GET Product List ================|
-describe('Find product list', function(){
-  it('should return list of product', function(done){
-    var api = supertest.agent(baseUrl);
-    global.productIds = [];
-    api
-      .get(`/api/products?access_token=${global.accessToken}`)
-      .set('Accept', 'application/json')
-      .end(function(err,res){
-        res.body.should.be.an('array');
-        res.status.should.equal(200);
-        res.body.map(product=>{
-          global.productIds.push({id: product.id})
-          if(global.productIds.length === 3){
-            done();
-          }
-        });
-      });
-  });
-});
+// describe('Find product list', function(){
+//   it('should return list of product', function(done){
+//     var api = supertest.agent(baseUrl);
+//     global.productIds = [];
+//     api
+//       .get(`/api/products?access_token=${global.accessToken}`)
+//       .set('Accept', 'application/json')
+//       .end(function(err,res){
+//         res.body.should.be.an('array');
+//         res.status.should.equal(200);
+//         res.body.map(product=>{
+//           global.productIds.push({id: product.id})
+//           if(global.productIds.length === 3){
+//             done();
+//           }
+//         });
+//       });
+//   });
+// });
 
 // |================ GET Delivery Rate ================|
 describe('Get delivery rate quote', function(){
   it('should return the list of courier rate', function(done){
+  global.productIds = [{"id": '1677fd31-8dde-4350-8c55-4d2d158b8e39'}]
   var api = supertest.agent(baseUrl);
   var data = {
     products: global.productIds,

@@ -21,11 +21,25 @@ module.exports = function(Delivery) {
 
   Delivery.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
+      let Wallet = app.models.Wallet
       let { userId, cost } = ctx.instance;
-      createNewTransaction(userId, cost, 'delivery', 'minus', 'closed', null)
-
-    };
-    next();
+      Wallet.findOne({where: {userId: userId}}).then(wallet=>{
+        if(cost > wallet.balance){
+          return next('insufficient_balance')
+        }else{
+          return createNewTransaction(userId, cost, 'delivery', 'minus', 'closed', null)
+        }
+      }).then(createdTrans=>{
+        let { id } = createdTrans ;
+        ctx.instance.transactionId = id;
+        return next();
+      }).catch(error=>{
+        console.log('create transaction error in delivery : ', error);
+        next();
+      })
+    }else{
+      next();
+    }
   })
 
   Delivery.getRate = (data, cb) =>{
@@ -34,14 +48,14 @@ module.exports = function(Delivery) {
     let { Product, ExchangeRate } = app.models;
     let items = [];
     let choices = [];
-    let isDocument = 0;
+    let isFixed = 0;
 
     Product.find({ 
       where: {or: products}, 
-      fields: {weight: true, size: true, cost: true, deliveryType: true}
+      fields: {weight: true, size: true, cost: true, deliveryPrice: true}
     }).then(result=>{
       return Promise.map(result, each=>{
-        let { weight, size, cost, deliveryType } = each;
+        let { weight, size, cost, deliveryPrice } = each;
         let { height, width, length } = size;
         let item = { 
           actual_weight: weight.value,
@@ -52,10 +66,11 @@ module.exports = function(Delivery) {
           declared_currency: 'HKD',
           declared_customs_value: cost.value || 0
         }
-        if(deliveryType == 'physical'){
+        if(deliveryPrice.type == 'dynamic'){
           items.push(item);
-        }else if(deliveryType == 'coupon'){
-          isDocument = 15;
+        }else if(deliveryPrice.type == 'fixed'){
+          console.log('deliveryPrice :', deliveryPrice)
+          isFixed = deliveryPrice.value;
         }
       })
     }).then(res=>{
@@ -79,8 +94,10 @@ module.exports = function(Delivery) {
       if(items.length > 0){
         return requestToEasyship(options)
       }else{
-        return isDocument;
+        console.log('isFixed : ', isFixed)
+        return isFixed;
       }
+      console.log('isFixed : ', isFixed)
     }).then(result=>{
       console.log('result from easyship : ', result);
       return ExchangeRate.findOne({order: 'realValuePerCoin.usd DESC'}).then(rate=>{
@@ -99,7 +116,7 @@ module.exports = function(Delivery) {
             return oneChoice;
           })
         }else{
-          let letter = {name: 'letter', min_delivery_time: 7, max_delivery_time: 10, total_charge: result, coins_value: Math.round(result / realValuePerCoin.hkd)}
+          let letter = {name: 'fixed_delivery', min_delivery_time: 7, max_delivery_time: 10, total_charge: result, coins_value: Math.round(result / realValuePerCoin.hkd)}
           return letter;
         }
       })
