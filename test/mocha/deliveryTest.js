@@ -63,7 +63,7 @@ describe('Login / Create User first', function(){
 // |================ GET Delivery Rate ================|
 describe('Get delivery rate quote', function(){
   it('should return the list of courier rate', function(done){
-  global.productIds = [{"id": '1677fd31-8dde-4350-8c55-4d2d158b8e39'}]
+  global.productIds = [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}]
   var api = supertest.agent(baseUrl);
   var data = {
     products: global.productIds,
@@ -74,6 +74,38 @@ describe('Get delivery rate quote', function(){
     .post(`/api/deliveries/getRate?access_token=${global.accessToken}`)
     .set('Accept', 'application/json')
     .send({data: data})
+    .end(function(err,res){
+      res.body.should.be.an('object');
+      res.status.should.equal(200);
+      global.selectedRate = res.body.result[0]
+      done()
+    });
+  });
+})
+
+describe('Get delivery rate quote', function(){
+  it('should return the list of courier rate', function(done){
+  global.productIds = [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}]
+  var api = supertest.agent(baseUrl);
+  var data = {
+   shippmentAddress: {
+    address: "3B, Todex Building, San Po Kong",
+    region: "Kowloon",
+    country: "Hong Kong",
+    postalCode: 0,
+    name: "Chris",
+    phone: "12345678"
+   },
+   cost: global.selectedRate.coins_value,
+   status: 'pending',
+   userId: global.lbUserId,
+   products: global.productIds,
+   courier: global.selectedRate
+  }
+  api
+    .post(`/api/deliveries?access_token=${global.accessToken}`)
+    .set('Accept', 'application/json')
+    .send(data)
     .end(function(err,res){
       console.log(res.body)
       res.body.should.be.an('object');

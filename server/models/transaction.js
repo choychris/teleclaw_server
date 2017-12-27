@@ -132,7 +132,9 @@ module.exports = function(Transaction) {
             return null;
           });
       }
+      return null;
     }).catch(error=>{
+      console.log('Error in creating Braintree transaction : ', error)
       cb(error)
     });
   };

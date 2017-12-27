@@ -23,19 +23,22 @@ module.exports = function(Delivery) {
     if(ctx.isNewInstance){
       let Wallet = app.models.Wallet
       let { userId, cost } = ctx.instance;
+      console.log(ctx.instance.products)
       Wallet.findOne({where: {userId: userId}}).then(wallet=>{
         if(cost > wallet.balance){
-          return next('insufficient_balance')
+          return next('insufficient_balance');
         }else{
           return createNewTransaction(userId, cost, 'delivery', 'minus', 'closed', null)
         }
       }).then(createdTrans=>{
-        let { id } = createdTrans ;
-        ctx.instance.transactionId = id;
-        return next();
+        if(!!createdTrans){
+          let { id } = createdTrans ;
+          ctx.instance.transactionId = id;
+          next();
+        }
       }).catch(error=>{
         console.log('create transaction error in delivery : ', error);
-        next();
+        next(error);
       })
     }else{
       next();
