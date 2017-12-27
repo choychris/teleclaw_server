@@ -99,7 +99,7 @@ module.exports = function(Delivery) {
             return oneChoice;
           })
         }else{
-          let letter = {name: 'no_courier', max_delivery_time: 7, total_charge: result, coins_value: Math.round(result / realValuePerCoin.hkd)}
+          let letter = {name: 'letter', min_delivery_time: 7, max_delivery_time: 10, total_charge: result, coins_value: Math.round(result / realValuePerCoin.hkd)}
           return letter;
         }
       })

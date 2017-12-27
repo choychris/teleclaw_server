@@ -67,7 +67,7 @@ describe('Attach camera to machine', function(){
         position: 'front',
         type: 'sub',
         webrtcServer: 'http:s//webrtcstreamer-env.ap-southeast-1.elasticbeanstalk.com/',
-        rtspDdnsUrl: 'rtsp://188773sc14.iask.in:554/live/sub',
+        rtspDdnsUrl: 'rtsp://www.teleclaw.xyz:555/live/sub',
         localIp: '192.168.2.101',
         alibabaSetting: {
           domain: 'live3.teleclaw.win',
@@ -102,7 +102,7 @@ describe('Attach camera to machine', function(){
         position: 'top',
         type: 'sub',
         webrtcServer: 'http:s//webrtcstreamer-env.ap-southeast-1.elasticbeanstalk.com/',
-        rtspDdnsUrl: 'rtsp://188773sc14.iask.in:555/live/sub',
+        rtspDdnsUrl: 'rtsp://www.teleclaw.xyz:555/live/sub',
         localIp: '192.168.2.102',
         alibabaSetting: {
           domain: 'live3.teleclaw.win',
