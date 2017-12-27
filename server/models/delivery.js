@@ -69,7 +69,6 @@ module.exports = function(Delivery) {
         if(deliveryPrice.type == 'dynamic'){
           items.push(item);
         }else if(deliveryPrice.type == 'fixed'){
-          console.log('deliveryPrice :', deliveryPrice)
           isFixed = deliveryPrice.value;
         }
       })
@@ -94,12 +93,9 @@ module.exports = function(Delivery) {
       if(items.length > 0){
         return requestToEasyship(options)
       }else{
-        console.log('isFixed : ', isFixed)
         return isFixed;
       }
-      console.log('isFixed : ', isFixed)
     }).then(result=>{
-      console.log('result from easyship : ', result);
       return ExchangeRate.findOne({order: 'realValuePerCoin.usd DESC'}).then(rate=>{
         let { realValuePerCoin } = rate;
         if(result.length > 0){
