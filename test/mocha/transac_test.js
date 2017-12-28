@@ -22,7 +22,6 @@ describe('Test a payment flow', function(){
   // |================== Authenticate User API ==================|
     describe('Login / Create User first', function(){
       it('login / create current user - status 200 and token', function(done){
-      var api = supertest.agent(baseUrl);
       var userInfo = {
         prvoider: 'facebook',
         accessToken : 'EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
@@ -55,7 +54,6 @@ describe('Test a payment flow', function(){
   // GET:: an exchange-rate
   describe('Get an exchange-rate from loopback', function(){
     it('Get success - status 200 and object', function(done){
-      var api = supertest.agent(baseUrl);
       var url = `/api/exchangeRates/findOne?access_token=${global.accessToken}`
       var filter = {
         where: {
@@ -80,7 +78,6 @@ describe('Test a payment flow', function(){
   describe('Get ClientToken from BrainTree', function(){
     this.timeout(4000);
     it('create success - status 200 and token', function(done){
-      var api = supertest.agent(baseUrl);
 
       api
         .get(`/api/transactions/${global.lbUserId}/clientToken?access_token=${global.accessToken}`)
@@ -98,7 +95,6 @@ describe('Test a payment flow', function(){
   describe('Post a transaction to BrainTree', function(){
     this.timeout(4000);
     it('create success - status 200 and response', function(done){
-      var api = supertest.agent(baseUrl);
       var data = {
         paymentNonce: 'fake-valid-visa-nonce',
         rateId: global.rateId
