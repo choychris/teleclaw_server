@@ -4,14 +4,8 @@
     "connector": "memory"
   },
   "mongodb": {
-    "host": "localhost",
-    "port": 27017,
-    "url": "",
-    "database": "teleclaw_dev",
-    "password": "123456",
+    "url": "mongodb://teleClawAdmin:123456@mongo:27017/teleclaw_dev",
     "name": "mongodb",
-    "user": "teleClawAdmin",
-    "connector": "mongodb",
-    "lazyConnect": true
+    "connector": "mongodb"
   }
 }

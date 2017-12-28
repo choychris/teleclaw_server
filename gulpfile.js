@@ -28,7 +28,7 @@ gulp.task('transpile', function() {
     ignore: [
       './*.json'
     ],
-    presets: ['es2015']                 
+    presets: ['es2015', 'node6']                 
   }))
   .pipe(gulp.dest('./build'));
 });
@@ -51,7 +51,7 @@ gulp.task('compress', function() {
 });
 
 // start gulp clean and transpile tasks
-// gulp.task('rebuild', ['clean','transpile']);
+// gulp.task('rebuild', ['clean','build']);
 
 // start nodemon, transpile and compress tasks
 gulp.task('restart', function () {

@@ -1,13 +1,14 @@
 {
   "name": "issue",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true
   },
   "properties": {
     "id": {
       "type": "string",
+      "id": true,
       "required": true
     },
     "created": {
@@ -19,28 +20,23 @@
       "required": true
     },
     "pusher": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "notify": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "userId": {
       "type": "string",
       "required": true
     },
     "playId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "transactionId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "deliveryId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     }
   },
   "validations": [],

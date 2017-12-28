@@ -1,0 +1,58 @@
+{
+  "name": "transaction",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "action": {
+      "type": "string",
+      "required": true
+    },
+    "amount": {
+      "type": "number",
+      "required": true
+    },
+    "status": {
+      "type": "string"
+    },
+    "walletId": {
+      "type": "string",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "gateWayResponse": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "",
+      "primaryKey": "id"
+    },
+    "wallet": {
+      "type": "belongsTo",
+      "model": "wallet",
+      "foreignKey": "",
+      "primaryKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

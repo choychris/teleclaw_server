@@ -2,23 +2,10 @@ stages:
   - build
   - test
   - deploy
-    
-buildTest:
-  stage: build
-  image: node:6.11.1
-  script:
-    - npm install
-  artifacts:
-    paths:
-      - node_modules/
-      - package.json
-      - server/
 
 buildProduction:
   stage: build
   image: node:6.11.1
-  environment:
-    name: production
   script: 
     - npm install
     - npm install -g gulp
@@ -31,16 +18,17 @@ buildProduction:
         - node_modules/
         - package.json
         - build/
-
+        
 test:
   stage: test
   image: node:6.11.1
   services:
     - mongo:3.4
   dependencies:
-    - buildTest
+    - buildProduction
   script: 
-    - npm run dev
+    - NODE_ENV=staging npm run unit_test
+    - npm prune --production
 
 testProduction:
   stage: test
@@ -67,7 +55,7 @@ deployDevelopment:
   environment:
     name: development
   dependencies:
-    - buildTest
+    - buildProduction
   when: manual
   only:
     - pushes
@@ -91,7 +79,7 @@ deployStaging:
     name: staging
     url: http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com/  
   dependencies:
-    - buildTest
+    - buildProduction
   when: manual
   only:
     - master

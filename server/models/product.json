@@ -1,26 +1,29 @@
 {
   "name": "product",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true
   },
   "properties": {
     "id": {
       "type": "string",
+      "id": true,
       "required": true
     },
     "created": {
       "type": "date",
       "required": true
     },
+    "lastUpdated": {
+      "type": "date"
+    },
     "name": {
-      "type": "string",
+      "type": "object",
       "required": true
     },
     "description": {
-      "type": "string",
-      "required": true
+      "type": "object"
     },
     "size": {
       "type": "object",
@@ -31,22 +34,19 @@
       "required": true
     },
     "images": {
-      "type": "object",
-      "required": true
+      "type": "object"
     },
     "status": {
-      "type": "boolean",
-      "required": true
+      "machineStatus": "boolean",
+      "maintainStatus": "boolean",
+      "visible": "boolean"
+    },
+    "deliveryPrice": {
+      "type": "string",
+      "value": "number"
     },
     "level": {
-      "type": "object",
-      "required": true
-    },
-    "tags": {
-      "type": [
-        "string"
-      ],
-      "required": true
+      "type": "object"
     },
     "sku": {
       "type": "number",
@@ -57,31 +57,56 @@
       "required": true
     },
     "benchmarkId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "productRate": {
-      "type": "productRate",
-      "required": true
+      "type": "number"
     },
-    "numOfPlay": {
-      "type": "number",
-      "require": false
-    },
-    "numOfSuccess": {
-      "type": "number",
-      "require": false
+    "gamePlayRate": {
+      "type": "number"
     }
   },
   "validations": [],
   "relations": {
-    "productBenchmark": {
-      "type": "hasOne",
-      "model": "benchmark",
-      "foreginKey": "benchmarkId",
+    "machines": {
+      "type": "hasMany",
+      "model": "machine",
+      "foreginKey": "productId",
       "primaryKey": "id"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": [
+        "find",
+        "findOne",
+        "findById",
+        "__get__machines",
+        "__get__cameras"
+      ]
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

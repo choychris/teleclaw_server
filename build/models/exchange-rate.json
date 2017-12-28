@@ -1,0 +1,43 @@
+{
+  "name": "exchange_rate",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "coins": {
+      "type": "number",
+      "required": true
+    },
+    "discounts": {
+      "type": "number",
+      "required": true
+    },
+    "currency": {
+      "type": "object",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "images": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

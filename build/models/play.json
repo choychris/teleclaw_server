@@ -1,0 +1,92 @@
+{
+  "name": "play",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "ended": {
+      "type": "date"
+    },
+    "duration": {
+      "type": "number",
+      "required": true
+    },
+    "result": {
+      "type": "object",
+      "required": true
+    },
+    "movement": {
+      "type": [
+        "object"
+      ]
+    },
+    "recording": {
+      "type": "string"
+    },
+    "machineId": {
+      "type": "string",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "productId": {
+      "type": "string",
+      "required": true
+    },
+    "transactionId": {
+      "type": "string",
+      "required": true
+    },
+    "reservationId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreginKey": "userId",
+      "primaryKey": "id"
+    },
+    "machine": {
+      "type": "belongsTo",
+      "model": "machine",
+      "foreginKey": "",
+      "primaryKey": "id"
+    },
+    "product": {
+      "type": "belongsTo",
+      "model": "product",
+      "foreginKey": "",
+      "primaryKey": "id"
+    },
+    "transaction": {
+      "type": "hasOne",
+      "model": "transaction",
+      "foreginKey": "transactionId",
+      "primaryKey": "id"
+    },
+    "reservation": {
+      "type": "hasOne",
+      "model": "reservation",
+      "foreginKey": "reservationId",
+      "primaryKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,75 @@
+{
+  "name": "product",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "lastUpdated": {
+      "type": "date"
+    },
+    "name": {
+      "type": "object",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "size": {
+      "type": "object",
+      "required": true
+    },
+    "weight": {
+      "type": "object",
+      "required": true
+    },
+    "images": {
+      "type": "object"
+    },
+    "status": {
+      "type": "object",
+      "required": true
+    },
+    "level": {
+      "type": "object"
+    },
+    "sku": {
+      "type": "number",
+      "required": true
+    },
+    "cost": {
+      "type": "object",
+      "required": true
+    },
+    "benchmarkId": {
+      "type": "string"
+    },
+    "productRate": {
+      "type": "number"
+    },
+    "gamePlayRate": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "machines": {
+      "type": "hasMany",
+      "model": "machine",
+      "foreginKey": "productId",
+      "primaryKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

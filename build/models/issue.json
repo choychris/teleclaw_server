@@ -1,0 +1,76 @@
+{
+  "name": "issue",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "pusher": {
+      "type": "string",
+      "required": true
+    },
+    "notify": {
+      "type": "string",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "playId": {
+      "type": "string",
+      "required": true
+    },
+    "transactionId": {
+      "type": "string",
+      "required": true
+    },
+    "deliveryId": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreginKey": "userId",
+      "primaryKey": "id"
+    },
+    "play": {
+      "type": "belongsTo",
+      "model": "play",
+      "foreginKey": "playId",
+      "primaryKey": "id"
+    },
+    "transaction": {
+      "type": "belongsTo",
+      "model": "transaction",
+      "foreginKey": "transactionId",
+      "primaryKey": "id"
+    },
+    "delivery": {
+      "type": "belongsTo",
+      "model": "delivery",
+      "foreginKey": "deliveryId",
+      "primaryKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

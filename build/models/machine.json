@@ -1,0 +1,49 @@
+{
+  "name": "machine",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "open"
+    },
+    "display": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "reservation": {
+      "type": "number"
+    },
+    "iotPlatform": {
+      "type": "object"
+    },
+    "productId": {
+      "type": "string"
+    },
+    "currentUserId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

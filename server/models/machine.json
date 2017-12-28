@@ -1,18 +1,25 @@
 {
   "name": "machine",
   "base": "PersistedModel",
-  "idInjection": true,
+  "idInjection": false,
   "options": {
     "validateUpsert": true
   },
   "properties": {
     "id": {
       "type": "string",
+      "id": true,
       "required": true
     },
     "created": {
       "type": "date",
       "required": true
+    },
+    "lastUpdated": {
+      "type": "date"
+    },
+    "lastStatusChanged": {
+      "type": "date"
     },
     "name": {
       "type": "string",
@@ -20,44 +27,82 @@
     },
     "status": {
       "type": "string",
-      "required": true
-    },
-    "display": {
-      "type": "boolean",
-      "required": true
+      "required": true,
+      "default": "open"
     },
     "reservation": {
       "type": "number",
-      "required": true
+      "default": 0
+    },
+    "sku": {
+      "type": "number",
+      "default": 0
     },
     "iotPlatform": {
-      "type": "object",
-      "required": true
-    },
-    "userId": {
-      "type": "string",
-      "required": true
+      "type": {
+        "gizwits": {
+          "init": "array",
+          "deviceId": "string",
+          "deviceMAC": "string",
+          "productKey": "string",
+          "host": "string",
+          "wss_port": "string"
+        }
+      }
     },
     "productId": {
-      "type": "string",
-      "required": true
+      "type": "string"
+    },
+    "currentUser": {
+      "type": "object"
     }
   },
   "validations": [],
   "relations": {
-    "product": {
-      "type": "hasOne",
-      "model": "product",
-      "foreginKey": "productId",
-      "primaryKey": "id"
-    },
-    "palyer": {
-      "type": "hasOne",
-      "model": "user",
-      "foreginKey": "userId",
-      "primaryKey": "id"
+    "cameras": {
+      "type": "hasMany",
+      "model": "camera",
+      "foreginKey": "machineId"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": [
+        "find",
+        "findOne",
+        "findById",
+        "__get__cameras"
+      ]
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "gamePlay"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

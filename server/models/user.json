@@ -1,6 +1,6 @@
 {
   "name": "user",
-  "base": "PersistedModel",
+  "base": "User",
   "idInjection": true,
   "options": {
     "validateUpsert": true
@@ -10,33 +10,33 @@
       "type": "string",
       "required": true
     },
-    "create": {
+    "created": {
       "type": "date",
       "required": true
     },
     "lastLogIn": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "lastUpdated": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "name": {
-      "type": "object",
-      "required": true
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
     },
     "phone": {
-      "type": "integer",
-      "required": true
+      "type": "integer"
     },
     "address": {
-      "type": "string",
-      "required": true
+      "type": "string"
+    },
+    "referral": {
+      "type": "object"
     },
     "email": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "password": {
       "type": "string",
@@ -44,19 +44,19 @@
     },
     "status": {
       "type": "boolean",
-      "required": true
+      "required": true,
+      "default": true
     },
     "language": {
       "type": "string",
-      "required": true
+      "required": true,
+      "default": "en"
     },
     "counrtyCode": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
-    "3rdPartyAccessToken": {
-      "type": "object",
-      "required": true
+    "bindedDevice": {
+      "type": "array"
     }
   },
   "validations": [],
@@ -66,8 +66,100 @@
       "model": "role",
       "foreignKey": "principalId",
       "through": "rolemap"
+    },
+    "userIdentities": {
+      "type": "hasMany",
+      "model": "userIdentity",
+      "foreignKey": "userId"
+    },
+    "transactions": {
+      "type": "hasMany",
+      "model": "transaction",
+      "foreignKey": "userId"
+    },
+    "deliveries": {
+      "type": "hasMany",
+      "model": "delivery",
+      "foreignKey": "userId"
+    },
+    "wallet": {
+      "type": "hasOne",
+      "model": "wallet",
+      "foreignKey": "userId"
+    },
+    "reservation": {
+      "type": "hasOne",
+      "model": "reservation",
+      "foreignKey": "userId"
+    },
+    "paymentGateway": {
+      "type": "hasOne",
+      "model": "paymentGateway",
+      "foreignKey": "userId"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "auth"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "pusherAuth"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "checkTokenValid"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "accessTokens"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": [
+        "findById",
+        "findOne",
+        "__get__wallet",
+        "__get__reservation",
+        "__get__paymentGateway",
+        "__get__transactions",
+        "__get__deliveries"
+      ]
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }
