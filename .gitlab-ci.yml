@@ -28,6 +28,12 @@ test:
     - buildProduction
   script: 
     - NODE_ENV=staging npm run unit_test
+    - npm prune --production
+  artifacts:
+    paths:
+      - node_modules/
+      - package.json
+      - build/
 
 testProduction:
   stage: test
@@ -41,6 +47,12 @@ testProduction:
   script: 
     - npm install -g mocha
     - mocha ./test/mocha/root.js
+    - npm prune --production
+  artifacts:
+    paths:
+      - node_modules/
+      - package.json
+      - build/
 
 deployDevelopment:
   stage: deploy
@@ -53,7 +65,7 @@ deployDevelopment:
   environment:
     name: development
   dependencies:
-    - buildProduction
+    - test
   when: manual
   only:
     - pushes
@@ -77,7 +89,7 @@ deployStaging:
     name: staging
     url: http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com/  
   dependencies:
-    - buildProduction
+    - test
   when: manual
   only:
     - master
@@ -109,7 +121,7 @@ deployProduction:
     name: production
     url: http://teleclawbackendapi-production.ap-southeast-1.elasticbeanstalk.com/
   dependencies:
-    - buildProduction
+    - testProduction
   when: manual
   only:
     - tags
