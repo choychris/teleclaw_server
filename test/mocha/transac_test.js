@@ -1,5 +1,4 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http')
+var should = require('chai').should();
 var supertest = require('supertest');
 var { NODE_ENV } = process.env;
 var baseUrl = 'http://localhost:3000';
@@ -7,10 +6,12 @@ var baseUrl = 'http://localhost:3000';
 if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
   app = require('../../build/server.js')
   before(function() {
+    console.log('server start')
     app.start();
   });
 
   after(function(){
+    console.log('server stop')
     app.stop();  
   });
 }

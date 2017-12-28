@@ -1,13 +1,13 @@
 var { NODE_ENV } = process.env;
 var should = require('chai').should();
 var supertest = require('supertest');
+var api = supertest.agent('htp://localhost:3000');
 
 if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
   app = require('../../build/server.js')
   before(function() {
     console.log('server start')
-    //app.start();
-    global.api = supertest(app) ;
+    app.start();
   });
 
   after(function(){
@@ -30,7 +30,7 @@ describe('Perform admin function', function(){
       username: 'teleclaw.live@gmail.com',
       password : 'teleclawlive123',
     };
-    global.api.post(`/api/users/login`)
+    api.post(`/api/users/login`)
       .send(userInfo)
       .set('Accept', 'application/json')
       .end(function(err,res){
@@ -129,57 +129,53 @@ describe('Perform admin function', function(){
   // });
 
   // |================== Exchange Rate API ==================|
-  // POST:: an exchange-rate
-  // describe('Create an exchange-rate from loopback', function(){
-  //   it('Get success - status 200 and object', function(done){
-  //     var baseUrl = app ? app.get('url').replace(/\/$/, '') : 'localhost:3000';
-  //     var api = supertest.agent(baseUrl) ;
-  //     var url = `/api/exchangeRates?access_token=${global.accessToken}`
-  //     var body = {
-  //         "coins": 240,
-  //         "bonus": 20,
-  //         "currency": {
-  //             "usd": 4,
-  //             "hkd": 32
-  //           },
-  //         "status": true
-  //     };
-  //     api.post(url)
-  //       .set('Accept', 'application/json')
-  //       .send(body)
-  //       .end(function(err,res){
-  //           console.log(res.body);
-  //           res.body.should.be.an('object');
-  //           res.status.should.equal(200);
-  //           done();
-  //        });
-  //   })
-  // })
+  POST:: an exchange-rate
+  describe('Create an exchange-rate from loopback', function(){
+    it('Get success - status 200 and object', function(done){
+      var url = `/api/exchangeRates?access_token=${global.accessToken}`
+      var body = {
+          "coins": 240,
+          "bonus": 20,
+          "currency": {
+              "usd": 4,
+              "hkd": 32
+            },
+          "status": true
+      };
+      api.post(url)
+        .set('Accept', 'application/json')
+        .send(body)
+        .end(function(err,res){
+            console.log(res.body);
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+         });
+    })
+  })
 
-  // describe('Create an exchange-rate from loopback', function(){
-  //   it('Get success - status 200 and object', function(done){
-  //     var baseUrl = app ? app.get('url').replace(/\/$/, '') : 'localhost:3000';
-  //     var api = supertest.agent(baseUrl) ;
-  //     var url = `/api/exchangeRates?access_token=${global.accessToken}`
-  //     var body = {
-  //         "coins": 60,
-  //         "bonus": 0,
-  //         "currency": {
-  //             "usd": 1,
-  //             "hkd": 8
-  //           },
-  //         "status": true
-  //     };
-  //     api.post(url)
-  //       .set('Accept', 'application/json')
-  //       .send(body)
-  //       .end(function(err,res){
-  //           console.log(res.body);
-  //           res.body.should.be.an('object');
-  //           res.status.should.equal(200);
-  //           done();
-  //        });
-  //   })
-  // })
+  describe('Create an exchange-rate from loopback', function(){
+    it('Get success - status 200 and object', function(done){
+      var url = `/api/exchangeRates?access_token=${global.accessToken}`
+      var body = {
+          "coins": 60,
+          "bonus": 0,
+          "currency": {
+              "usd": 1,
+              "hkd": 8
+            },
+          "status": true
+      };
+      api.post(url)
+        .set('Accept', 'application/json')
+        .send(body)
+        .end(function(err,res){
+            console.log(res.body);
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+         });
+    })
+  })
 
 });
