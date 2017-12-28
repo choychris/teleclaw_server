@@ -6,8 +6,24 @@ var _createLogging = require('../utils/createLogging.js');
 
 var _makeTransaction = require('../utils/makeTransaction.js');
 
+var braintree = require("braintree");
 var shortid = require('shortid');
 var Promise = require('bluebird');
+
+var _process$env = process.env,
+    NODE_ENV = _process$env.NODE_ENV,
+    BRAINTREE_MERCHANTID = _process$env.BRAINTREE_MERCHANTID,
+    BRAINTREE_PUBLICKEY = _process$env.BRAINTREE_PUBLICKEY,
+    BRAINTREE_PRIVATEKEY = _process$env.BRAINTREE_PRIVATEKEY;
+
+var braintreeEnv = NODE_ENV === 'production' ? braintree.Environment.Production : braintree.Environment.Sandbox;
+
+var braintreeGateway = braintree.connect({
+  environment: braintreeEnv,
+  merchantId: BRAINTREE_MERCHANTID,
+  publicKey: BRAINTREE_PUBLICKEY,
+  privateKey: BRAINTREE_PRIVATEKEY
+});
 
 module.exports = function (Transaction) {
 
@@ -56,7 +72,7 @@ module.exports = function (Transaction) {
       if (newGateway !== null) {
         var customerId = newGateway.id;
         // create a customer in braintree
-        app.braintreeGateway.customer.create({ id: customerId }, function (brainTreeErr, result) {
+        braintreeGateway.customer.create({ id: customerId }, function (brainTreeErr, result) {
           if (brainTreeErr) {
             console.log('Create BrainTree customer error : ', brainTreeErr);
             cb(brainTreeErr);
@@ -71,7 +87,7 @@ module.exports = function (Transaction) {
 
     // function to generate a braintree client token
     function generateToken(id, cb) {
-      app.braintreeGateway.clientToken.generate({ customerId: id }, function (err, response) {
+      braintreeGateway.clientToken.generate({ customerId: id }, function (err, response) {
         if (err) {
           console.log('Generate BrainTree Token Error : ', err);
           cb(err);
@@ -107,7 +123,7 @@ module.exports = function (Transaction) {
           storeInVaultOnSuccess: true
         }
       };
-      return [app.braintreeGateway.transaction.sale(saleConfig), foundRate];
+      return [braintreeGateway.transaction.sale(saleConfig), foundRate];
     }).spread(function (result, rate) {
       var coins = rate.coins,
           bonus = rate.bonus;

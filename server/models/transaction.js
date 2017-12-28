@@ -4,8 +4,19 @@ import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
 import { makeCalculation, createNewTransaction } from '../utils/makeTransaction.js';
 
+const braintree = require("braintree");
 const shortid = require('shortid');
 const Promise = require('bluebird');
+
+let { NODE_ENV, BRAINTREE_MERCHANTID, BRAINTREE_PUBLICKEY, BRAINTREE_PRIVATEKEY } = process.env ;
+let braintreeEnv = NODE_ENV === 'production' ? braintree.Environment.Production : braintree.Environment.Sandbox;
+
+var braintreeGateway = braintree.connect({
+  environment: braintreeEnv,
+  merchantId: BRAINTREE_MERCHANTID,
+  publicKey: BRAINTREE_PUBLICKEY,
+  privateKey: BRAINTREE_PRIVATEKEY
+});
 
 module.exports = function(Transaction) {
 
@@ -49,7 +60,7 @@ module.exports = function(Transaction) {
       if(newGateway !== null){
         let customerId = newGateway.id
         // create a customer in braintree
-        app.braintreeGateway.customer.create({id: customerId}, function(brainTreeErr, result){
+        braintreeGateway.customer.create({id: customerId}, function(brainTreeErr, result){
           if(brainTreeErr){
             console.log('Create BrainTree customer error : ', brainTreeErr)
             cb(brainTreeErr)
@@ -64,7 +75,7 @@ module.exports = function(Transaction) {
 
     // function to generate a braintree client token
     function generateToken(id, cb){
-      app.braintreeGateway.clientToken.generate({customerId: id}, function(err, response){
+      braintreeGateway.clientToken.generate({customerId: id}, function(err, response){
         if(err){
           console.log('Generate BrainTree Token Error : ', err)
           cb(err)
@@ -107,7 +118,7 @@ module.exports = function(Transaction) {
           storeInVaultOnSuccess: true
         }
       }
-      return [app.braintreeGateway.transaction.sale(saleConfig), foundRate];
+      return [braintreeGateway.transaction.sale(saleConfig), foundRate];
     }).spread((result, rate)=>{
       let { coins, bonus } = rate;
       let tolalCoins = (coins + bonus);
