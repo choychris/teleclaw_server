@@ -6,6 +6,20 @@ const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
+if(process.env.NODE_ENV === 'staging'){
+  var server = require('../../build/server.js');
+
+  before(function() {
+    console.log('server start');
+    server.start();
+  });
+
+  after(function(){
+    console.log('server stop');
+    server.stop();  
+  });
+}
+
 describe('Perform admin function', function(){
 
 // |================== Authenticate User API ==================|
