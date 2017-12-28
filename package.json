@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "unit_test": "mocha ./test/mocha/merge"
+    "unit_test": "NODE_ENV=staging mocha ./test/mocha/merge"
   },
   "dependencies": {
     "bluebird": "^3.5.1",

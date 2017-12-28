@@ -4,43 +4,54 @@ var _beforeSave = require('../utils/beforeSave.js');
 
 var _createLogging = require('../utils/createLogging.js');
 
-var _firebasedb = require('../utils/firebasedb.js');
+var _gamePlayTimer = require('../utils/gamePlayTimer.js');
+
+var _makeTransaction = require('../utils/makeTransaction.js');
 
 var Promise = require('bluebird');
 
 module.exports = function (Reservation) {
 
   var app = require('../server');
-  var firebase = app.firebaseApp;
-  var firebasedb = firebase.database();
   //make loggings for monitor purpose
-  (0, _createLogging.loggingModel)(Reservation);
+  //loggingModel(Reservation);
 
   // assgin last updated time / created time to model
   (0, _beforeSave.updateTimeStamp)(Reservation);
+
+  Reservation.disableRemoteMethod("deleteById", true);
 
   //assign an unique if its new instance 
   (0, _beforeSave.assignKey)(Reservation);
 
   Reservation.observe('before save', function (ctx, next) {
-    if (!ctx.isNewInstance && ctx.data) {
-      console.log(ctx.data);
-      var _ctx$data = ctx.data,
-          status = _ctx$data.status,
-          machineId = _ctx$data.machineId;
+    var Machine = app.models.Machine;
+    if (!ctx.isNewInstance) {
+      var _ctx$currentInstance = ctx.currentInstance,
+          id = _ctx$currentInstance.id,
+          status = _ctx$currentInstance.status,
+          userId = _ctx$currentInstance.userId,
+          machineId = _ctx$currentInstance.machineId;
 
-      var machineLocation = 'machines/' + machineId;
-      if (status === 'close') {
-        (0, _firebasedb.makeDbTransaction)(machineLocation, 'numOfReserve', 'minus');
-        ctx.data.machineId = 'none';
-        next();
-      } else if (status === 'open') {
-        (0, _firebasedb.makeDbTransaction)(machineLocation, 'numOfReserve', 'plus');
-        next();
-      } else {
-        next();
+      if (ctx.data && ctx.data.machineId) {
+        var sameMachine = machineId === ctx.data.machineId;
+        if (status === 'open' && !!machineId) {
+          (0, _makeTransaction.makeCalculation)(Machine, machineId, 'reservation', 1, 'minus');
+        }
       }
-    }
+      if (ctx.data && ctx.data.status === 'cancel') {
+        var _ctx$currentInstance2 = ctx.currentInstance,
+            _id = _ctx$currentInstance2.id,
+            _status = _ctx$currentInstance2.status,
+            _userId = _ctx$currentInstance2.userId,
+            _machineId = _ctx$currentInstance2.machineId;
+
+        (0, _makeTransaction.makeCalculation)(Machine, _machineId, 'reservation', 1, 'minus');
+        ctx.data.machineId = null;
+        ctx.data.productId = null;
+      }
+    };
+    next();
   });
 
   Reservation.observe('after save', function (ctx, next) {
@@ -48,70 +59,85 @@ module.exports = function (Reservation) {
         id = _ctx$instance.id,
         status = _ctx$instance.status,
         userId = _ctx$instance.userId,
-        machineId = _ctx$instance.machineId;
+        machineId = _ctx$instance.machineId,
+        lastUpdated = _ctx$instance.lastUpdated,
+        productId = _ctx$instance.productId;
 
-    var location = 'userInfo/' + userId + '/reservation';
-    if (ctx.isNewInstance) {
-      var firebaseDataObj = {
-        id: id,
-        status: status,
-        machineId: machineId
-      };
-      (0, _firebasedb.changeFirebaseDb)('set', location, firebaseDataObj, 'Reservation');
+    var Machine = app.models.Machine;
+    if (!ctx.isNewInstance) {
+      if (status === 'close' && !!machineId) {
+        var pusherObj = {
+          id: id,
+          status: status,
+          machineId: machineId,
+          productId: productId,
+          lastUpdated: lastUpdated
+        };
+        app.pusher.trigger('reservation-' + userId.toString(), 'your_turn', pusherObj);
+        (0, _makeTransaction.makeCalculation)(Machine, machineId, 'reservation', 1, 'minus');
+      } else if (status === 'open' && !!machineId) {
+        (0, _makeTransaction.makeCalculation)(Machine, machineId, 'reservation', 1, 'plus');
+      }
+      next();
     } else {
-      (0, _firebasedb.changeFirebaseDb)('update', location, { status: status, machineId: machineId }, 'Reservation');
+      next();
     }
-    next();
   });
 
-  Reservation.endEngage = function (machineId, cb) {
-    // console.log('machineId : ', machineId);
+  Reservation.endEngage = function (machineId, userId, cb) {
     var Machine = app.models.Machine;
-    var removeCurrentEngage = function removeCurrentEngage(machineId) {
-      return new Promise(function (resolve, reject) {
-        Reservation.findOne({ where: { machineId: machineId, status: 'engage' } }, function (error, reserve) {
-          console.log('find one reserve : ', reserve);
-          if (reserve !== null) {
-            reserve.updateAttributes({ status: 'close', machineId: machineId }, function (err, inst) {
-              resolve(true);
-              return true;
-            });
-          } else if (!error) {
-            resolve(true);
-            return false;
+    Machine.findById(machineId, function (err, machine) {
+      // check if machine is still in playing
+      var currentId = machine.currentUser ? machine.currentUser.id : null;
+      if (machine.status == 'open' && currentId == userId) {
+        //find next reservation
+        Reservation.find({ where: { machineId: machineId, status: 'open' }, order: 'lastUpdated ASC', limit: 1 }, function (error, foundReserve) {
+          if (foundReserve === null || foundReserve.length === 0) {
+            console.log('when no reserve');
+            updateMachine(machineId, 'open', null);
+            if (!!cb) {
+              cb(null, 'machine_open');
+            }
           } else {
-            reject(error);
-            return false;
+            //update the next reserve and trigger pusher in after save
+            foundReserve[0].updateAttributes({ status: 'close' }, function (newError, instance) {
+              updateMachine(machineId, 'open', { id: instance.userId });
+              timeOutReserve(machineId, userId, Machine, Reservation);
+              if (!!cb) {
+                cb(null, 'next_reserve');
+              }
+            });
           }
         });
-      });
-    };
-
-    removeCurrentEngage(machineId).then(function (res) {
-      Reservation.find({ where: { machineId: machineId, status: 'open' }, order: 'created ASC', limit: 1 }, function (error, foundReserve) {
-        //console.log('foundReserve : ', foundReserve);
-        if (foundReserve === null || foundReserve.length == 0) {
-          Machine.findById(machineId, function (err, machine) {
-            machine.updateAttributes({ status: 'open', currentUserId: 'nouser' }, function (err, instance) {
-              cb(null, instance);
-            });
-          });
-        } else {
-          //console.log(typeof foundReserve);
-          foundReserve[0].updateAttributes({ status: 'engage', machineId: machineId }, function (newError, instance) {
-            //console.log('update next player to engage : ', instance);
-            cb(null, { reserveUpdate: instance });
-          });
+      } else {
+        if (!!cb) {
+          cb(null, 'machine_playing');
         }
-      });
-    }).catch(function (err) {
-      cb(err);
+      }
     });
   };
 
+  function updateMachine(machineId, status, userId) {
+    var Machine = app.models.Machine;
+    Machine.findById(machineId, function (err, machine) {
+      machine.updateAttributes({ status: status, currentUser: userId }, function (err, instance) {
+        if (err) {
+          console.log(err);
+        }
+        console.log('machine instance :', instance);
+      });
+    });
+  }
+
+  function timeOutReserve(machineId, userId, Machine, Reservation) {
+    setTimeout(function () {
+      (0, _gamePlayTimer.checkMachineStatus)(machineId, userId, Machine, Reservation);
+    }, 8000);
+  }
+
   Reservation.remoteMethod('endEngage', {
-    http: { path: '/:machineId/endEngage', verb: 'get' },
-    accepts: [{ arg: 'machineId', type: 'string', required: true }],
+    http: { path: '/:machineId/:userId/endEngage', verb: 'get' },
+    accepts: [{ arg: 'machineId', type: 'string', required: true }, { arg: 'userId', type: 'string', required: true }],
     returns: { arg: 'result', type: 'object' }
   });
 };

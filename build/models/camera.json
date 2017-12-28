@@ -15,25 +15,33 @@
       "type": "date",
       "required": true
     },
-    "serialNumber": {
+    "name": {
       "type": "string",
       "required": true
     },
     "position": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
-    "streamingSetting": {
-      "type": "object",
-      "required": true
+    "type": {
+      "type": "string"
     },
-    "image": {
-      "type": "object",
-      "required": true
+    "webrtcServer": {
+      "type": "string"
+    },
+    "rtspDdnsUrl": {
+      "type": "string"
+    },
+    "lcoalIp": {
+      "type": "string"
+    },
+    "alibabaSetting": {
+      "type": "object"
+    },
+    "images": {
+      "type": "string"
     },
     "machineId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     }
   },
   "validations": [],
@@ -41,10 +49,40 @@
     "machine": {
       "type": "belongsTo",
       "model": "machine",
-      "foreginKey": "machineId",
-      "primaryKey": "id"
+      "foreginKey": "machineId"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": [
+        "find",
+        "findOne",
+        "findById",
+        "__get__machine"
+      ]
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

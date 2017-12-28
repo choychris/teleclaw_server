@@ -15,8 +15,7 @@
       "required": true
     },
     "lastLogIn": {
-      "type": "date",
-      "required": true
+      "type": "date"
     },
     "lastUpdated": {
       "type": "date"
@@ -32,6 +31,9 @@
     },
     "address": {
       "type": "string"
+    },
+    "referral": {
+      "type": "object"
     },
     "email": {
       "type": "string"
@@ -52,6 +54,9 @@
     },
     "counrtyCode": {
       "type": "string"
+    },
+    "bindedDevice": {
+      "type": "array"
     }
   },
   "validations": [],
@@ -72,6 +77,11 @@
       "model": "transaction",
       "foreignKey": "userId"
     },
+    "deliveries": {
+      "type": "hasMany",
+      "model": "delivery",
+      "foreignKey": "userId"
+    },
     "wallet": {
       "type": "hasOne",
       "model": "wallet",
@@ -80,6 +90,11 @@
     "reservation": {
       "type": "hasOne",
       "model": "reservation",
+      "foreignKey": "userId"
+    },
+    "paymentGateway": {
+      "type": "hasOne",
+      "model": "paymentGateway",
       "foreignKey": "userId"
     }
   },
@@ -90,6 +105,13 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "auth"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "pusherAuth"
     },
     {
       "accessType": "EXECUTE",
@@ -108,25 +130,35 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$authenticated",
+      "principalId": "$owner",
       "permission": "ALLOW",
       "property": [
-        "findOne",
         "findById",
-        "update",
+        "findOne",
         "__get__wallet",
-        "__get__reservation"
+        "__get__reservation",
+        "__get__paymentGateway",
+        "__get__transactions",
+        "__get__deliveries"
       ]
     },
     {
-      "accessType": "EXECUTE",
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "$authenticated",
-      "permission": "ALLOW",
-      "property": [
-        "delete",
-        "find"
-      ]
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
     }
   ],
   "methods": {}

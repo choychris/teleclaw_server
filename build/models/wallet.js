@@ -4,8 +4,7 @@ var _beforeSave = require('../utils/beforeSave.js');
 
 var _createLogging = require('../utils/createLogging.js');
 
-var _firebasedb = require('../utils/firebasedb.js');
-
+//import { changeFirebaseDb } from '../utils/firebasedb.js';
 module.exports = function (Wallet) {
 
   var app = require('../server');
@@ -18,18 +17,15 @@ module.exports = function (Wallet) {
   //assign an unique if its new instance 
   (0, _beforeSave.assignKey)(Wallet);
 
-  Wallet.observe('after save', function (ctx, next) {
-    var _ctx$instance = ctx.instance,
-        id = _ctx$instance.id,
-        userId = _ctx$instance.userId,
-        balance = _ctx$instance.balance;
-
-    var location = 'userInfo/' + userId + '/wallet';
-    if (ctx.isNewInstance) {
-      (0, _firebasedb.changeFirebaseDb)('set', location, { id: id, balance: balance }, 'Wallet');
-    } else {
-      (0, _firebasedb.changeFirebaseDb)('update', location, { balance: balance }, 'Wallet');
-    }
-    next();
-  });
+  // deprecated firebase api :
+  // Wallet.observe('after save', (ctx, next)=>{
+  //   let { id, userId, balance } = ctx.instance;
+  //   let location = `userInfo/${userId}/wallet`;
+  //   if(ctx.isNewInstance){
+  //     changeFirebaseDb('set', location, {id: id, balance: balance}, 'Wallet');
+  //   } else {
+  //     changeFirebaseDb('update', location, {balance: balance}, 'Wallet');
+  //   }
+  //   next();
+  // });
 };

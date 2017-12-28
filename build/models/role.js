@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = function (Role) {
-
   //Check whether database exist default user role, if no , create them
   Role.on('attached', function () {
     var createdTime = new Date().getTime();

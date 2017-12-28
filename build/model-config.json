@@ -37,7 +37,7 @@
     "dataSource": "mongodb",
     "public": true
   },
-  "exchange_rate": {
+  "exchangeRate": {
     "dataSource": "mongodb",
     "public": true
   },
@@ -47,7 +47,7 @@
   },
   "wallet": {
     "dataSource": "mongodb",
-    "public": true
+    "public": false
   },
   "reward": {
     "dataSource": "mongodb",
@@ -104,5 +104,9 @@
   "tag": {
     "dataSource": "mongodb",
     "public": true
+  },
+  "paymentGateway": {
+    "dataSource": "mongodb",
+    "public": false
   }
 }

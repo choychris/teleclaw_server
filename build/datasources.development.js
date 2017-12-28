@@ -2,11 +2,7 @@
 
 module.exports = {
   mongodb: {
-    connector: 'loopback-connector-mongodb',
-    hostname: process.env.KT_VAR_MONGODB_HOST || 'localhost',
-    port: process.env.KT_VAR_MONGODB_PORT || 27017,
-    user: process.env.KT_VAR_MONGODB_USERNAME || 'teleClawAdmin',
-    password: process.env.KT_VAR_MONGODB_PASSWORD || '123456',
-    database: process.env.KT_VAR_MONGODB_DATABASE || 'teleclaw_dev'
+    connector: 'mongodb',
+    url: process.env.KT_VAR_MONGODB_URL || 'mongodb://teleClawAdmin:123456@mongo:27017/teleclaw_dev'
   }
 };

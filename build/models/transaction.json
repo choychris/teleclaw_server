@@ -23,8 +23,8 @@
       "type": "number",
       "required": true
     },
-    "status": {
-      "type": "string"
+    "success": {
+      "type": "boolean"
     },
     "walletId": {
       "type": "string",
@@ -34,8 +34,12 @@
       "type": "string",
       "required": true
     },
+    "transactionType": {
+      "type": "string",
+      "required": true
+    },
     "gateWayResponse": {
-      "type": "number"
+      "type": "object"
     }
   },
   "validations": [],
@@ -53,6 +57,45 @@
       "primaryKey": "id"
     }
   },
-  "acls": [],
+  "acls": [
+      {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "clientToken"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "createSale"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

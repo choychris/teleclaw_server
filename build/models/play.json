@@ -19,12 +19,14 @@
       "type": "date"
     },
     "duration": {
-      "type": "number",
+      "type": "number"
+    },
+    "expectedResult": {
+      "type": "boolean",
       "required": true
     },
-    "result": {
-      "type": "object",
-      "required": true
+    "finalResult": {
+      "type": "boolean"
     },
     "movement": {
       "type": [
@@ -87,6 +89,44 @@
       "primaryKey": "id"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "DENY",
+      "property": "create"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }
