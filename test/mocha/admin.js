@@ -130,7 +130,6 @@ describe('Perform admin function', function(){
   // POST:: an exchange-rate
   describe('Create an exchange-rate from loopback', function(){
     it('Get success - status 200 and object', function(done){
-      var api = supertest.agent(baseUrl);
       var url = `/api/exchangeRates?access_token=${global.accessToken}`
       var body = {
           "coins": 240,
@@ -156,7 +155,6 @@ describe('Perform admin function', function(){
 
   describe('Create an exchange-rate from loopback', function(){
     it('Get success - status 200 and object', function(done){
-      var api = supertest.agent(baseUrl);
       var url = `/api/exchangeRates?access_token=${global.accessToken}`
       var body = {
           "coins": 60,
