@@ -19,7 +19,7 @@ module.exports = function (Reservation) {
   // assgin last updated time / created time to model
   (0, _beforeSave.updateTimeStamp)(Reservation);
 
-  Reservation.disableRemoteMethod("deleteById", true);
+  Reservation.disableRemoteMethodByName("deleteById", true);
 
   //assign an unique if its new instance 
   (0, _beforeSave.assignKey)(Reservation);

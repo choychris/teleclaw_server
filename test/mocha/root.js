@@ -6,10 +6,12 @@ var api = supertest.agent('localhost:3000');
 var server = require('../../build/server.js') 
 
 before(function() {
+  console.log('server start')
 	server.start();
 });
 
 after(function(){
+  console.log('server stop')
 	server.stop();	
 });
 

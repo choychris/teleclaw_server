@@ -11,12 +11,12 @@ const Promise = require('bluebird');
 let { NODE_ENV, BRAINTREE_MERCHANTID, BRAINTREE_PUBLICKEY, BRAINTREE_PRIVATEKEY } = process.env ;
 let braintreeEnv = NODE_ENV === 'production' ? braintree.Environment.Production : braintree.Environment.Sandbox;
 
-var braintreeGateway = braintree.connect({
-  environment: braintreeEnv,
-  merchantId: BRAINTREE_MERCHANTID,
-  publicKey: BRAINTREE_PUBLICKEY,
-  privateKey: BRAINTREE_PRIVATEKEY
-});
+// var braintreeGateway = braintree.connect({
+//   environment: braintreeEnv,
+//   merchantId: BRAINTREE_MERCHANTID,
+//   publicKey: BRAINTREE_PUBLICKEY,
+//   privateKey: BRAINTREE_PRIVATEKEY
+// });
 
 module.exports = function(Transaction) {
 

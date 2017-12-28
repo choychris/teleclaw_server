@@ -1,17 +1,16 @@
 var should = require('chai').should();
-// if(process.env.NODE_ENV === 'staging'){
-//   var server = require('../../build/server.js');
+if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
+  app = require('../../build/server.js')
+  before(function() {
+    console.log('server start')
+    app.start();
+  });
 
-//   before(function() {
-//     console.log('server start');
-//     server.start();
-//   });
-
-//   after(function(){
-//     console.log('server stop');
-//     server.stop();  
-//   });
-// }
+  after(function(){
+    console.log('server stop')
+    app.stop();  
+  });
+}
 
 describe.only("Status Change integation", function() {
   describe("Perform admin", function() {
