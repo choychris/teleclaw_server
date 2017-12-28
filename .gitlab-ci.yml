@@ -40,7 +40,7 @@ testProduction:
     - buildProduction
   script: 
     - npm install -g mocha
-    - NODE_ENV=production mocha ./test/mocha/root.js
+    - mocha ./test/mocha/root.js
 
 deployDevelopment:
   stage: deploy
