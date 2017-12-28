@@ -4,7 +4,6 @@ var loopback = require('loopback');
 var boot = require('loopback-boot');
 var app = module.exports = loopback();
 var Pusher = require('pusher');
-var braintree = require("braintree");
 var cluster = require('cluster');
 var numCPUs = require('os').cpus().length;
 
@@ -13,14 +12,7 @@ var _process$env = process.env,
     PUSHER_KEY = _process$env.PUSHER_KEY,
     PUSHER_SECRET = _process$env.PUSHER_SECRET,
     PUSHER_CLUSTER = _process$env.PUSHER_CLUSTER;
-var _process$env2 = process.env,
-    NODE_ENV = _process$env2.NODE_ENV,
-    BRAINTREE_MERCHANTID = _process$env2.BRAINTREE_MERCHANTID,
-    BRAINTREE_PUBLICKEY = _process$env2.BRAINTREE_PUBLICKEY,
-    BRAINTREE_PRIVATEKEY = _process$env2.BRAINTREE_PRIVATEKEY;
 
-
-var braintreeEnv = NODE_ENV === 'production' ? braintree.Environment.Production : braintree.Environment.Sandbox;
 
 var pusher = new Pusher({
   appId: PUSHER_APP_ID,
@@ -30,16 +22,7 @@ var pusher = new Pusher({
   encrypted: true
 });
 
-var gateway = braintree.connect({
-  environment: braintreeEnv,
-  merchantId: BRAINTREE_MERCHANTID,
-  publicKey: BRAINTREE_PUBLICKEY,
-  privateKey: BRAINTREE_PRIVATEKEY
-});
-
 app.pusher = pusher;
-app.braintreeGateway = gateway;
-
 app.start = function () {
   // start the web server
   return app.listen(function () {

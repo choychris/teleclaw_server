@@ -28,7 +28,6 @@ test:
     - buildProduction
   script: 
     - NODE_ENV=staging npm run unit_test
-    - npm prune --production
 
 testProduction:
   stage: test
@@ -42,7 +41,6 @@ testProduction:
   script: 
     - npm install -g mocha
     - NODE_ENV=production mocha ./test/mocha/root.js
-    - npm prune --production
 
 deployDevelopment:
   stage: deploy
