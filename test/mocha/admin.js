@@ -1,17 +1,19 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http')
 var supertest = require('supertest');
 var { NODE_ENV } = process.env;
 var baseUrl = 'http://localhost:3000';
-var app;
 
 if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
- app = require('../../build/server.js')
+  app = require('../../build/server.js')
+  before(function() {
+    app.start();
+  });
+
+  after(function(){
+    app.stop();  
+  });
 }
 
-chai.use(chaiHttp);
-var should = chai.should();
-var api = (NODE_ENV == 'staging' || NODE_ENV == 'production') ? chai.request(app) : supertest.agent(baseUrl) ;
+var api = supertest.agent(baseUrl) ;
 
 
 const generateJSONAPI = (url, filter) => {
