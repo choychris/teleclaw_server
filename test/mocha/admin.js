@@ -117,7 +117,7 @@ describe('Perform admin function', function(){
 
   // |================== Exchange Rate API ==================|
   // POST:: an exchange-rate
-  describe('Get an exchange-rate from loopback', function(){
+  describe('Create an exchange-rate from loopback', function(){
     it('Get success - status 200 and object', function(done){
       var api = supertest.agent(baseUrl);
       var url = `/api/exchangeRates?access_token=${global.accessToken}`
@@ -143,7 +143,7 @@ describe('Perform admin function', function(){
     })
   })
 
-  describe('Get an exchange-rate from loopback', function(){
+  describe('Create an exchange-rate from loopback', function(){
     it('Get success - status 200 and object', function(done){
       var api = supertest.agent(baseUrl);
       var url = `/api/exchangeRates?access_token=${global.accessToken}`

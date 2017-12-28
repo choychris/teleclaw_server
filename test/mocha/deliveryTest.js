@@ -99,7 +99,7 @@ describe('Get delivery rate quote', function(){
    cost: global.selectedRate.coins_value,
    status: 'pending',
    userId: global.lbUserId,
-   products: global.productIds,
+   products: [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}],
    courier: global.selectedRate
   }
   api

@@ -2,19 +2,19 @@ var should = require('chai').should();
 var supertest = require('supertest');
 var baseUrl = 'http://localhost:3000';
 
-// if(process.env.NODE_ENV === 'staging'){
-//   var server = require('../../build/server.js');
+if(process.env.NODE_ENV === 'staging'){
+  var server = require('../../build/server.js');
 
-//   before(function() {
-//     console.log('server start');
-//     server.start();
-//   });
+  before(function() {
+    console.log('server start');
+    server.start();
+  });
 
-//   after(function(){
-//     console.log('server stop');
-//     server.stop();  
-//   });
-// }
+  after(function(){
+    console.log('server stop');
+    server.stop();  
+  });
+}
 
 describe.only("Status Change integation", function() {
   describe("change sku to 1", function() {
@@ -26,7 +26,7 @@ describe.only("Status Change integation", function() {
 
   describe("PLAY and WIN", function() {
     it('status 200', function(done){
-      require("./machineStatus.js")
+      require("./transac_test.js")
       done();
     });
   });
