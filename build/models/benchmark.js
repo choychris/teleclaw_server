@@ -14,6 +14,4 @@ module.exports = function (Benchmark) {
 
   // assgin last updated time / created time to model
   (0, _beforeSave.updateTimeStamp)(Benchmark);
-  //console.log('this is Benchmark');
-
 };

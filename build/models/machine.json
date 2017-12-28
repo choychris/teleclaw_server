@@ -15,6 +15,12 @@
       "type": "date",
       "required": true
     },
+    "lastUpdated": {
+      "type": "date"
+    },
+    "lastStatusChanged": {
+      "type": "date"
+    },
     "name": {
       "type": "string",
       "required": true
@@ -24,26 +30,79 @@
       "required": true,
       "default": "open"
     },
-    "display": {
-      "type": "boolean",
-      "required": true,
-      "default": false
-    },
     "reservation": {
-      "type": "number"
+      "type": "number",
+      "default": 0
+    },
+    "sku": {
+      "type": "number",
+      "default": 0
     },
     "iotPlatform": {
-      "type": "object"
+      "type": {
+        "gizwits": {
+          "init": "array",
+          "deviceId": "string",
+          "deviceMAC": "string",
+          "productKey": "string",
+          "host": "string",
+          "wss_port": "string"
+        }
+      }
     },
     "productId": {
       "type": "string"
     },
-    "currentUserId": {
-      "type": "string"
+    "currentUser": {
+      "type": "object"
     }
   },
   "validations": [],
-  "relations": {},
-  "acls": [],
+  "relations": {
+    "cameras": {
+      "type": "hasMany",
+      "model": "camera",
+      "foreginKey": "machineId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": [
+        "find",
+        "findOne",
+        "findById",
+        "__get__cameras"
+      ]
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "gamePlay"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

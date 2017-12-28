@@ -23,7 +23,7 @@
       "required": true
     },
     "description": {
-      "type": "string"
+      "type": "object"
     },
     "size": {
       "type": "object",
@@ -37,8 +37,13 @@
       "type": "object"
     },
     "status": {
-      "type": "object",
-      "required": true
+      "machineStatus": "boolean",
+      "maintainStatus": "boolean",
+      "visible": "boolean"
+    },
+    "deliveryPrice": {
+      "type": "string",
+      "value": "number"
     },
     "level": {
       "type": "object"
@@ -70,6 +75,38 @@
       "primaryKey": "id"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": [
+        "find",
+        "findOne",
+        "findById",
+        "__get__machines",
+        "__get__cameras"
+      ]
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

@@ -4,8 +4,6 @@ var _beforeSave = require('../utils/beforeSave.js');
 
 var _createLogging = require('../utils/createLogging.js');
 
-var _firebasedb = require('../utils/firebasedb.js');
-
 var storage = require('../utils/multerStorage');
 var path = require('path');
 var cloudinary = require('cloudinary');
@@ -17,7 +15,7 @@ module.exports = function (Product) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  (0, _createLogging.loggingModel)(Product);
+  //loggingModel(Product);
 
   // assgin last updated time / created time to model
   (0, _beforeSave.updateTimeStamp)(Product);
@@ -27,102 +25,117 @@ module.exports = function (Product) {
 
   // if a benchmark is added, also assgin the product rate (probaility) to the product
   Product.observe('before save', function (ctx, next) {
-    // console.log('ctx.data:', ctx.data);
+
     if (ctx.instance && ctx.instance.benchmarkId) {
-      var benchmarkId = ctx.instance.benchmarkId;
-      var Benchmark = app.models.Benchmark;
-      var cost = ctx.instance.cost.value;
-      // console.log('ctx.instance:', ctx.instance);
-      // console.log('ctx.hookState:', ctx.hookState);
-      Benchmark.findById(benchmarkId, function (err, bMark) {
-        // console.log('benchmark : ', bMark);
-        var revenueRequired = cost * bMark.marginRate * bMark.overheadCost;
-        var valuePerGame = bMark.gamePlayRate * bMark.realValuePerCoin;
-        ctx.instance.productRate = Math.round(revenueRequired / valuePerGame) || 0;
-        ctx.instance.gamePlayRate = bMark.gamePlayRate;
-        // ctx.instance.unsetAttribute('id');
-        // console.log('New ctx.instance : ', ctx.instance);
-        next();
-      });
+      // let benchmarkId = ctx.instance.benchmarkId;
+      // let Benchmark = app.models.Benchmark;
+      // let cost = ctx.instance.cost.value;
+      // //Get the benchmark and calculate the rate
+      // Benchmark.findById(benchmarkId, (err, bMark)=>{
+      //   var revenueRequired = ( cost * bMark.marginRate * bMark.overheadCost );
+      //   var valuePerGame = ( bMark.gamePlayRate * bMark.realValuePerCoin );
+      //   ctx.instance.productRate = Math.round(( revenueRequired / valuePerGame )) || 0;
+      //   ctx.instance.gamePlayRate = bMark.gamePlayRate;
+      //   next();
+      // });
+      attachBenchmark(ctx, 'instance', next);
     } else if (ctx.data && ctx.data.benchmarkId) {
-      var _benchmarkId = ctx.data.benchmarkId;
-      var _Benchmark = app.models.Benchmark;
-      var _cost = ctx.data.cost.value;
-      // console.log('ctx.data : ', ctx.data);
-      _Benchmark.findById(_benchmarkId, function (err, bMark) {
-        var revenueRequired = bMark.marginRate * bMark.overheadCost;
-        var valuePerGame = bMark.gamePlayRate * bMark.realValuePerCoin;
-        ctx.data.productRate = Math.round(revenueRequired / valuePerGame) || 0;
-        ctx.data.gamePlayRate = bMark.gamePlayRate;
-        next();
-      });
+      //Get the benchmark and calculate the rate
+      attachBenchmark(ctx, 'data', next);
+    } else if (ctx.data && ctx.data.machines) {
+      ctx.hookState.machines = ctx.data.machines;
+      delete ctx.data.machines;
+      next();
+    } else if (ctx.data && ctx.data.status) {
+      ctx.hookState.statusChange = true;
+      next();
+    } else if (ctx.data && ctx.data.sku == 0) {
+      var status = ctx.currentInstance.status;
+
+      var newStatus = status;
+      newStatus.maintainStatus = true;
+      ctx.hookState.statusChange = true;
+      ctx.data.status = newStatus;
+      next();
     } else {
       next();
     }
   });
 
-  Product.observe('before save', function (ctx, next) {
+  //Get the benchmark and calculate the rate, from the best value exchange-rate
+  function attachBenchmark(ctx, where, next) {
+    var _app$models = app.models,
+        Benchmark = _app$models.Benchmark,
+        ExchangeRate = _app$models.ExchangeRate;
+
+    var benchmarkId = ctx[where]['benchmarkId'];
+    var cost = where == 'data' ? ctx['currentInstance']['cost']['value'] : ctx[where]['cost']['value'];
+
+    Promise.all([Benchmark.findById(benchmarkId), ExchangeRate.findOne({ order: 'realValuePerCoin.usd DESC' })]).then(function (result) {
+      var _result$ = result[0],
+          marginRate = _result$.marginRate,
+          overheadCost = _result$.overheadCost,
+          gamePlayRate = _result$.gamePlayRate;
+      var realValuePerCoin = result[1].realValuePerCoin;
+
+      var revenueRequired = cost * marginRate * overheadCost;
+      var valuePerGame = gamePlayRate * realValuePerCoin.hkd;
+      ctx[where]['productRate'] = Math.round(revenueRequired / valuePerGame) || 0;
+      ctx[where]['gamePlayRate'] = gamePlayRate;
+      next();
+      return null;
+    }).catch(function (error) {
+      console.log('error in attachBenchmark : ', error);
+      next();
+    });
+  }
+
+  Product.observe('after save', function (ctx, next) {
     if (!ctx.isNewInstance) {
-      if (ctx.data && ctx.data.machines) {
-        ctx.hookState.machines = ctx.data.machines;
-        delete ctx.data.machines;
+      // if there is status change, trigger pusher
+      if (ctx.hookState && ctx.hookState.statusChange) {
+        var _ctx$instance = ctx.instance,
+            id = _ctx$instance.id,
+            status = _ctx$instance.status,
+            name = _ctx$instance.name;
+
+        app.pusher.trigger('products', 'statusChange', { productId: id, status: status, lastUpdated: new Date().getTime() });
       }
     }
-
     next();
   });
 
   Product.observe('after save', function (ctx, next) {
     if (!ctx.isNewInstance) {
-      //console.log('hookstate machines : ', ctx.hookState.machines);
       if (ctx.hookState && ctx.hookState.machines) {
-        var AttachMachines = app.models.Machine;
-        //console.log('AttachMachines : ', AttachMachines);
-        Promise.mapSeries(ctx.hookState.machines, function (machine) {
+        // console.log('hookState machines : ', ctx.hookState.machines);
+        var Machine = app.models.Machine;
+        //user promise.mappseries to make sure all machine added.
+        Promise.mapSeries(ctx.hookState.machines, function (machine, index) {
           machine.productId = ctx.instance.id;
-          AttachMachines.upsert(machine, function (err, info) {
+          Machine.upsert(machine, function (err, info) {
             if (err) {
-              //console.log('machine attach to product error : ', err);
-              next('machine attach to product error');
+              console.log('add macine to proudct : ', err);
+              next(err);
             }
           });
         }).then(function () {
           next();
         }).catch(function (err) {
+          console.log('add macine to proudct : ', err);
           next(err);
         });
       } else {
-        var productId = ctx.instance.id;
-        var status = ctx.instance.status;
-        var location = 'products/' + productId + '/status';
-        (0, _firebasedb.changeFirebaseDb)('update', location, status, 'Product');
         next();
-      };
-    } else if (ctx.isNewInstance) {
-      // save a product to firebase real-time database
-      var _location = 'products/' + ctx.instance.id;
-      // console.log(ctx.instance);
-      var _ctx$instance = ctx.instance,
-          name = _ctx$instance.name,
-          _status = _ctx$instance.status,
-          sku = _ctx$instance.sku;
-
-      var firebaseDataObj = {
-        product_name: name,
-        status: _status,
-        sku: sku,
-        totalNumOfPlay: 0,
-        totalNumOfSuccess: 0
-      };
-      (0, _firebasedb.changeFirebaseDb)('set', _location, firebaseDataObj, 'Product');
-      next();
+      }
+      // if product newly created
     } else {
       next();
     }
   });
 
   // perform upload to Cloudinary
-  Product.imageupload = function (req, res, cb) {
+  Product.imageUpload = function (req, res, cb) {
     // console.log(req.files[0]);
     var _process$env = process.env,
         CLOUDINARY_CLOUD_NAME = _process$env.CLOUDINARY_CLOUD_NAME,
@@ -156,8 +169,8 @@ module.exports = function (Product) {
     });
   };
 
-  Product.remoteMethod('imageupload', {
+  Product.remoteMethod('imageUpload', {
     accepts: [{ arg: 'req', type: 'object', http: { source: 'req' } }, { arg: 'res', type: 'object', http: { source: 'res' } }],
-    returns: { arg: 'result', type: 'string' }
+    returns: { arg: 'imageUrl', type: 'string' }
   });
 };

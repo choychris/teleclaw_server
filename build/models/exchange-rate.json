@@ -1,5 +1,5 @@
 {
-  "name": "exchange_rate",
+  "name": "exchangeRate",
   "base": "PersistedModel",
   "idInjection": false,
   "options": {
@@ -12,32 +12,62 @@
       "required": true
     },
     "created": {
-      "type": "date",
-      "required": true
+      "type": "date"
+    },
+    "lastUpdated":{
+      "type": "date"
     },
     "coins": {
       "type": "number",
       "required": true
     },
-    "discounts": {
+    "bonus": {
       "type": "number",
-      "required": true
+      "required": true,
+      "default": 0
     },
     "currency": {
       "type": "object",
       "required": true
+    },
+    "realValuePerCoin": {
+      "type": "object"
     },
     "status": {
       "type": "string",
       "required": true
     },
     "images": {
-      "type": "object",
-      "required": true
+      "type": "object"
     }
   },
   "validations": [],
   "relations": {},
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }
