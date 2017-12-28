@@ -1,30 +1,25 @@
-var should = require('chai').should();
+var chai = require('chai');
+var chaiHttp = require('chai-http')
 var supertest = require('supertest');
-
+var { NODE_ENV } = process.env;
 var baseUrl = 'http://localhost:3000';
+var app;
+
+if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
+ app = require('../../build/server.js')
+}
+
+chai.use(chaiHttp);
+var should = chai.should();
+var api = (NODE_ENV == 'staging' || NODE_ENV == 'production') ? chai.request(app) : supertest.agent(baseUrl) ;
 
 const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
-if(process.env.NODE_ENV === 'staging'){
-  var server = require('../../build/server.js');
-
-  before(function() {
-    console.log('server start');
-    server.start();
-  });
-
-  after(function(){
-    console.log('server stop');
-    server.stop();  
-  });
-}
-
 describe('Test a payment flow', function(){
 
   // |================== Authenticate User API ==================|
-  if(process.env.NODE_ENV === 'staging'){
     describe('Login / Create User first', function(){
       it('login / create current user - status 200 and token', function(done){
       var api = supertest.agent(baseUrl);
@@ -55,7 +50,6 @@ describe('Test a payment flow', function(){
          });
       });
     });
-  }
 
   // |================== Exchange Rate API ==================|
   // GET:: an exchange-rate
