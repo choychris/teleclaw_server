@@ -1,7 +1,4 @@
 var should = require('chai').should();
-var supertest = require('supertest');
-var baseUrl = 'http://localhost:3000';
-
 // if(process.env.NODE_ENV === 'staging'){
 //   var server = require('../../build/server.js');
 
@@ -17,14 +14,14 @@ var baseUrl = 'http://localhost:3000';
 // }
 
 describe.only("Status Change integation", function() {
-  describe("change sku to 1", function() {
+  describe("Perform admin", function() {
     it('status 200', function(done){
       require("./admin.js")
       done();
     });
   });
 
-  describe("PLAY and WIN", function() {
+  describe("Braintree", function() {
     it('status 200', function(done){
       require("./transac_test.js")
       done();

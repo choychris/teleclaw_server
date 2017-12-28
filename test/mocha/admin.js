@@ -1,23 +1,21 @@
-var should = require('chai').should();
+var chai = require('chai');
+var chaiHttp = require('chai-http')
 var supertest = require('supertest');
-
+var { NODE_ENV } = process.env;
 var baseUrl = 'http://localhost:3000';
-const generateJSONAPI = (url, filter) => {
-  return url + '&filter=' + JSON.stringify(filter) ;
+var app;
+
+if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
+ app = require('../../build/server.js')
 }
 
-if(process.env.NODE_ENV === 'staging'){
-  var server = require('../../build/server.js');
+chai.use(chaiHttp);
+var should = chai.should();
+var api = (NODE_ENV == 'staging' || NODE_ENV == 'production') ? chai.request(app) : supertest.agent(baseUrl) ;
 
-  before(function() {
-    console.log('server start');
-    server.start();
-  });
 
-  after(function(){
-    console.log('server stop');
-    server.stop();  
-  });
+const generateJSONAPI = (url, filter) => {
+  return url + '&filter=' + JSON.stringify(filter) ;
 }
 
 describe('Perform admin function', function(){
@@ -25,7 +23,6 @@ describe('Perform admin function', function(){
 // |================== Authenticate User API ==================|
   describe('Login teleClawAdmin', function(){
     it('login - status 200 and token', function(done){
-    var api = supertest.agent(baseUrl);
     var userInfo = {
       username: 'teleclaw.live@gmail.com',
       password : 'teleclawlive123',
