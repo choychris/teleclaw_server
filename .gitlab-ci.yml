@@ -98,8 +98,6 @@ deployStaging:
     # Deploy Build to AWS Elastic BeanStalk
     - aws elasticbeanstalk create-application-version --application-name teleclaw_backend_api --version-label $FILE_NAME --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ZIP_FILE_NAME --auto-create-application
     - aws elasticbeanstalk update-environment --application-name teleclaw_backend_api --environment-name teleclawBackendApi-staging --version-label $FILE_NAME
-    # remove s3 file after deploy
-    - aws s3 rm s3://$AWS_S3_BUCKET/$ZIP_FILE_NAME
 
 deployProduction:
   stage: deploy
