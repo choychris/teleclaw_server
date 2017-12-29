@@ -1,7 +1,8 @@
 var { NODE_ENV } = process.env;
 var should = require('chai').should();
 var supertest = require('supertest');
-var api = supertest.agent('htp://localhost:3000');
+//var api = supertest.agent('http://localhost:3000');
+var api = supertest.agent('http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com:80');
 
 if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
   app = require('../../build/server.js')
@@ -129,7 +130,7 @@ describe('Perform admin function', function(){
   // });
 
   // |================== Exchange Rate API ==================|
-  POST:: an exchange-rate
+  // POST:: an exchange-rate
   describe('Create an exchange-rate from loopback', function(){
     it('Get success - status 200 and object', function(done){
       var url = `/api/exchangeRates?access_token=${global.accessToken}`

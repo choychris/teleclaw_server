@@ -1,7 +1,8 @@
 var should = require('chai').should();
 var supertest = require('supertest');
 var { NODE_ENV } = process.env;
-var baseUrl = 'http://localhost:3000';
+//var baseUrl = 'http://localhost:3000';
+var baseUrl = 'http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com:80';
 
 if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
   app = require('../../build/server.js')
@@ -26,6 +27,7 @@ describe('Test a payment flow', function(){
 
   // |================== Authenticate User API ==================|
     describe('Login / Create User first', function(){
+      this.timeout(5000);
       it('login / create current user - status 200 and token', function(done){
       var userInfo = {
         prvoider: 'facebook',
