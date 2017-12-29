@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction } from '../utils/createLogging.js';
 import { makeCalculation, createNewTransaction } from '../utils/makeTransaction.js';
 
 const braintree = require("braintree");
@@ -62,7 +62,7 @@ module.exports = function(Transaction) {
         // create a customer in braintree
         braintreeGateway.customer.create({id: customerId}, function(brainTreeErr, result){
           if(brainTreeErr){
-            console.log('Create BrainTree customer error : ', brainTreeErr)
+            loggingFunction({Model: 'Transaction', Function: 'Create BrainTree Customer', Error : brainTreeErr}, 0)
             cb(brainTreeErr)
           }
           // calling the function to generate braintree token
@@ -70,6 +70,7 @@ module.exports = function(Transaction) {
         })
       }
     }).catch(err=>{
+      loggingFunction({Model: 'Transaction', Function: 'Paymentgateway.findOne', Error : err}, 0)
       cb(err)
     });
 
@@ -77,11 +78,11 @@ module.exports = function(Transaction) {
     function generateToken(id, cb){
       braintreeGateway.clientToken.generate({customerId: id}, function(err, response){
         if(err){
-          console.log('Generate BrainTree Token Error : ', err)
+          loggingFunction({Model: 'Transaction', Function: 'Braintree generate clientToken', Error : err}, 0)
           cb(err)
         }
         //let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
-        console.log('Generate BrainTree Token Response : ', response)
+        loggingFunction({Model: 'Transaction', Function: 'Braintree generate clientToken', Response: response.clientToken}, 2)
         cb(null, response.clientToken)
       })
     }
@@ -127,14 +128,14 @@ module.exports = function(Transaction) {
         let { id, status, amount, currencyIsoCode, merchantAccountId, paymentInstrumentType, creditCard } = transaction;
         let { cardType } = creditCard;
         let gatewayReponse = { id, status, amount, currencyIsoCode, merchantAccountId, paymentInstrumentType, cardType };
-        console.log('result success ==== :', result);
+        loggingFunction({Model: 'Transaction', Function: 'Braintree Transaction Success', Response: result.transaction }, 2)
         createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
           .then(trans=>{
             cb(null, {success: success, message: status, balance: trans.newWalletBalance})
             return null;
           });
       } else {
-        console.error('result error ==== :', result);
+        loggingFunction({Model: 'Transaction', Function: 'Braintree Transaction Error', Error: result }, 0)
         let { success, message, params } = result;
         let gatewayReponse = {message: message, amount: params.transaction.amount }
         createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
@@ -145,7 +146,7 @@ module.exports = function(Transaction) {
       }
       return null;
     }).catch(error=>{
-      console.log('Error in creating Braintree transaction : ', error)
+      loggingFunction({Model: 'Transaction', Function: 'Create Sale Function Error', Error: error }, 0)
       cb(error)
     });
   };

@@ -1,8 +1,8 @@
 var { NODE_ENV } = process.env;
 var should = require('chai').should();
 var supertest = require('supertest');
-//var api = supertest.agent('http://localhost:3000');
-var api = supertest.agent('http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com:80');
+var api = supertest.agent('http://localhost:3000');
+//var api = supertest.agent('http://teleclawbackendapi-staging.ap-southeast-1.elasticbeanstalk.com:80');
 
 if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
   app = require('../../build/server.js')
