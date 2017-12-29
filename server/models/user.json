@@ -30,7 +30,7 @@
       "type": "integer"
     },
     "address": {
-      "type": "string"
+      "type": "object"
     },
     "referral": {
       "type": "object"

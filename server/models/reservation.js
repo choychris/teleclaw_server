@@ -23,9 +23,12 @@ module.exports = function(Reservation) {
   Reservation.observe('before save', (ctx, next)=>{
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
+      // machineId of currently reserving
       let { id, status, userId, machineId } = ctx.currentInstance;
+      // machineId of newly reserve
       if(ctx.data && ctx.data.machineId){
-        let sameMachine = (machineId === ctx.data.machineId);
+        // this logic to check if the user is currently making a reserve, and
+        // the user want to make reserve to another machine
         if(status === 'open' && !!machineId){
             makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
@@ -67,26 +70,27 @@ module.exports = function(Reservation) {
     let Machine = app.models.Machine;
     Machine.findById(machineId, (err, machine)=>{
       // check if machine is still in playing
-      let currentId = machine.currentUser ? machine.currentUser.id : null
-      if(machine.status == 'open' && currentId == userId){
+      let currentId = machine.currentUser ? machine.currentUser.id : 'null' ;
+      if(machine.status == 'open' && (currentId.toString() == userId.toString())){
         //find next reservation
         Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
           if(foundReserve === null || foundReserve.length === 0){
-            console.log('when no reserve');
             updateMachine(machineId, 'open', null)
             if(!!cb){ cb(null, 'machine_open'); }
           }else{
             //update the next reserve and trigger pusher in after save
             foundReserve[0].updateAttributes({status: 'close'}, (newError, instance)=>{
               updateMachine(machineId, 'open', {id: instance.userId})
-              timeOutReserve(machineId, userId, Machine, Reservation);
+              timeOutReserve(machineId, instance.userId, Machine, Reservation);
               if(!!cb){ cb(null, 'next_reserve'); }
             });
           }
         });
 
-      }else{
+      }else if(machine.status == 'playing'){
         if(!!cb){ cb(null, 'machine_playing'); }
+      }else if(machine.status == 'close'){
+        if(!!cb){ cb(null, 'machine_closed'); }
       }
     });
   };
@@ -104,6 +108,7 @@ module.exports = function(Reservation) {
   }
 
   function timeOutReserve(machineId, userId, Machine, Reservation){
+    console.log('userId in timeout', userId)
       setTimeout(()=>{
         checkMachineStatus(machineId, userId, Machine, Reservation)
       }, 8000)

@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction } from '../utils/createLogging.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
 const request = require('request');
 const Promise = require('bluebird');
@@ -19,31 +19,44 @@ module.exports = function(Delivery) {
   //assign an unique if its new instance 
   assignKey(Delivery)
 
-  Delivery.observe('before save', (ctx, next)=>{
-    if(ctx.isNewInstance){
-      let Wallet = app.models.Wallet
-      let { userId, cost } = ctx.instance;
-      console.log(ctx.instance.products)
-      Wallet.findOne({where: {userId: userId}}).then(wallet=>{
-        if(cost > wallet.balance){
-          return next('insufficient_balance');
-        }else{
-          return createNewTransaction(userId, cost, 'delivery', 'minus', 'closed', null)
-        }
-      }).then(createdTrans=>{
-        if(!!createdTrans){
-          let { id } = createdTrans ;
-          ctx.instance.transactionId = id;
-          next();
-        }
-      }).catch(error=>{
-        console.log('create transaction error in delivery : ', error);
-        next(error);
-      })
-    }else{
-      next();
+  Delivery.new = (data, cb)=>{
+    let { Wallet, User } = app.models;
+    let { shippmentAddress, cost, status, userId, products, courier } = data;
+    User.findById(userId, (err, foundUser)=>{
+      if(foundUser.shippmentAddress == undefined){
+        foundUser.updateAtttributes({addess: shippmentAddress, phone: shippmentAddress.phone})
+      }
+    });
+
+    Wallet.findOne({where: {userId: userId}}).then(wallet=>{
+      if(cost > wallet.balance){
+        cb(null, 'insufficient_balance');
+        return null
+      }else{
+        return createNewTransaction(userId, cost, 'delivery', 'minus', 'closed', null)
+      }
+    }).then(createdTrans=>{
+      if(!!createdTrans){
+        data.transactionId = createdTrans.id ;
+        return Delivery.create(data);
+      }
+    }).then(newDelivery=>{
+      loggingFunction({Model: 'Devliery', Function: 'Create Delivery', Msg: newDelivery })
+      cb(null, newDelivery)
+    }).catch(error=>{
+      loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
+      cb(error);
+    })
+  };
+
+  Delivery.remoteMethod(
+    'new',
+    {
+      http: { path: '/new', verb: 'post'},
+      accepts: { arg: 'data', type: 'object', required: true },
+      returns: { arg: 'result', type: 'object' }
     }
-  })
+  );
 
   Delivery.getRate = (data, cb) =>{
     let { products, countryCode, postalCode } = data;
@@ -141,6 +154,7 @@ module.exports = function(Delivery) {
         });
       });
     };
+
   };
 
   Delivery.remoteMethod(
@@ -150,5 +164,5 @@ module.exports = function(Delivery) {
       accepts: { arg: 'data', type: 'object', required: true },
       returns: { arg: 'result', type: 'array' }
     }
-  )
+  );
 };

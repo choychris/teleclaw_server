@@ -25,14 +25,20 @@ module.exports = function(Machine) {
     if(!ctx.isNewInstance){
       if(ctx.data){
         let { status, sku, reservation, productId, iotPlatform } = ctx.data;
+        let oldStatus = ctx.currentInstance.status;
         if(!!status && !reservation && !productId){
+          //look for reservation if the machine go online from offline again
+          if(status == 'open' && oldStatus == 'close'){
+            ctx.hookState.resume = true
+          }
           ctx.hookState.pusher = true;
           ctx.data.lastStatusChanged = new Date().getTime();
         }else if(!!reservation && !productId){
           ctx.hookState.pusher = true;
         }else if(sku == 0){
           ctx.hookState.pusher = true;
-          ctx.data.status = 'close'
+          ctx.data.status = 'close';
+          ctx.data.currentUser = null;
         }
       }
       next();
@@ -49,6 +55,11 @@ module.exports = function(Machine) {
       let { id, name, status, sku, currentUser, productId, reservation } = ctx.instance ;
       let player = currentUser ? currentUser : null;
       if(ctx.hookState && ctx.hookState.pusher){
+        //look for reservation if the machine go online from offline again
+        if(ctx.hookState.resume === true){
+          let Reservation = app.models.Reservation
+          Reservation.endEngage(id, 'null', null);
+        }
         updateProductStatus(productId);
         app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player, lastUpdated: new Date().getTime()});
       }
@@ -59,10 +70,15 @@ module.exports = function(Machine) {
   // function to check whether all machine not available
   function updateProductStatus(productId){
     let Product = app.models.Product;
-    function updateProductStatus(newStatus, productId){
+    function updateProductStatus(newMachineStatus, productId){
       Product.findById(productId, (err, foundProduct)=>{
         let oldStatus = foundProduct.status
-        oldStatus.machineStatus = newStatus
+        if(newMachineStatus){
+          oldStatus.machineStatus = newMachineStatus
+          oldStatus.maintainStatus = false;
+        }else{
+          oldStatus.machineStatus = newMachineStatus
+        }
         foundProduct.updateAttributes({status : oldStatus})
       })
     };

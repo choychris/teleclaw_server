@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "unit_test": "mocha ./test/mocha/merge"
+    "unit_test": "mocha ./test/mocha/admin"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
@@ -24,7 +24,6 @@
     "compression": "^1.0.3",
     "cors": "^2.5.2",
     "express-session": "^1.15.6",
-    "firebase-admin": "^5.5.1",
     "helmet": "^1.3.0",
     "loopback": "^3.0.0",
     "loopback-boot": "^2.6.5",
