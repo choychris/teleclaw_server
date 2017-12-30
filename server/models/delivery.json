@@ -15,7 +15,7 @@
       "type": "date",
       "required": true
     },
-    "shippmentAddress": {
+    "address": {
       "type": "object",
       "required": true
     },

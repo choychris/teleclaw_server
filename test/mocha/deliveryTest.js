@@ -83,29 +83,30 @@ describe('Get delivery rate quote', function(){
   });
 })
 
-describe('Get delivery rate quote', function(){
+describe('Submit a delivery', function(){
   it('should return the list of courier rate', function(done){
   global.productIds = [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}]
   var api = supertest.agent(baseUrl);
   var data = {
-   shippmentAddress: {
-    address: "3B, Todex Building, San Po Kong",
-    region: "Kowloon",
+   address: {
+    line1: "3B, Todex Building, San Po Kong",
+    line2: "Kowloon",
     country: "Hong Kong",
     postalCode: 0,
     name: "Chris",
-    phone: "12345678"
+    phone: +85212345678
    },
    cost: global.selectedRate.coins_value,
    status: 'pending',
    userId: global.lbUserId,
    products: [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}],
+   plays: [{"id": 'BkSMizqzM'}, {'id': 'ByE0nW5fG'}],
    courier: global.selectedRate
   }
   api
-    .post(`/api/deliveries?access_token=${global.accessToken}`)
+    .post(`/api/deliveries/new?access_token=${global.accessToken}`)
     .set('Accept', 'application/json')
-    .send(data)
+    .send({data: data})
     .end(function(err,res){
       console.log(res.body)
       res.body.should.be.an('object');

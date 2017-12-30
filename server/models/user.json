@@ -27,7 +27,7 @@
       "type": "string"
     },
     "phone": {
-      "type": "integer"
+      "type": "number"
     },
     "address": {
       "type": "object"

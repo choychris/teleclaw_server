@@ -20,33 +20,42 @@ module.exports = function(Delivery) {
   assignKey(Delivery)
 
   Delivery.new = (data, cb)=>{
-    let { Wallet, User } = app.models;
-    let { shippmentAddress, cost, status, userId, products, courier } = data;
+    let { Wallet, User, Play } = app.models;
+    let { address, cost, status, userId, products, plays, courier } = data;
     User.findById(userId, (err, foundUser)=>{
-      if(foundUser.shippmentAddress == undefined){
-        foundUser.updateAtttributes({addess: shippmentAddress, phone: shippmentAddress.phone})
+      if(foundUser.address == undefined){
+        foundUser.updateAttributes({addess: address, phone: address.phone})
       }
     });
 
     Wallet.findOne({where: {userId: userId}}).then(wallet=>{
       if(cost > wallet.balance){
         cb(null, 'insufficient_balance');
-        return null
       }else{
-        return createNewTransaction(userId, cost, 'delivery', 'minus', 'closed', null)
+        recordDelivery()
       }
-    }).then(createdTrans=>{
-      if(!!createdTrans){
+    })
+
+    function recordDelivery(){
+      createNewTransaction(userId, cost, 'delivery', 'minus', true, null).then(createdTrans=>{
         data.transactionId = createdTrans.id ;
         return Delivery.create(data);
-      }
-    }).then(newDelivery=>{
-      loggingFunction({Model: 'Devliery', Function: 'Create Delivery', Msg: newDelivery })
-      cb(null, newDelivery)
-    }).catch(error=>{
-      loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
-      cb(error);
-    })
+      }).then(newDelivery=>{
+        Play.find({where:{or: plays}}, (error, plays)=>{
+          Promise.map(plays, eachPlay=>{
+            eachPlay.updateAttributes({deliveryId: newDelivery.id});
+          })
+        })
+        return newDelivery
+      }).then(result=>{
+        cb(null, result);
+      })
+      .catch(error=>{
+        loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
+        cb(error);
+      })
+    }
+
   };
 
   Delivery.remoteMethod(
