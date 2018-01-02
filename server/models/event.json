@@ -25,14 +25,31 @@
     },
     "launching": {
       "type": "boolean",
-      "required": true,
-      "default": false
+      "required": true
     },
-    "period": {
-      "type": "object"
+    "startTime": {
+      "type": "date",
+      "required": true
     },
-    "eventDetails": {
-      "type": "object"
+    "endTime": {
+      "type": "date",
+      "required": true
+    },
+    "code": {
+      "type": "string"
+    },
+    "rewardAmount": {
+      "type": "number",
+      "required": true
+    },
+    "maxNum" : {
+      "type": "number"
+    },
+    "currentNum": {
+      "type": "number"    
+    },
+    "location": {
+      "type": "string"
     }
   },
   "validations": [],

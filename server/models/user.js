@@ -32,11 +32,11 @@ module.exports = function(User) {
       let Event = app.models.Event;
       let Wallet = app.models.Wallet;
       let Reservation = app.models.Reservation;
-      Event.find({'where': {'launching': true, 'eventDetails.newUser.initialCoins': {'exists': true}}}, (err, event)=>{
+      Event.findOne({'where': {'launching': true, type: 'signUp'}, order: 'startTime DESC'}, (err, event)=>{
         if(err){
           next(err);
         }
-        let initialCoins = event.length > 0 ? event.eventDetails.newUser.initialCoins : 60;
+        let initialCoins = event ? event.rewardAmount : 0;
         let wallet = {
           balance: initialCoins,
           userId: ctx.instance.id

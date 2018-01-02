@@ -6,6 +6,7 @@ import { checkMachineStatus } from '../utils/gamePlayTimer.js';
 import { makeCalculation } from '../utils/makeTransaction.js';
 
 const shortid = require('shortid');
+
 module.exports = function(Play) {
 
   var app = require('../server');

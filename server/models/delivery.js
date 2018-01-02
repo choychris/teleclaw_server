@@ -21,7 +21,7 @@ module.exports = function(Delivery) {
 
   Delivery.new = (data, cb)=>{
     let { Wallet, User, Play } = app.models;
-    let { address, cost, status, userId, products, plays, courier } = data;
+    let { address, cost, status, userId, products, courier } = data;
     User.findById(userId, (err, foundUser)=>{
       if(foundUser.address == undefined){
         foundUser.updateAttributes({addess: address, phone: address.phone})
@@ -32,17 +32,27 @@ module.exports = function(Delivery) {
       if(cost > wallet.balance){
         cb(null, 'insufficient_balance');
       }else{
-        recordDelivery()
+        Promise.map(products, product=>{
+          let aPlayId = {
+            id: product.playId
+          }
+          return aPlayId
+        }).then(plays=>{
+          recordDelivery(plays)
+        }).catch(error=>{
+          loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
+          cb(error);
+        })
       }
     })
 
-    function recordDelivery(){
+    function recordDelivery(plays){
       createNewTransaction(userId, cost, 'delivery', 'minus', true, null).then(createdTrans=>{
         data.transactionId = createdTrans.id ;
         return Delivery.create(data);
       }).then(newDelivery=>{
-        Play.find({where:{or: plays}}, (error, plays)=>{
-          Promise.map(plays, eachPlay=>{
+        Play.find({where:{or: plays}}, (error, foundPlays)=>{
+          Promise.map(foundPlays, eachPlay=>{
             eachPlay.updateAttributes({deliveryId: newDelivery.id});
           })
         })
@@ -69,18 +79,16 @@ module.exports = function(Delivery) {
 
   Delivery.getRate = (data, cb) =>{
     let { products, countryCode, postalCode } = data;
-    console.log('Delivery Get Rate data : ', data)
     let { Product, ExchangeRate } = app.models;
-    let items = [];
-    let choices = [];
     let isFixed = 0;
+    let items = [];
 
-    Product.find({ 
-      where: {or: products}, 
-      fields: {weight: true, size: true, cost: true, deliveryPrice: true}
-    }).then(result=>{
-      return Promise.map(result, each=>{
-        let { weight, size, cost, deliveryPrice } = each;
+    Promise.map(products, each=>{
+      return Product.findById(
+        each.id, 
+        {fields: {weight: true, size: true, cost: true, deliveryPrice: true}},
+      ).then(product=>{
+        let { weight, size, cost, deliveryPrice } = product;
         let { height, width, length } = size;
         let item = { 
           actual_weight: weight.value,
@@ -125,8 +133,9 @@ module.exports = function(Delivery) {
         let { realValuePerCoin } = rate;
         if(result.length > 0){
           return Promise.mapSeries(result, data=>{
-            let { courier_name, min_delivery_time, max_delivery_time, total_charge,  courier_does_pickup } = data;
+            let { courier_id, courier_name, min_delivery_time, max_delivery_time, total_charge,  courier_does_pickup } = data;
             let oneChoice = {
+              courier_id,
               courier_name,
               min_delivery_time,
               max_delivery_time,
