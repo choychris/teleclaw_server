@@ -39,6 +39,9 @@
     },
     "courier": {
       "type": "object"
+    },
+    "easyship_shipment_id":{
+      "type": "string"
     }
   },
   "validations": [],

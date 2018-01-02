@@ -20,30 +20,47 @@ module.exports = function(Delivery) {
   assignKey(Delivery)
 
   Delivery.new = (data, cb)=>{
-    let { Wallet, User, Play } = app.models;
+    let { Wallet, User, Play, Product } = app.models;
     let { address, cost, status, userId, products, courier } = data;
+    let items = [];
     User.findById(userId, (err, foundUser)=>{
       if(foundUser.address == undefined){
-        foundUser.updateAttributes({addess: address, phone: address.phone})
+        foundUser.updateAttributes({addess: address, phone: address.phone, email: address.email})
       }
     });
 
     Wallet.findOne({where: {userId: userId}}).then(wallet=>{
       if(cost > wallet.balance){
         cb(null, 'insufficient_balance');
-      }else{
-        Promise.map(products, product=>{
-          let aPlayId = {
-            id: product.playId
-          }
-          return aPlayId
+      }else if(courier.courier_name !== 'fixed_delivery'){
+        Promise.map(products, each=>{
+          return createitems(Product, each, items, null)
         }).then(plays=>{
-          recordDelivery(plays)
-        }).catch(error=>{
-          loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
-          cb(error);
+          if(plays[0] !== undefined){
+            createShippmentApi(address, items).then(shipmentId=>{
+              data.easyship_shipment_id = shipmentId;
+              return recordDelivery(plays)
+            })
+          }else{
+            cb(null, 'incorrect_products_format')
+          }
+        })
+      }else{
+        Promise.map(products, each=>{
+          let aPlay = { id: each.playId };
+          return aPlay;
+        }).then(plays=>{
+          if(plays[0] !== undefined){
+            recordDelivery(plays)
+          }else{
+            cb(null, 'incorrect_products_format')
+          }
         })
       }
+      return null
+    }).catch(error=>{
+      loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
+      cb(error);
     })
 
     function recordDelivery(plays){
@@ -60,9 +77,42 @@ module.exports = function(Delivery) {
       }).then(result=>{
         cb(null, result);
       })
-      .catch(error=>{
-        loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
-        cb(error);
+    }
+
+    function createShippmentApi(address, items){
+      let { countryCode, city, postalCode, state, name, line1, line2, phone, email } = address;
+      var options = { 
+        method: 'POST',
+        url: 'https://api.easyship.com/shipment/v1/shipments',
+        headers: {
+          'authorization': `Bearer ${EASYSHIP_TOKEN}`,
+          'content-type': 'application/json',
+          'accept': 'application/json' 
+        },
+        body: JSON.stringify({
+          selected_courier_id: courier.courier_id,
+          destination_country_alpha2: countryCode,
+          destination_city: city,
+          destination_postal_code: postalCode,
+          destination_state: state || null,
+          destination_name: name,
+          destination_address_line_1: line1,
+          destination_address_line_2: line2,
+          destination_phone_number: phone,
+          destination_email_address: email || null,
+          items:items
+        })
+      }
+      return new Promise((resolve, reject)=>{
+        request(options, (err, res, body)=>{
+          if (err){
+            console.log(err);
+            reject(err)
+          }
+          let parsedBody = JSON.parse(body);
+          console.log('create shippment body :', parsedBody);
+          resolve(parsedBody.shipment.easyship_shipment_id)
+        })
       })
     }
 
@@ -77,34 +127,42 @@ module.exports = function(Delivery) {
     }
   );
 
+  function createitems(Product, each, items, isFixed){
+    return Product.findById(
+      each.id, 
+      {fields: {name: true, weight: true, size: true, cost: true, deliveryPrice: true}},
+    ).then(product=>{
+      let { weight, size, cost, deliveryPrice } = product;
+      let { height, width, length } = size;
+      let item = { 
+        description: product.name.en,
+        sku: 50,
+        actual_weight: weight.value,
+        height: height,
+        width: width,
+        length: length,
+        category: 'toys',
+        declared_currency: 'HKD',
+        declared_customs_value: cost.value || 0
+      };
+      if(deliveryPrice.type == 'dynamic'){
+        items.push(item);
+        return {id: each.playId}
+      }else if(deliveryPrice.type == 'fixed'){
+        if(isFixed !== null){ isFixed.push(deliveryPrice.value); }
+        return {id: each.playId}
+      }
+    })
+  };
+
   Delivery.getRate = (data, cb) =>{
     let { products, countryCode, postalCode } = data;
     let { Product, ExchangeRate } = app.models;
-    let isFixed = 0;
     let items = [];
+    let isFixed = [];
 
     Promise.map(products, each=>{
-      return Product.findById(
-        each.id, 
-        {fields: {weight: true, size: true, cost: true, deliveryPrice: true}},
-      ).then(product=>{
-        let { weight, size, cost, deliveryPrice } = product;
-        let { height, width, length } = size;
-        let item = { 
-          actual_weight: weight.value,
-          height: height,
-          width: width,
-          length: length,
-          category: 'toys',
-          declared_currency: 'HKD',
-          declared_customs_value: cost.value || 0
-        }
-        if(deliveryPrice.type == 'dynamic'){
-          items.push(item);
-        }else if(deliveryPrice.type == 'fixed'){
-          isFixed = deliveryPrice.value;
-        }
-      })
+      return createitems(Product, each, items, isFixed)
     }).then(res=>{
       var options = { 
         method: 'POST',
@@ -126,7 +184,7 @@ module.exports = function(Delivery) {
       if(items.length > 0){
         return requestToEasyship(options)
       }else{
-        return isFixed;
+        return isFixed[0];
       }
     }).then(result=>{
       return ExchangeRate.findOne({order: 'realValuePerCoin.usd DESC'}).then(rate=>{
@@ -146,7 +204,7 @@ module.exports = function(Delivery) {
             return oneChoice;
           })
         }else{
-          let letter = {name: 'fixed_delivery', min_delivery_time: 7, max_delivery_time: 10, total_charge: result, coins_value: Math.round(result / realValuePerCoin.hkd)}
+          let letter = {courier_name: 'fixed_delivery', min_delivery_time: 7, max_delivery_time: 10, total_charge: result, coins_value: Math.round(result / realValuePerCoin.hkd)}
           return letter;
         }
       })
@@ -162,7 +220,7 @@ module.exports = function(Delivery) {
           if (err){
             console.log(err);
             reject(err)
-          } 
+          }
           let parsedBody = JSON.parse(body);
           parsedBody.rates.sort(function(a, b){
             return (a.total_charge - b.total_charge);
