@@ -25,7 +25,7 @@ module.exports = function(Delivery) {
     let items = [];
     User.findById(userId, (err, foundUser)=>{
       if(foundUser.address == undefined){
-        foundUser.updateAttributes({addess: address, phone: address.phone, email: address.email})
+        foundUser.updateAttributes({address: address, phone: address.phone, email: address.email})
       }
     });
 

@@ -42,8 +42,7 @@
       "visible": "boolean"
     },
     "deliveryPrice": {
-      "type": "string",
-      "value": "number"
+      "type": "object"
     },
     "level": {
       "type": "object"

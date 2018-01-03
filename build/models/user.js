@@ -39,11 +39,11 @@ module.exports = function (User) {
       var Event = app.models.Event;
       var Wallet = app.models.Wallet;
       var Reservation = app.models.Reservation;
-      Event.find({ 'where': { 'launching': true, 'eventDetails.newUser.initialCoins': { 'exists': true } } }, function (err, event) {
+      Event.findOne({ 'where': { 'launching': true, type: 'signUp' }, order: 'startTime DESC' }, function (err, event) {
         if (err) {
           next(err);
         }
-        var initialCoins = event.length > 0 ? event.eventDetails.newUser.initialCoins : 60;
+        var initialCoins = event ? event.rewardAmount : 0;
         var wallet = {
           balance: initialCoins,
           userId: ctx.instance.id
