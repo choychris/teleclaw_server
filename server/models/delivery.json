@@ -26,6 +26,9 @@
     "status": {
       "type": "string"
     },
+    "tracking":{
+      "type": "string"
+    },
     "userId":{
       "type": "string",
       "required": true
