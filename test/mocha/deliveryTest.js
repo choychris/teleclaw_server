@@ -68,7 +68,7 @@ describe('Get delivery rate quote', function(){
   var api = supertest.agent(baseUrl);
   var data = {
     products: global.productIds,
-    countryCode: 'US',
+    countryCode: 'hk',
     postalCode: 10030
   }
   api
@@ -93,7 +93,7 @@ describe('Submit a delivery', function(){
     line1: "3B, Todex Building, San Po Kong",
     line2: "Kowloon",
     country: "Hong Kong",
-    countryCode: "HK",
+    countryCode: "hk",
     city: "Hong Kong",
     postalCode: 0,
     state: null,
@@ -120,5 +120,23 @@ describe('Submit a delivery', function(){
     });
   });
 })
+
+describe('Get Plays', function(){
+  it('should return the list plays', function(done){
+  var api = supertest.agent(baseUrl);
+
+  api
+    .get(`/api/plays/${'BkSMizqzM'}?access_token=${global.accessToken}`)
+    .set('Accept', 'application/json')
+    .end(function(err,res){
+      console.log(res.body)
+      res.body.should.be.an('object');
+      res.status.should.equal(200);
+      done()
+    });
+  });
+})
+
+
 
 

@@ -90,7 +90,7 @@ module.exports = function(Delivery) {
         },
         body: JSON.stringify({
           selected_courier_id: courier.courier_id,
-          destination_country_alpha2: countryCode,
+          destination_country_alpha2: countryCode.toUpperCase(),
           destination_city: city,
           destination_postal_code: postalCode,
           destination_state: state || null,
@@ -174,7 +174,7 @@ module.exports = function(Delivery) {
         body: JSON.stringify({
           origin_country_alpha2: 'HK',
           origin_postal_code: null,
-          destination_country_alpha2: countryCode,
+          destination_country_alpha2: countryCode.toUpperCase(),
           destination_postal_code: postalCode,
           items:items
         })

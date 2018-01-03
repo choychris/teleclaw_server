@@ -2,17 +2,17 @@
 
 // Import winston logger
 var winston = require('winston');
-
-function logger(level,message){
-  //papertrail.log(level,message);
-  var winstonLogger = new (winston.Logger)({
+var winstonLogger = new (winston.Logger)({
     levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
     colors : { info : 'cyan' , error : 'red' }
   });
-  winstonLogger.add(winston.transports.Console, {
-    prettyPrint: true,
-    colorize: true,
-  });
+winstonLogger.add(winston.transports.Console, {
+  prettyPrint: true,
+  colorize: true,
+});
+
+function logger(level,message){
+  //papertrail.log(level,message);
   winstonLogger.log(level,message);
 };
 
@@ -109,14 +109,8 @@ export function loggingModel(model){
 
 
 // Define Function : Logging Function Behaviour
-export function loggingFunction(logData,level){
-  // Common Log Data Format : modelName , functionName , description , data , message
-  let logMessage = ``;
-  Object.keys(logData).map((logProp,index)=>{
-    if(index === 0) logMessage += 'Process Function | \n';
-    logMessage += `${logProp} : ${logData[logProp]} | \n`;
-  });
-  logger((level === undefined) ? 'info' : level,logMessage);
+export function loggingFunction(where, description, data, level){
+  winstonLogger.log((level === undefined) ? 'info' : level, where, description, data);
 }
 
 
