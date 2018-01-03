@@ -19,13 +19,12 @@
       "type": "string",
       "required": true
     },
-    "rewardAnmount": {
+    "rewardAmount": {
       "type": "number",
       "required": true
     },
-    "participants": {
-      "type": "object",
-      "required": true
+    "participantId": {
+      "type": "string"
     },
     "userId": {
       "type": "string",

@@ -23,6 +23,10 @@
     "description": {
       "type": "string"
     },
+    "type":{
+      "type": "string",
+      "required": true
+    },
     "launching": {
       "type": "boolean",
       "required": true
@@ -51,12 +55,31 @@
     "location": {
       "type": "string"
     },
-    "users":{
+    "claimedUser":{
       "type": "array"
     }
   },
   "validations": [],
   "relations": {},
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

@@ -17,11 +17,20 @@ module.exports = function(Event) {
   Event.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
       let { code, type } = ctx.instance;
-      if(type != 'referral'){
-        Event.validatesUniquenessOf('launching', {message: 'there are same type of event launching'});
+      if(type != 'promotion'){
+        Event.findOne({where: {type: type, launching:true}}, (err, event)=>{
+          if(event !== null){
+            next('there is already a same type event launching')
+          }else{
+            ctx.instance.code = (code !== undefined) ? code : shortid.generate();
+            next();
+          }
+        });
+      }else{
+        ctx.instance.claimedUser = [] ;
+        ctx.instance.code = (code !== undefined) ? code : shortid.generate();
+        next();
       }
-      ctx.instance.code = code ? code : shortid.generate();
-      next();
     }else{
       next();
     }
