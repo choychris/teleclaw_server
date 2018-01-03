@@ -68,14 +68,13 @@ module.exports = function(Delivery) {
         data.transactionId = createdTrans.id ;
         return Delivery.create(data);
       }).then(newDelivery=>{
-        Play.find({where:{or: plays}}, (error, foundPlays)=>{
+        return Play.find({where:{or: plays}}, (error, foundPlays)=>{
           Promise.map(foundPlays, eachPlay=>{
-            eachPlay.updateAttributes({deliveryId: newDelivery.id});
+            return eachPlay.updateAttributes({deliveryId: newDelivery.id});
+          }).then(res=>{
+            cb(null, newDelivery);
           })
         })
-        return newDelivery
-      }).then(result=>{
-        cb(null, result);
       })
     }
 
@@ -110,7 +109,6 @@ module.exports = function(Delivery) {
             reject(err)
           }
           let parsedBody = JSON.parse(body);
-          console.log('create shippment body :', parsedBody);
           resolve(parsedBody.shipment.easyship_shipment_id)
         })
       })

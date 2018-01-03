@@ -32,7 +32,7 @@ module.exports = function(Reward) {
   });
 
   Reward.refer = (data, cb) => {
-    let { userId, referralCode } = data;
+    let { userId, referralCode, type } = data;
     let User = app.models.User;
     let Event = app.models.Event;
     User.findById(userId).then(user=>{

@@ -50,6 +50,9 @@
     },
     "location": {
       "type": "string"
+    },
+    "users":{
+      "type": "array"
     }
   },
   "validations": [],
