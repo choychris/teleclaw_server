@@ -96,6 +96,7 @@ describe('Submit a delivery', function(){
     countryCode: "HK",
     city: "Hong Kong",
     postalCode: 0,
+    state: null,
     name: "Chris",
     phone: +85212345678,
     email: 'teleclaw.live@gmail.com'
@@ -104,7 +105,8 @@ describe('Submit a delivery', function(){
    status: 'pending',
    userId: global.lbUserId,
    products: global.productIds,
-   courier: global.selectedRate
+   courier: global.selectedRate,
+   target: 'user'
   }
   api
     .post(`/api/deliveries/new?access_token=${global.accessToken}`)

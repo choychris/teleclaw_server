@@ -21,13 +21,13 @@ module.exports = function(Delivery) {
 
   Delivery.new = (data, cb)=>{
     let { Wallet, User, Play, Product } = app.models;
-    let { address, cost, status, userId, products, courier } = data;
+    let { address, cost, status, userId, products, courier, target } = data;
     let items = [];
-    User.findById(userId, (err, foundUser)=>{
-      if(foundUser.address == undefined){
+    if(target == 'user'){
+      User.findById(userId, (err, foundUser)=>{
         foundUser.updateAttributes({address: address, phone: address.phone, email: address.email})
-      }
-    });
+      });
+    };
 
     Wallet.findOne({where: {userId: userId}}).then(wallet=>{
       if(cost > wallet.balance){
