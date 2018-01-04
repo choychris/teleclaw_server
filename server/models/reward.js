@@ -3,6 +3,7 @@
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
 import { createNewTransaction } from '../utils/makeTransaction.js'
+var moment = require('moment');
 
 module.exports = function(Reward) {
   var app = require('../server');
@@ -17,60 +18,103 @@ module.exports = function(Reward) {
   assignKey(Reward)
 
   Reward.observe('before save', (ctx, next)=>{
+    let User = app.models.User;
     if(ctx.isNewInstance){
       let { type, rewardAmount, userId } = ctx.instance;
       createNewTransaction(userId, rewardAmount, type, 'plus', true)
-        .then(createdTrans => {
-          ctx.instance.transactionId = createdTrans.id;
-          next();
-          return null;
-        }).catch(err => { next(err) })
+      .then(createdTrans => {
+        ctx.instance.transactionId = createdTrans.id;
+        next();
+        return null;
+      }).catch(err => { next(err) })
     }else{
       next();     
     }
   });
 
+  Reward.checkIn = (userId, cb) => {
+    let { User, Event, Wallet } = app.models;
+    let cutOffTime = moment().set({h:7, m:0, s:0, ms:0}).valueOf();
+    
+    User.findById(userId, {fields: {lastLogIn: true}})
+    .then(user=>{
+      let lastLogIn = moment(user.lastLogIn).valueOf();
+      if(lastLogIn < cutOffTime){
+        return Event.findOne({where:{launching: true, type: 'checkIn'}})
+      }else{
+        return cb(null, 'reward_already_claimed');
+      }
+    }).then(foundEvent=>{
+      if(foundEvent !== undefined){
+        let { type, rewardAmount } = foundEvent;
+        return Promise.all([Wallet.findOne({where: {userId: userId}}), Reward.create({type, rewardAmount, userId})])
+      }
+    }).then(result=>{
+      if(!!result){
+        let wallet = result[0];
+        let reward = result[1];
+        cb(null, {success: true, newWalletBalance: wallet.balance + reward.rewardAmount})
+      }
+    }).catch(error=>{
+      console.log('error in checkIn reward :', error)
+      cb(error)
+    })
+  };
+
+  Reward.remoteMethod(
+    'checkIn',
+    {
+      http: {path: '/checkIn/:userId', verb: 'get'},
+      accepts: {arg: 'userId', type: 'string', required: true},
+      returns: {arg: 'result', type: 'object'}
+    }
+  );
+
   Reward.refer = (data, cb) => {
     let { userId, type } = data;
     let code = data.code ? data.code.trim() : null;
-    let { User, Event } = app.models;
-    console.log(data);
+    let { User, Event, Wallet } = app.models;
 
     if(code === null){
-      cb(null, 'no_code_entered');
-    }else if(type == 'referral'){
-      referFriends();
+      cb(null, 'missing_code');
+    }else if(type === 'referral'){
+      referFriends();      
     }else{
       promotionCode()
-    };
-    
+    }
+
     function referFriends(){
       User.findById(userId).then(user=>{
         if(user.referral.isReferred){
-          cb(null, 'already_being_referred')
-          return null
+          return cb(null, 'already_being_referred')
         }else{
           return Promise.all([Event.findOne({where: {type: 'referral', launching: true}}), User.findOne({where: {"referral.code": code}}), user])
         }
       }).then(result=>{
-        let foundEvent = result[0] ;
-        let referringUser = result[1] ;
-        let user = result[2];
-        let { type, rewardAmount, maxNum } = foundEvent;
-        if(referringUser == null){
-          cb(null, 'incorrect_user_code')
-          return null;
-        }else if(referringUser.referral == maxNum){
-          cb(null, 'referr_reach_max_refer')
-          return null;
-        }else{
-          let { referral } = referringUser ;
-          user.updateAttributes({'referral.isReferred': true});
-          referringUser.updateAttributes({'referral.numOfReferred' : referral.numOfReferred + 1})
-          return Promise.all([Reward.create({type, rewardAmount, userId, participantId:referringUser.id}), Reward.create({type, rewardAmount, userId: referringUser.id, participantId:userId})])
+        if(result !== undefined){
+          let foundEvent = result[0] ;
+          let referringUser = result[1] ;
+          let user = result[2];
+          let { type, rewardAmount, maxNum } = foundEvent;
+          if(referringUser == null){
+            cb(null, 'incorrect_user_code')
+            return null;
+          }else if(referringUser.referral == maxNum){
+            cb(null, 'referer_reach_max_refer')
+            return null;
+          }else{
+            let { referral } = referringUser ;
+            user.updateAttributes({'referral.isReferred': true});
+            referringUser.updateAttributes({'referral.numOfReferred' : referral.numOfReferred + 1})
+            return Promise.all([Wallet.findOne({where: {userId: userId}}), Reward.create({type, rewardAmount, userId, participantId:referringUser.id}), Reward.create({type, rewardAmount, userId: referringUser.id, participantId:userId})])
+          }
         }
-      }).then(createdReward=>{
-        cb(null, 'reward_success');
+      }).then(result=>{
+        if(!!result){
+          let wallet = result[0];
+          let reward = result[1];
+          cb(null, {success: true, newWalletBalance: wallet.balance + reward.rewardAmount})
+        }
       })
       .catch(error=>{
         console.log('error in refer friends : ', error)
@@ -99,12 +143,14 @@ module.exports = function(Reward) {
             let { id, currentNum, rewardAmount } = foundEvent;
             foundEvent.updateAttributes({currentNum: currentNum + 1})
             Event.update({ id: id },{ $push: { "claimedUser": userId }}, { allowExtendedOperators: true })
-            return Reward.create({type, rewardAmount, userId})
+            return Promise.all([Wallet.findOne({where: {userId: userId}}), Reward.create({type, rewardAmount, userId})])
           }
         }
-      }).then(reward=>{
-        if(reward){
-          cb(null, 'reward_success');
+      }).then(result=>{
+        if(!!result){
+          let wallet = result[0];
+          let reward = result[1];
+          cb(null, {success: true, newWalletBalance: wallet.balance + reward.rewardAmount})
         }
       }).catch(error=>{
         console.log('error in promotion refer : ', error)
@@ -119,7 +165,7 @@ module.exports = function(Reward) {
     {
       http: {path: '/refer', verb: 'post'},
       accepts: {arg: 'data', type: 'object', required: true},
-      returns: {arg: 'result', type: 'string'}
+      returns: {arg: 'result', type: 'object'}
     }
   );
 

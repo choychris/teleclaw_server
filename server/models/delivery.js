@@ -64,15 +64,18 @@ module.exports = function(Delivery) {
     })
 
     function recordDelivery(plays){
-      createNewTransaction(userId, cost, 'delivery', 'minus', true, null).then(createdTrans=>{
+      createNewTransaction(userId, cost, 'delivery', 'minus', true, null)
+      .then(createdTrans=>{
         data.transactionId = createdTrans.id ;
-        return Delivery.create(data);
-      }).then(newDelivery=>{
+        return Promise.all([Delivery.create(data), createdTrans.newWalletBalance])
+      }).then(result=>{
+        let newDelivery = result[0];
+        let walletBalance = result[1];
         return Play.find({where:{or: plays}}, (error, foundPlays)=>{
           Promise.map(foundPlays, eachPlay=>{
             return eachPlay.updateAttributes({deliveryId: newDelivery.id});
           }).then(res=>{
-            cb(null, newDelivery);
+            cb(null, {delivery: newDelivery, newWalletBalance: walletBalance});
           })
         })
       })
@@ -125,6 +128,7 @@ module.exports = function(Delivery) {
     }
   );
 
+  // function to formate the items array for Eastship API
   function createitems(Product, each, items, isFixed){
     return Product.findById(
       each.id, 

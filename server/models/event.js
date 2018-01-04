@@ -27,6 +27,7 @@ module.exports = function(Event) {
           }
         });
       }else{
+        ctx.instance.currentNum = 0 ;
         ctx.instance.claimedUser = [] ;
         ctx.instance.code = (code !== undefined) ? code : shortid.generate();
         next();

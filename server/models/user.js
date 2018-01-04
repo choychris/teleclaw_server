@@ -21,7 +21,7 @@ module.exports = function(User) {
 
   User.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
-      ctx.instance.referral = { code: shortid.generate(), isReferred: false, numOfRefer: 0};
+      ctx.instance.referral = { code: shortid.generate(), isReferred: false, numOfReferred: 0};
       ctx.instance.bindedDevice = [];
     }
     next();
@@ -29,9 +29,7 @@ module.exports = function(User) {
 
   User.observe('after save', (ctx, next)=>{
     if(ctx.isNewInstance){
-      let Event = app.models.Event;
-      let Wallet = app.models.Wallet;
-      let Reservation = app.models.Reservation;
+      let { Event, Wallet, Reservation } = app.models;
       Event.findOne({'where': {'launching': true, type: 'signUp'}, order: 'startTime DESC'}, (err, event)=>{
         if(err){
           next(err);

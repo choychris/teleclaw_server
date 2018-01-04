@@ -153,7 +153,7 @@
     {
       "accessType": "WRITE",
       "principalType": "ROLE",
-      "principalId": "$authenticated",
+      "principalId": "teleClawAdmin",
       "permission": "ALLOW"
     },
     {
