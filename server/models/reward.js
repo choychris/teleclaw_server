@@ -71,24 +71,40 @@ module.exports = function(Reward) {
   );
 
   Reward.refer = (data, cb) => {
-    let { userId, type } = data;
+    let { userId } = data;
     let code = data.code ? data.code.trim() : null;
     let { User, Event, Wallet } = app.models;
 
     if(code === null){
       cb(null, 'missing_code');
-    }else if(type === 'referral'){
-      referFriends();      
     }else{
-      promotionCode()
+      Promise.all([User.findOne({where: {"referral.code": code}}), Event.findOne({where: {type: 'promotion', launching: true, code: code}})])
+      .then(result=>{
+        console.log('result: ', result);
+        let foundUser = result[0];
+        let foundEvent = result[1];
+        if(foundUser !== null){
+          referFriends(foundUser);
+        }else if(foundEvent !== null){
+          promotionCode(foundEvent)
+        }else{
+          cb(null, 'invalid_code');
+        }
+        return null
+      }).catch(error=>{
+        console.log('error in find user / event : ', error);
+        cb(error)
+      })
     }
 
-    function referFriends(){
+    function referFriends(referrer){
       User.findById(userId).then(user=>{
-        if(user.referral.isReferred){
-          return cb(null, 'already_being_referred')
+        if(user.referral.code === code){
+          return cb(null, 'invalid_code');
+        }else if(user.referral.isReferred){
+          return cb(null, 'already_being_referred');
         }else{
-          return Promise.all([Event.findOne({where: {type: 'referral', launching: true}}), User.findOne({where: {"referral.code": code}}), user])
+          return Promise.all([Event.findOne({where: {type: 'referral', launching: true}}), referrer, user]);
         }
       }).then(result=>{
         if(result !== undefined){
@@ -96,10 +112,7 @@ module.exports = function(Reward) {
           let referringUser = result[1] ;
           let user = result[2];
           let { type, rewardAmount, maxNum } = foundEvent;
-          if(referringUser == null){
-            cb(null, 'incorrect_user_code')
-            return null;
-          }else if(referringUser.referral == maxNum){
+          if(referringUser.referral.numOfReferred >= maxNum){
             cb(null, 'referer_reach_max_refer')
             return null;
           }else{
@@ -122,25 +135,23 @@ module.exports = function(Reward) {
       })
     }
 
-    function promotionCode(){
+    function promotionCode(promotionEvent){
       Event.find({where: {claimedUser: {in :[userId]}, type: 'promotion', launching: true, code: code}})
       .then(currentEvent=>{
         if(currentEvent.length !== 0){
           return cb(null, 'reward_already_claimed');
         }else{
-          return Event.findOne({where: {type: 'promotion', launching: true, code: code}})
+          return promotionEvent;
         }
       }).then(foundEvent=>{
         if(foundEvent !== undefined){
           let now = new Date().getTime();
-          if(foundEvent === null){
-            cb(null, 'invalid_event');
-          }else if(foundEvent.maxNum == foundEvent.currentNum){
+          if(foundEvent.maxNum >= foundEvent.currentNum){
             cb(null, 'event_is_full');
           }else if(now > foundEvent.endTime){
             cb(null, 'event_ended');
           }else{
-            let { id, currentNum, rewardAmount } = foundEvent;
+            let { id, currentNum, rewardAmount, type } = foundEvent;
             foundEvent.updateAttributes({currentNum: currentNum + 1})
             Event.update({ id: id },{ $push: { "claimedUser": userId }}, { allowExtendedOperators: true })
             return Promise.all([Wallet.findOne({where: {userId: userId}}), Reward.create({type, rewardAmount, userId})])

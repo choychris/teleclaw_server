@@ -6,6 +6,14 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes":{
+    "code_index":{
+      "keys":{
+        "id": 1,
+        "code": 1
+      }
+    }
+  },
   "properties": {
     "id": {
       "type": "string",
