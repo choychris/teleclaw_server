@@ -13,6 +13,9 @@
       "./mixins"
     ]
   },
+  "Email": {
+    "dataSource": "Email"
+  },
   "machine": {
     "dataSource": "mongodb",
     "public": true
