@@ -5,6 +5,7 @@ import { loggingModel } from '../utils/createLogging.js';
 
 module.exports = function(Issue) {
 
+  var app = require('../server');
   //make loggings for monitor purpose
   loggingModel(Issue);
 
@@ -13,5 +14,22 @@ module.exports = function(Issue) {
 
   //assign an unique if its new instance 
   assignKey(Issue)
+
+  Issue.observe('before save', (ctx, next)=>{
+    if(ctx.isNewInstance){
+      let User = app.models.User;
+      let { userId, email } =  ctx.instance;
+      if(!!email){
+        User.findById(userId, (err, user)=>{
+          if(user.email === null){
+            user.updateAttributes({email: email});
+          }
+        })
+      }
+      next();
+    }else{
+      next();
+    }
+  })
 
 };
