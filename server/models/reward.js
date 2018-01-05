@@ -34,15 +34,16 @@ module.exports = function(Reward) {
 
   Reward.checkIn = (userId, cb) => {
     let { User, Event, Wallet } = app.models;
-    let cutOffTime = moment().set({h:7, m:0, s:0, ms:0}).valueOf();
-    
+    //let cutOffTime = moment().set({h:7, m:0, s:0, ms:0});
+    let minTime = moment().startOf('day').valueOf();
+    let maxTime = moment().endOf('day').valueOf();
     User.findById(userId, {fields: {lastLogIn: true}})
     .then(user=>{
       let lastLogIn = moment(user.lastLogIn).valueOf();
-      if(lastLogIn < cutOffTime){
-        return Event.findOne({where:{launching: true, type: 'checkIn'}})
-      }else{
+      if((minTime < lastLogIn) && (lastLogIn < maxTime)){
         return cb(null, 'reward_already_claimed');
+      }else{
+        return Event.findOne({where:{launching: true, type: 'checkIn'}});
       }
     }).then(foundEvent=>{
       if(foundEvent !== undefined){

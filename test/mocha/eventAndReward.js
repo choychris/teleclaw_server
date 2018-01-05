@@ -250,24 +250,24 @@ function testCases(description, endTime, maxNum, currentNum, code){
   // });
 
 
-  describe('a user claim referral reward', function(){
-    it('already being referred', function(done){
-    var api = supertest.agent(baseUrl);
-    var data = {
-      "userId": global.lbUserId,
-      "code": ''
-    }
-      api.post(`/api/rewards/refer?access_token=${global.accessToken}`)
-        .send({data: data})
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body);
-          res.body.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-      });
-    });
-  });
+  // describe('a user claim referral reward', function(){
+  //   it('already being referred', function(done){
+  //   var api = supertest.agent(baseUrl);
+  //   var data = {
+  //     "userId": global.lbUserId,
+  //     "code": ''
+  //   }
+  //     api.post(`/api/rewards/refer?access_token=${global.accessToken}`)
+  //       .send({data: data})
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body);
+  //         res.body.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //     });
+  //   });
+  // });
 
   // describe('a user claim referral reward', function(){
   //   it('sucess should return true', function(done){
@@ -289,19 +289,19 @@ function testCases(description, endTime, maxNum, currentNum, code){
   //   });
   // });
 
-  // describe('a user claim checkIn reward', function(){
-  //   it('sucess should be true', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     api.get(`/api/rewards/checkIn/${global.lbUserId}?access_token=${global.accessToken}`)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         console.log(res.body);
-  //         res.body.result.success.should.equal(true);
-  //         res.status.should.equal(200);
-  //         done();
-  //     });
-  //   });
-  // });
+  describe('a user claim checkIn reward', function(){
+    it('sucess should be true', function(done){
+      var api = supertest.agent(baseUrl);
+      api.get(`/api/rewards/checkIn/${global.lbUserId}?access_token=${global.accessToken}`)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          console.log(res.body);
+          res.body.result.success.should.equal(true);
+          res.status.should.equal(200);
+          done();
+      });
+    });
+  });
 
 // let validEndTime = new Date().getTime() + 2000000;
 // let inValidEndTime = new Date().getTime() - 10000;
