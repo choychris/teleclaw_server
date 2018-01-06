@@ -2,7 +2,7 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-let { GMAIL_ADDRESS } = process.env;
+import { sendEmail } from '../utils/nodeMailer.js'
 
 module.exports = function(Issue) {
 
@@ -37,24 +37,15 @@ module.exports = function(Issue) {
     if(ctx.isNewInstance){
       let { Email } = app.models;
       let { type, email, message, userId, machineId, deliveryId, transactionId } = ctx.instance; 
-      Email.send({
-        to: `${GMAIL_ADDRESS}`,
-        from: `${GMAIL_ADDRESS}`,
-        subject: `Issue report from users : ${type}`,
-        html: `<h1>${message}</h1>
-          <h2>userId: ${userId}</h2>
-          <h2>User email: ${email}</h2>
-          <h2>machineId: ${machineId}</h2>
-          <h2>deliveryId: ${deliveryId}</h2>
-          <h2>transactionId: ${transactionId}</h2>`
-      }, function(err, mail){
-        if(err){
-          console.log('error in sending mail : ', err)
-          next(err)
-        }else{
-          next();
-        }
-      })
+      let subject = `Issue report from user : type = ${type}` ;
+      let html =  `<h3>Message : ${message}</h3>
+          <h3>userId : ${userId}</h3>
+          <p>User email : ${email}</p>
+          <p>Related machineId : ${machineId}</p>
+          <p>Related deliveryId : ${deliveryId}</p>
+          <p>Related transactionId : ${transactionId}</p>`
+      sendEmail(subject, html); 
+      next();
     }else{
       next();
     }

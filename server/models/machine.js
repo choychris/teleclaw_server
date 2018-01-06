@@ -3,6 +3,7 @@
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
+import { sendEmail } from '../utils/nodeMailer.js'
 const request = require('request');
 const Promise = require('bluebird');
 const md5 = require('md5');
@@ -39,7 +40,17 @@ module.exports = function(Machine) {
           ctx.hookState.pusher = true;
           ctx.data.status = 'close';
           ctx.data.currentUser = null;
-        }
+        }else if(sku <= 3){
+          let { Email } = app.models;
+          let { id, name } = ctx.currentInstance;
+          let subject = `Machine ${name} sku is below threhold`;
+          let html = `<h3>Machine name : ${name}</h3>
+              <p>Machine id: ${id}</p>
+              <p>Product id: ${ctx.currentInstance.productId}</p>
+              <p>This machine sku is now at <strong><em>${sku}</em></strong></p>
+              <p>Please refill or restock</p>`
+          sendEmail(subject, html);
+        };
       }
       next();
     }else{
