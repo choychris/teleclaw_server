@@ -3,6 +3,19 @@ var supertest = require('supertest');
 
 var baseUrl = 'http://localhost:3000';
 
+if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
+  app = require('../../build/server.js')
+  before(function() {
+    console.log('server start')
+    app.start();
+  });
+
+  after(function(){
+    console.log('server stop')
+    app.stop();  
+  });
+}
+
 global.accessToken = 'ODAwHtfGXVbprY5vz7OgItbLtDmDH7tXZmKdoHrwxJlKEeTuDDQCYBI7IuwCDsnv';
 global.lbUserId ='5a3b720bbf73350182f3d254';
 
