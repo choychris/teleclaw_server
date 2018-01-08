@@ -42,24 +42,24 @@ const generateJSONAPI = (url, filter) => {
 //   });
 // });
 
-// describe('Login teleClawAdmin', function(){
-//   it('login - status 200 and token', function(done){
-//   var api = supertest.agent(baseUrl);
-//   var userInfo = {
-//     username: 'teleclaw.live@gmail.com',
-//     password : 'teleclawlive123',
-//   };
-//   api.post(`/api/users/login`)
-//     .send(userInfo)
-//     .set('Accept', 'application/json')
-//     .end(function(err,res){
-//         global.adminToken = res.body.id;
-//         res.body.should.be.an('object');
-//         res.status.should.equal(200);
-//         done();
-//      });
-//   });
-// });
+describe('Login teleClawAdmin', function(){
+  it('login - status 200 and token', function(done){
+  var api = supertest.agent(baseUrl);
+  var userInfo = {
+    username: 'teleclaw.live@gmail.com',
+    password : 'teleclawlive123',
+  };
+  api.post(`/api/users/login`)
+    .send(userInfo)
+    .set('Accept', 'application/json')
+    .end(function(err,res){
+        global.adminToken = res.body.id;
+        res.body.should.be.an('object');
+        res.status.should.equal(200);
+        done();
+     });
+  });
+});
 
 // |================== Clean Event and Peform Refer API ==================|
 function testCases(description, endTime, maxNum, currentNum, code){
@@ -163,51 +163,51 @@ function testCases(description, endTime, maxNum, currentNum, code){
 //   });
 // });
 
-// describe('create KOL referral event', function(){
-//   it('create success - status 200 and token', function(done){
-//   var api = supertest.agent(baseUrl);
-//   var event =   {
-//       "name": "kol",
-//       "description": "kol promotion",
-//       "type": "promotion",
-//       "launching": true,
-//       "startTime": "2018-01-03T10:53:15.885Z",
-//       "endTime": "2018-03-10T13:06:35.885Z",
-//       "rewardAmount": 60,
-//       "code": "iamakol"
-//     };
-//     api.post(`/api/events?access_token=${global.adminToken}`)
-//       .send(event)
-//       .set('Accept', 'application/json')
-//       .end(function(err,res){
-//         res.body.should.be.an('object');
-//         res.status.should.equal(200);
-//         global.code = res.body.code;
-//         console.log(global.code);
-//         done();
-//     });
-//   });
-// });
+describe('create KOL referral event', function(){
+  it('create success - status 200 and token', function(done){
+  var api = supertest.agent(baseUrl);
+  var event =   {
+      "name": "kol",
+      "description": "kol promotion",
+      "type": "promotion",
+      "launching": true,
+      "startTime": "2018-01-03T10:53:15.885Z",
+      "endTime": "2018-03-10T13:06:35.885Z",
+      "rewardAmount": 60,
+      "code": "iamakol"
+    };
+    api.post(`/api/events?access_token=${global.adminToken}`)
+      .send(event)
+      .set('Accept', 'application/json')
+      .end(function(err,res){
+        res.body.should.be.an('object');
+        res.status.should.equal(200);
+        global.code = res.body.code;
+        console.log(global.code);
+        done();
+    });
+  });
+});
 
-// describe('a user claim kol reward', function(){
-//   it('claim success - return success', function(done){
-//   var api = supertest.agent(baseUrl);
-//   var data = {
-//     "userId": global.lbUserId,
-//     "code": 'HJ-d_F7oXM'
-//   }
-//     api.post(`/api/rewards/refer?access_token=${global.accessToken}`)
-//       .send({data: data})
-//       .set('Accept', 'application/json')
-//       .end(function(err,res){
-//         console.log(res.body);
-//         res.body.should.be.an('object');
-//         //res.body.result.success.should.equal(true);
-//         res.status.should.equal(200);
-//         done();
-//     });
-//   });
-// });
+describe('a user claim kol reward', function(){
+  it('claim success - return success', function(done){
+  var api = supertest.agent(baseUrl);
+  var data = {
+    "userId": global.lbUserId,
+    "code": 'iamakol'
+  }
+    api.post(`/api/rewards/refer?access_token=${global.accessToken}`)
+      .send({data: data})
+      .set('Accept', 'application/json')
+      .end(function(err,res){
+        console.log(res.body);
+        res.body.should.be.an('object');
+        //res.body.result.success.should.equal(true);
+        res.status.should.equal(200);
+        done();
+    });
+  });
+});
 
 // describe('a user claim promtion reward', function(){
 //     it('user already claimed', function(done){
@@ -289,19 +289,19 @@ function testCases(description, endTime, maxNum, currentNum, code){
   //   });
   // });
 
-  describe('a user claim checkIn reward', function(){
-    it('sucess should be true', function(done){
-      var api = supertest.agent(baseUrl);
-      api.get(`/api/rewards/checkIn/${global.lbUserId}?access_token=${global.accessToken}`)
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-          console.log(res.body);
-          res.body.result.success.should.equal(true);
-          res.status.should.equal(200);
-          done();
-      });
-    });
-  });
+  // describe('a user claim checkIn reward', function(){
+  //   it('sucess should be true', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     api.get(`/api/rewards/checkIn/${global.lbUserId}?access_token=${global.accessToken}`)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //         console.log(res.body);
+  //         res.body.result.success.should.equal(true);
+  //         res.status.should.equal(200);
+  //         done();
+  //     });
+  //   });
+  // });
 
 // let validEndTime = new Date().getTime() + 2000000;
 // let inValidEndTime = new Date().getTime() - 10000;

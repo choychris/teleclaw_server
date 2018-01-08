@@ -5,7 +5,7 @@ stages:
 
 buildProduction:
   stage: build
-  image: node:6.11.1
+  image: node:6.11.5
   script: 
     - npm install
     - npm install -g gulp
@@ -21,7 +21,7 @@ buildProduction:
         
 test:
   stage: test
-  image: node:6.11.1
+  image: node:6.11.5
   services:
     - mongo:3.4
   dependencies:

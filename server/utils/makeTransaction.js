@@ -1,3 +1,4 @@
+import { loggingFunction } from './createLogging.js';
 const Promise = require('bluebird');
 
 export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMinus){
@@ -8,7 +9,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
       let roundNumber = Math.round(newNumber);
       foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
-          console.log('err in ', modelAttribute, 'calculation : ', err)
+          loggingFunction(`${model} | `, 'makeCalculation error | ', err, 'error')
         }
       });
     }else if(plusOrMinus === 'plus'){
@@ -16,7 +17,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
       let roundNumber = Math.round(newNumber);
        foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
-          console.log('err in ', modelAttribute, 'calculation : ', err)
+          loggingFunction(`${model} | `, 'makeCalculation error | ', err, 'error')
         }
       });
     }
@@ -28,9 +29,10 @@ export function createNewTransaction(userId, amount, type, action, status, gatew
  let Wallet = app.models.Wallet;
  let Transaction = app.models.Transaction;
  return new Promise((resolve, reject)=>{
+  //find user's wallet to get wallet id
     Wallet.findOne({where: {userId:userId}}, (err, wallet)=>{
       if(err){
-        console.log('Find wallet in transaction error : ', err);
+        loggingFunction('Wallet | ', 'Wallet.findOne in createNewTransaction error | ', err, 'error')
         reject(err);
         return err;
       }
@@ -43,9 +45,10 @@ export function createNewTransaction(userId, amount, type, action, status, gatew
         userId: userId,
       }
       if(!!gateway){transacObject.gatewayResponse = gateway};
+      // create a new transaction record
       Transaction.create(transacObject, (error, createdTrans)=>{
         if(error){
-          console.log('Create new transaction error : ', error);
+          loggingFunction('Transaction | ', 'create trans in createNewTransaction error | ', error, 'error')
           reject(error);
           return error;
         }

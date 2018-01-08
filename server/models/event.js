@@ -18,10 +18,12 @@ module.exports = function(Event) {
     if(ctx.isNewInstance){
       let { code, type } = ctx.instance;
       if(type != 'promotion'){
+        // if it is not promotion, make sure no same type of event is launching
         Event.findOne({where: {type: type, launching:true}}, (err, event)=>{
           if(event !== null){
             next('there is already a same type event launching')
           }else{
+            // assgin shortId as event code;
             ctx.instance.code = (code !== undefined) ? code : shortid.generate();
             next();
           }
@@ -35,6 +37,6 @@ module.exports = function(Event) {
     }else{
       next();
     }
-  })  
+  });  
 
 };

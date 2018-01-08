@@ -6,7 +6,7 @@ module.exports = function(Wallet) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  loggingModel(Wallet);
+  //loggingModel(Wallet);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Wallet);

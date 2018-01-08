@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction } from '../utils/createLogging.js';
 import { checkMachineStatus } from '../utils/gamePlayTimer.js';
 import { makeCalculation } from '../utils/makeTransaction.js';
 var Promise = require('bluebird');
@@ -25,9 +25,9 @@ module.exports = function(Reservation) {
     if(!ctx.isNewInstance){
       // machineId of currently reserving
       let { id, status, userId, machineId } = ctx.currentInstance;
-      // machineId of newly reserve
+      // ctx.data.machineId = machineId of newly reserve
       if(ctx.data && ctx.data.machineId){
-        // this logic to check if the user is currently making a reserve, and
+        // this logic is to check if the user is currently making a reserve, and
         // the user want to make reserve to another machine
         if(status === 'open' && !!machineId){
             makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
@@ -47,6 +47,7 @@ module.exports = function(Reservation) {
     let { id, status, userId, machineId, lastUpdated, productId } = ctx.instance;
     const Machine = app.models.Machine;
     if(!ctx.isNewInstance){
+      // when its user turn to play the game
       if(status === 'close' && !!machineId){
         let pusherObj = {
           id: id,
@@ -57,6 +58,7 @@ module.exports = function(Reservation) {
         };
         app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', pusherObj)
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
+      // when user make a new reservation
       }else if(status === 'open' && !!machineId){
         makeCalculation(Machine, machineId, 'reservation', 1, 'plus');
       }
@@ -66,6 +68,7 @@ module.exports = function(Reservation) {
     }
   });
 
+  // the remote method to immediately change the machine status and find the next user
   Reservation.endEngage = (machineId, userId, cb) => {
     let Machine = app.models.Machine;
     Machine.findById(machineId, (err, machine)=>{
@@ -81,6 +84,7 @@ module.exports = function(Reservation) {
             //update the next reserve and trigger pusher in after save
             foundReserve[0].updateAttributes({status: 'close'}, (newError, instance)=>{
               updateMachine(machineId, 'open', {id: instance.userId})
+              // after 8 sec, check if user has reponsed
               timeOutReserve(machineId, instance.userId, Machine, Reservation);
               if(!!cb){ cb(null, 'next_reserve'); }
             });
@@ -93,20 +97,21 @@ module.exports = function(Reservation) {
         if(!!cb){ cb(null, 'machine_closed'); }
       }
     });
-  };
+  };//<--- endEngage remote method end
 
   function updateMachine(machineId, status, userId){
     let Machine = app.models.Machine;
     Machine.findById(machineId, (err, machine)=>{
       machine.updateAttributes({status: status, currentUser: userId}, (err, instance)=>{
         if(err){
-          console.log(err);
+          loggingFunction('Reservation | ', ' updateMachine Error | ', err, 'error')
         }
-        console.log('machine instance :', instance);
+        // console.log('machine instance :', instance);
       });
     });
   }
 
+  // after 8 sec, check if user has reponsed
   function timeOutReserve(machineId, userId, Machine, Reservation){
     console.log('userId in timeout', userId)
       setTimeout(()=>{

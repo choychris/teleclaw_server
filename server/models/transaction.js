@@ -22,7 +22,7 @@ module.exports = function(Transaction) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  loggingModel(Transaction);
+  //loggingModel(Transaction);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Transaction);
@@ -40,12 +40,14 @@ module.exports = function(Transaction) {
       let Wallet = app.models.Wallet;
       let { walletId, action, amount, success } = ctx.instance;
       if(success){
+        // update wallet balance when a transaction is made;
         makeCalculation(Wallet, walletId, 'balance', amount, action)
       }
     }
     next();
   });
 
+  // remote method to create braintree client token
   Transaction.clientToken = (userId, cb) => {
     let Paymentgateway = app.models.PaymentGateway;
     Paymentgateway.findOne({where:{userId: userId}}).then(gateway=>{
@@ -68,13 +70,13 @@ module.exports = function(Transaction) {
           // calling the function to generate braintree token
           generateToken(customerId, cb)
         })
-      }
+      };
     }).catch(err=>{
       loggingFunction('Transaction | ', 'Paymentgateway.findOne | ', err, 'error')
       cb(err)
     });
 
-    // function to generate a braintree client token
+    // braintree sdk request to generate a braintree client token
     function generateToken(id, cb){
       braintreeGateway.clientToken.generate({customerId: id}, function(err, response){
         if(err){
@@ -82,11 +84,11 @@ module.exports = function(Transaction) {
           cb(err)
         }
         //let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
-        loggingFunction('Transaction | ', 'Braintree generate clientToken | ', response)
+        //loggingFunction('Transaction | ', 'Braintree generate clientToken | ', response)
         cb(null, response.clientToken)
       })
     }
-  };
+  };//<-- clientToken remote method end
 
   Transaction.remoteMethod(
     'clientToken',
@@ -99,11 +101,11 @@ module.exports = function(Transaction) {
     }
   );
 
-
+  // remote method for user to topUp
   Transaction.createSale = (userId, data, cb) => {
     let { paymentNonce, rateId } = data;
-    let ExchangeRate = app.models.ExchangeRate;
-    let Paymentgateway = app.models.PaymentGateway;
+    let { ExchangeRate, Paymentgateway } = app.models;
+
     Promise.all([
       ExchangeRate.findById(rateId), 
       Paymentgateway.findOne({where: {userId: userId}})
@@ -118,7 +120,7 @@ module.exports = function(Transaction) {
           submitForSettlement: true,
           storeInVaultOnSuccess: true
         }
-      }
+      };
       return [braintreeGateway.transaction.sale(saleConfig), foundRate];
     }).spread((result, rate)=>{
       let { coins, bonus } = rate;
@@ -148,8 +150,9 @@ module.exports = function(Transaction) {
     }).catch(error=>{
       loggingFunction('Transaction | ', 'Create Sale Function Error | ', error , 'error')
       cb(error)
-    });
-  };
+    });//<-- promise chain end
+
+  };//<-- createSale remote method end
 
   Transaction.remoteMethod(
     'createSale',

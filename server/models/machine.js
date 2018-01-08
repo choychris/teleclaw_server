@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction } from '../utils/createLogging.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
 import { sendEmail } from '../utils/nodeMailer.js'
 const request = require('request');
@@ -14,7 +14,7 @@ module.exports = function(Machine) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  loggingModel(Machine);
+  //loggingModel(Machine);
 
   // assgin an id to each newly created model
   assignKey(Machine);
@@ -27,6 +27,7 @@ module.exports = function(Machine) {
       if(ctx.data){
         let { status, sku, reservation, productId, iotPlatform } = ctx.data;
         let oldStatus = ctx.currentInstance.status;
+        //if machine's status if updated
         if(!!status && !reservation && !productId){
           //look for reservation if the machine go online from offline again
           if(status == 'open' && oldStatus == 'close'){
@@ -34,13 +35,16 @@ module.exports = function(Machine) {
           }
           ctx.hookState.pusher = true;
           ctx.data.lastStatusChanged = new Date().getTime();
+        // if machine's reservation is updated
         }else if(!!reservation && !productId){
           ctx.hookState.pusher = true;
         }else if(sku == 0){
+          // disable machine is sku == 0;
           ctx.hookState.pusher = true;
           ctx.data.status = 'close';
           ctx.data.currentUser = null;
         }else if(sku <= 3){
+          // send email noti if sku <= 3;
           let { Email } = app.models;
           let { id, name } = ctx.currentInstance;
           let subject = `Machine ${name} sku is below threhold`;
@@ -51,7 +55,7 @@ module.exports = function(Machine) {
               <p>Please refill or restock</p>`
           sendEmail(subject, html);
         };
-      }
+      }//<--- if machine is updated
       next();
     }else{
       if(!ctx.instance.iotPlatform){
@@ -71,7 +75,7 @@ module.exports = function(Machine) {
           let Reservation = app.models.Reservation
           Reservation.endEngage(id, 'null', null);
         }
-        updateProductStatus(productId);
+        checkAllMachines(productId);
         app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player, lastUpdated: new Date().getTime()});
       }
     } 
@@ -79,7 +83,7 @@ module.exports = function(Machine) {
   });
 
   // function to check whether all machine not available
-  function updateProductStatus(productId){
+  function checkAllMachines(productId){
     let Product = app.models.Product;
     function updateProductStatus(newMachineStatus, productId){
       Product.findById(productId, (err, foundProduct)=>{
@@ -103,10 +107,10 @@ module.exports = function(Machine) {
     });
   };
 
-  Machine.beforeRemote('gamePlay', (ctx, unused, next)=>{
-    console.log('|=========== Game Play Start =============|')
-    next();
-  })
+  // Machine.beforeRemote('gamePlay', (ctx, unused, next)=>{
+  //   console.log('|=========== Game Play Start =============|')
+  //   next();
+  // })
 
   // machine game play remote method
   Machine.gamePlay = (machineId, data, cb) => {
@@ -164,8 +168,9 @@ module.exports = function(Machine) {
         return null
       })
       .catch(error=>{
+        loggingFunction('Machine | ', 'initialize game play error | ', error, 'error');
         cb(error)
-      })
+      })//<--- checking for game play promise end
 
     //start game function
     function startGame(userId, machineId, productId, gamePlayRate, initialize, gizwits){
@@ -188,6 +193,7 @@ module.exports = function(Machine) {
         response.playId = res.id;
         cb(null, response);
       }).catch(error=>{
+        loggingFunction('Machine | ', 'start game function error | ', error, 'error');
         cb(error)
       });
     }//<--- start game function end
@@ -210,7 +216,10 @@ module.exports = function(Machine) {
         request(createUser, (err, res, body)=>{
           const { token, uid, expire_at } = JSON.parse(body);
           User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
-            if(err||error){ reject(err||error)}
+            if(err || error){ 
+              loggingFunction('Machine | ', 'login gizwits user error | ', err || error, 'error');
+              reject(err || error);
+            };
             // check whether the user has already bind this machine
             let gizwits = {
               init: {
@@ -223,7 +232,7 @@ module.exports = function(Machine) {
               control: {
                 did: deviceId
               }
-            }
+            };
             if(user.length === 0){ 
               bindMac(deviceMAC, token, machineId, gizwits, resolve) 
               User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
@@ -234,7 +243,7 @@ module.exports = function(Machine) {
           })//<--- find user end
         });//<--- request end
       })//<--- promise end
-    }
+    };
 
     // bind mac API to gizwits
     function bindMac(deviceMAC, token, machineId, gizwits, resolve){
@@ -253,10 +262,11 @@ module.exports = function(Machine) {
           product_key: GIZWITS_PRODUCT_KEY,
           mac: deviceMAC
         })
-      }
+      };
       request(bindMac, (err, res, bindBody)=>{
         const { host, wss_port } = JSON.parse(bindBody);
         if(err){
+          loggingFunction('Machine | ', 'gizwits bind mac error | ', err, 'error');
           Promise.reject(err)
         };
         let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
@@ -297,13 +307,14 @@ module.exports = function(Machine) {
     return new Promise((resolve, reject)=>{
       User.findById(userId, {include: include},(err, user)=>{
         if(err){
+          loggingFunction('Machine | ', 'findUserInclude error | ', err, 'error');
           reject(err);
         }
         let parsedUser = user.toJSON();
         resolve(parsedUser);
       });
     });
-  }
+  };
 
   //find user identity to update machine status
   function updateCurrentUser(userId, machineId){
@@ -318,16 +329,17 @@ module.exports = function(Machine) {
           }
         updateMachineAttri(machineId, {status: 'playing', currentUser: player})
         return null
+      }).catch(err=>{
+        loggingFunction('Machine | ', 'updateCurrentUser error | ', err, 'error');
       })
-      .catch(err=>{console.log('error in finding user identity when play start : ', err)})
-  }
+  };
 
   // update Machine attributies function
   function updateMachineAttri(machineId, updateObj){
     Machine.findById(machineId, (err, instance)=>{
       instance.updateAttributes(updateObj);
     })
-  }
+  };
 
   //make a reservation of user
   function makeReserve(userId, machineId, productId){
@@ -335,7 +347,10 @@ module.exports = function(Machine) {
     return new Promise((resolve, reject)=>{
       Reservation.findOne({where: {userId: userId}}, (err, instance)=>{
         instance.updateAttributes({status: 'open', machineId: machineId, productId: productId}, (error, updatedReserve)=>{
-          if(err || error){reject(err || error)}
+          if(err || error){
+            loggingFunction('Machine | ', 'makeReserve error | ', err || error, 'error');
+            reject(err || error);
+          };
           let { id, status, machineId, productId, lastUpdated } = updatedReserve;
           let resObj = {
             id: id,
@@ -343,7 +358,7 @@ module.exports = function(Machine) {
             machineId: machineId,
             productId: productId,
             lastUpdated: lastUpdated
-          }
+          };
           resolve(resObj)
         })
       })
@@ -351,8 +366,10 @@ module.exports = function(Machine) {
   };
 
   Machine.afterRemote('gamePlay', (ctx, unused, next)=>{
-    console.log('|=========== Game Play End =============|')
-    console.log(ctx.result.result)
+    // console.log('|=========== Game Play End =============|')
+    // console.log(ctx.result.result)
+
+    //if the user is able to start a game play;
     if(ctx.result.result.gizwits !== undefined){
       let Play = app.models.Play;
       let { userId, playId } = ctx.result.result;
@@ -376,8 +393,7 @@ module.exports = function(Machine) {
     }else{
       next();
     }
-    
-  })
+  });
 
   Machine.remoteMethod(
     'gamePlay',

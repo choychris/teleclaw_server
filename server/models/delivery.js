@@ -24,17 +24,19 @@ module.exports = function(Delivery) {
     let { address, cost, status, userId, products, courier, target } = data;
     let items = [];
     if(target == 'user'){
+      // update user address everytimes user make a shipping request
       User.findById(userId, (err, foundUser)=>{
         foundUser.updateAttributes({address: address, phone: address.phone, email: address.email})
       });
     };
 
     Wallet.findOne({where: {userId: userId}}).then(wallet=>{
+      // check if user has enough coins to make the shippment
       if(cost > wallet.balance){
         cb(null, 'insufficient_balance');
       }else if(courier.courier_name !== 'fixed_delivery'){
         Promise.map(products, each=>{
-          return createitems(Product, each, items, null)
+          return createitems(Product, each, items, null) //<-- func to format items array, also return arrays of plays Id;
         }).then(plays=>{
           if(plays[0] !== undefined){
             createShippmentApi(address, items).then(shipmentId=>{
@@ -46,6 +48,7 @@ module.exports = function(Delivery) {
           }
         })
       }else{
+        // if user is only shipping fixed delivery products ;
         Promise.map(products, each=>{
           let aPlay = { id: each.playId };
           return aPlay;
@@ -59,10 +62,11 @@ module.exports = function(Delivery) {
       }
       return null
     }).catch(error=>{
-      loggingFunction({Model: 'Devliery', Function: 'Create Delivery Error', Error: error }, 'error')
+      loggingFunction('Delivery | ', ' Create Delivery Error | ', error, 'error')
       cb(error);
-    })
+    })// <--- Wallet.findOne promise end
 
+    // func to create transaction of user's wallet and update play data
     function recordDelivery(plays){
       createNewTransaction(userId, cost, 'delivery', 'minus', true, null)
       .then(createdTrans=>{
@@ -71,6 +75,7 @@ module.exports = function(Delivery) {
       }).then(result=>{
         let newDelivery = result[0];
         let walletBalance = result[1];
+        // update plays delivery id:
         return Play.find({where:{or: plays}}, (error, foundPlays)=>{
           Promise.map(foundPlays, eachPlay=>{
             return eachPlay.updateAttributes({deliveryId: newDelivery.id});
@@ -79,8 +84,9 @@ module.exports = function(Delivery) {
           })
         })
       })
-    }
+    };
 
+    // api request to create Easyship shippment records;
     function createShippmentApi(address, items){
       let { countryCode, city, postalCode, state, name, line1, line2, phone, email } = address;
       var options = { 
@@ -106,18 +112,19 @@ module.exports = function(Delivery) {
         })
       }
       return new Promise((resolve, reject)=>{
+        
         request(options, (err, res, body)=>{
           if (err){
-            console.log(err);
+            loggingFunction('Delivery | ', 'Request Easyship create shippment error | ', err, 'error');
             reject(err)
           }
           let parsedBody = JSON.parse(body);
           resolve(parsedBody.shipment.easyship_shipment_id)
         })
       })
-    }
+    }; // <--- api request func end;
 
-  };
+  };// <--- Delivery.new remote method end;
 
   Delivery.remoteMethod(
     'new',
@@ -129,6 +136,7 @@ module.exports = function(Delivery) {
   );
 
   // function to formate the items array for Eastship API
+  // used by both new and getRate remote method
   function createitems(Product, each, items, isFixed){
     return Product.findById(
       each.id, 
@@ -157,6 +165,8 @@ module.exports = function(Delivery) {
     })
   };
 
+
+  // remote method to get a rate quote from Easyship
   Delivery.getRate = (data, cb) =>{
     let { products, countryCode, postalCode } = data;
     let { Product, ExchangeRate } = app.models;
@@ -164,7 +174,7 @@ module.exports = function(Delivery) {
     let isFixed = [];
 
     Promise.map(products, each=>{
-      return createitems(Product, each, items, isFixed)
+      return createitems(Product, each, items, isFixed) //<-- func to format items array, also return arrays of plays Id;
     }).then(res=>{
       var options = { 
         method: 'POST',
@@ -189,9 +199,11 @@ module.exports = function(Delivery) {
         return isFixed[0];
       }
     }).then(result=>{
+      // Find the best value exchange to calculate the coin value;
       return ExchangeRate.findOne({order: 'realValuePerCoin.usd DESC'}).then(rate=>{
         let { realValuePerCoin } = rate;
         if(result.length > 0){
+
           return Promise.mapSeries(result, data=>{
             let { courier_id, courier_name, min_delivery_time, max_delivery_time, total_charge,  courier_does_pickup } = data;
             let oneChoice = {
@@ -206,16 +218,23 @@ module.exports = function(Delivery) {
             return oneChoice;
           })
         }else{
-          let letter = {courier_name: 'fixed_delivery', min_delivery_time: 7, max_delivery_time: 10, total_charge: result, coins_value: Math.round(result / realValuePerCoin.hkd)}
-          return letter;
+          let fixed_charge = {
+            courier_name: 'fixed_delivery', 
+            min_delivery_time: 7, 
+            max_delivery_time: 10, 
+            total_charge: result, 
+            coins_value: Math.round(result / realValuePerCoin.hkd)
+          };
+          return fixed_charge;
         }
       })
     }).then(choices=>{
       cb(null, choices);
     }).catch(error=>{
       cb(error)
-    });
+    }); //<--- end of getting rate quote promise
 
+    // api request to Easyship to get rate quote
     function requestToEasyship(options){
       return new Promise((resolve, reject)=>{
         request(options, function(err, res, body){
@@ -224,16 +243,18 @@ module.exports = function(Delivery) {
             reject(err)
           }
           let parsedBody = JSON.parse(body);
+          // sort the couriers from cheapest
           parsedBody.rates.sort(function(a, b){
             return (a.total_charge - b.total_charge);
           })
+          // only return the first 5 cheapest courier options
           parsedBody.rates.splice(5)
           resolve(parsedBody.rates)
         });
       });
     };
 
-  };
+  };//<--- end of Delivery.getRate remote method;
 
   Delivery.remoteMethod(
     'getRate',

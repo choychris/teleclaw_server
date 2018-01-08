@@ -21,6 +21,7 @@ module.exports = function(Issue) {
       let User = app.models.User;
       let { userId, email } =  ctx.instance;
       if(!!email){
+        // update user's email if user has no email in facebook;
         User.findById(userId, (err, user)=>{
           if(user.email === null){
             user.updateAttributes({email: email});
@@ -44,6 +45,7 @@ module.exports = function(Issue) {
           <p>Related machineId : ${machineId}</p>
           <p>Related deliveryId : ${deliveryId}</p>
           <p>Related transactionId : ${transactionId}</p>`
+      // send email notification if user report an issue
       sendEmail(subject, html); 
       next();
     }else{
