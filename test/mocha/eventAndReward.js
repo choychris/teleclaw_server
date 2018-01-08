@@ -1,6 +1,6 @@
 var should = require('chai').should();
 var supertest = require('supertest');
-
+var { NODE_ENV } = process.env;
 var baseUrl = 'http://localhost:3000';
 
 if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
