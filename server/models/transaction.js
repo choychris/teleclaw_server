@@ -84,6 +84,7 @@ module.exports = function(Transaction) {
           cb(err)
         }
         //let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
+        console.log('Braintree generate clientToken | ', response);
         //loggingFunction('Transaction | ', 'Braintree generate clientToken | ', response)
         cb(null, response.clientToken)
       })
@@ -104,11 +105,11 @@ module.exports = function(Transaction) {
   // remote method for user to topUp
   Transaction.createSale = (userId, data, cb) => {
     let { paymentNonce, rateId } = data;
-    let { ExchangeRate, Paymentgateway } = app.models;
+    let { ExchangeRate, PaymentGateway } = app.models;
 
     Promise.all([
       ExchangeRate.findById(rateId), 
-      Paymentgateway.findOne({where: {userId: userId}})
+      PaymentGateway.findOne({where: {userId: userId}})
     ]).then(result=>{
       let foundRate = result[0];
       let foundGateway = result[1];
@@ -130,7 +131,7 @@ module.exports = function(Transaction) {
         let { id, status, amount, currencyIsoCode, merchantAccountId, paymentInstrumentType, creditCard } = transaction;
         let { cardType } = creditCard;
         let gatewayReponse = { id, status, amount, currencyIsoCode, merchantAccountId, paymentInstrumentType, cardType };
-        loggingFunction('Transaction | ', 'Braintree Transaction Success | ', gatewayReponse )
+        loggingFunction('Transaction | ', 'Braintree Transaction Success | ', gatewayReponse );
         createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
           .then(trans=>{
             cb(null, {success: success, message: status, balance: trans.newWalletBalance})
