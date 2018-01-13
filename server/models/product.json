@@ -95,6 +95,13 @@
       ]
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW",
+      "property": "imageUpload"
+    },
+    {
       "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",

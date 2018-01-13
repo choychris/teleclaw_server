@@ -200,7 +200,7 @@ module.exports = function(Delivery) {
       }
     }).then(result=>{
       // Find the best value exchange to calculate the coin value;
-      return ExchangeRate.findOne({order: 'realValuePerCoin.usd DESC'}).then(rate=>{
+      return ExchangeRate.findOne({order: 'realValuePerCoin.usd ASC'}).then(rate=>{
         let { realValuePerCoin } = rate;
         if(result.length > 0){
 

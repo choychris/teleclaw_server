@@ -39,6 +39,10 @@
     },
     "images": {
       "type": "object"
+    },
+    "realValuePerCoin": {
+      "type": "object",
+      "required": true
     }
   },
   "validations": [],
