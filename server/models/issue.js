@@ -20,6 +20,7 @@ module.exports = function(Issue) {
     if(ctx.isNewInstance){
       let User = app.models.User;
       let { userId, email } =  ctx.instance;
+      ctx.instance.solved = false;
       if(!!email){
         // update user's email if user has no email in facebook;
         User.findById(userId, (err, user)=>{

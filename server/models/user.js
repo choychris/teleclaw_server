@@ -24,6 +24,7 @@ module.exports = function(User) {
       // set user's properties when create new user
       ctx.instance.referral = { code: shortid.generate(), isReferred: false, numOfReferred: 0};
       ctx.instance.bindedDevice = [];
+      ctx.instance.address = {};
     }
     next();
   });
@@ -252,9 +253,9 @@ module.exports = function(User) {
   User.createAdmin = (info, cb) => {
     let { Role, Rolemap } = app.models;
     let { name, password } = info;
-    Role.find({where: { name: 'teleClawAdmin' }})
+    Role.findOne({where: { name: 'teleClawAdmin' }})
     .then(role=>{
-      return [User.create({username: name, password:password}), role]
+      return [User.create({username: name, password:password, admin: true}), role]
     }).spread((user, role)=>{
       return Rolemap.create({ principalType: 'USER' , principalId: user.id, roleId: role.id });
     }).then(res=>{

@@ -11,7 +11,7 @@ module.exports = function(Delivery) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  loggingModel(Delivery);
+  //loggingModel(Delivery);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Delivery);

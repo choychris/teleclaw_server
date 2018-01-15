@@ -169,6 +169,13 @@
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",
       "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW",
+      "property": "createAdmin"
     }
   ],
   "methods": {}
