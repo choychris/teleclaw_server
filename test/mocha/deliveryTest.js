@@ -105,8 +105,7 @@ describe('Submit a delivery', function(){
    status: 'pending',
    userId: global.lbUserId,
    products: global.productIds,
-   courier: global.selectedRate,
-   target: 'user'
+   courier: global.selectedRate
   }
   api
     .post(`/api/deliveries/new?access_token=${global.accessToken}`)

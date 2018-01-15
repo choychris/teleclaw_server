@@ -17,10 +17,10 @@
       "required": true
     },
     "description": {
-      "type": "string"
-    },
-    "picture": {
       "type": "object"
+    },
+    "image": {
+      "type": "string"
     },
     "status": {
       "type": "boolean"

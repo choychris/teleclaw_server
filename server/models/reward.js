@@ -57,7 +57,7 @@ module.exports = function(Reward) {
       if(!!result){
         let wallet = result[0];
         let reward = result[1];
-        cb(null, {success: true, newWalletBalance: wallet.balance + reward.rewardAmount})
+        cb(null, {success: true, rewardAmount: reward.rewardAmount, newWalletBalance: wallet.balance + reward.rewardAmount})
       }
     }).catch(error=>{
       loggingFunction('Reward | ', ' checkIn reward Error | ', error, 'error');
@@ -132,7 +132,7 @@ module.exports = function(Reward) {
         if(!!result){
           let wallet = result[0];
           let reward = result[1];
-          cb(null, {success: true, newWalletBalance: wallet.balance + reward.rewardAmount})
+          cb(null, {success: true, rewardAmount: reward.rewardAmount, newWalletBalance: wallet.balance + reward.rewardAmount})
         }
       })
       .catch(error=>{
@@ -169,7 +169,7 @@ module.exports = function(Reward) {
         if(!!result){
           let wallet = result[0];
           let reward = result[1];
-          cb(null, {success: true, newWalletBalance: wallet.balance + reward.rewardAmount})
+          cb(null, {success: true, rewardAmount: reward.rewardAmount, newWalletBalance: wallet.balance + reward.rewardAmount})
         }
       }).catch(error=>{
         loggingFunction('Reward | ', 'promotionCode promise chain error | ', error, 'error');
