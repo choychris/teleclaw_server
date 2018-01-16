@@ -18,13 +18,9 @@ module.exports = function(Exchangerate) {
     if(ctx.isNewInstance || !!ctx.instance){
       let { coins, bonus, currency } = ctx.instance;
       // get the real value per coin i.e. one coin = 0.13 hkd ;
-      let realValue = {
-        usd: calculateRealValue(currency.usd, coins, bonus),
-        hkd: calculateRealValue(currency.hkd, coins, bonus),
-        rmb: calculateRealValue(currency.rmb, coins, bonus)
-      }
-      //console.log(realValue)
-      ctx.instance.realValuePerCoin = realValue;
+      Object.keys(currency).map(k=>{
+        ctx.instance.realValuePerCoin[k] = calculateRealValue(currency[k], coins, bonus)
+      })
       next(); 
     }else{
       next();
