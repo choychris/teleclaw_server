@@ -62,6 +62,10 @@
       "required": true,
       "default": "en"
     },
+    "preference": {
+      "type": "object",
+      "required" : "true"
+    },
     "counrtyCode": {
       "type": "string"
     },

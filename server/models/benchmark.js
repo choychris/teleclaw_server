@@ -18,7 +18,7 @@ module.exports = function(Benchmark) {
   Benchmark.observe('after save', (ctx, next)=>{
     if(!ctx.isNewInstance){
       let { Product } = app.models;
-      let { id } = ctx.instance
+      let { id } = ctx.instance;
       Product.find({where : {benchmarkId: id}})
       .then(products=>{
         if(products.length > 0){

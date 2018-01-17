@@ -25,6 +25,7 @@ module.exports = function(User) {
       ctx.instance.referral = { code: shortid.generate(), isReferred: false, numOfReferred: 0};
       ctx.instance.bindedDevice = [];
       ctx.instance.address = {};
+      ctx.instance.preference = { sound: true, vibration: true };
     }
     next();
   });

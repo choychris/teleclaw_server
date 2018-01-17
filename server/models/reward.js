@@ -154,7 +154,7 @@ module.exports = function(Reward) {
       }).then(foundEvent=>{
         if(foundEvent !== undefined){
           let now = new Date().getTime();
-          if(foundEvent.maxNum >= foundEvent.currentNum){ //<-- event reach max joiner
+          if(foundEvent.maxNum && (foundEvent.maxNum >= foundEvent.currentNum)){ //<-- event reach max joiner
             cb(null, 'event_is_full');
           }else if(now > foundEvent.endTime){ //<-- event ended
             cb(null, 'event_ended');
