@@ -27,10 +27,10 @@
       "type": "string"
     },
     "phone": {
-      "type": "integer"
+      "type": "number"
     },
     "address": {
-      "type": "string"
+      "type": "object"
     },
     "referral": {
       "type": "object"

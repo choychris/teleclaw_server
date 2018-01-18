@@ -18,12 +18,12 @@ var _process$env = process.env,
 
 var braintreeEnv = NODE_ENV === 'production' ? braintree.Environment.Production : braintree.Environment.Sandbox;
 
-// var braintreeGateway = braintree.connect({
-//   environment: braintreeEnv,
-//   merchantId: BRAINTREE_MERCHANTID,
-//   publicKey: BRAINTREE_PUBLICKEY,
-//   privateKey: BRAINTREE_PRIVATEKEY
-// });
+var braintreeGateway = braintree.connect({
+  environment: braintreeEnv,
+  merchantId: BRAINTREE_MERCHANTID,
+  publicKey: BRAINTREE_PUBLICKEY,
+  privateKey: BRAINTREE_PRIVATEKEY
+});
 
 module.exports = function (Transaction) {
 
@@ -74,7 +74,7 @@ module.exports = function (Transaction) {
         // create a customer in braintree
         braintreeGateway.customer.create({ id: customerId }, function (brainTreeErr, result) {
           if (brainTreeErr) {
-            console.log('Create BrainTree customer error : ', brainTreeErr);
+            (0, _createLogging.loggingFunction)({ Model: 'Transaction', Function: 'Create BrainTree Customer', Error: brainTreeErr }, 'error');
             cb(brainTreeErr);
           }
           // calling the function to generate braintree token
@@ -82,6 +82,7 @@ module.exports = function (Transaction) {
         });
       }
     }).catch(function (err) {
+      (0, _createLogging.loggingFunction)({ Model: 'Transaction', Function: 'Paymentgateway.findOne', Error: err }, 'error');
       cb(err);
     });
 
@@ -89,11 +90,11 @@ module.exports = function (Transaction) {
     function generateToken(id, cb) {
       braintreeGateway.clientToken.generate({ customerId: id }, function (err, response) {
         if (err) {
-          console.log('Generate BrainTree Token Error : ', err);
+          (0, _createLogging.loggingFunction)({ Model: 'Transaction', Function: 'Braintree generate clientToken', Error: err }, 'error');
           cb(err);
         }
         //let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
-        console.log('Generate BrainTree Token Response : ', response);
+        (0, _createLogging.loggingFunction)({ Model: 'Transaction', Function: 'Braintree generate clientToken', Response: response.clientToken });
         cb(null, response.clientToken);
       });
     }
@@ -142,13 +143,13 @@ module.exports = function (Transaction) {
         var cardType = creditCard.cardType;
 
         var gatewayReponse = { id: id, status: status, amount: amount, currencyIsoCode: currencyIsoCode, merchantAccountId: merchantAccountId, paymentInstrumentType: paymentInstrumentType, cardType: cardType };
-        console.log('result success ==== :', result);
+        (0, _createLogging.loggingFunction)({ Model: 'Transaction', Function: 'Braintree Transaction Success', Response: gatewayReponse });
         (0, _makeTransaction.createNewTransaction)(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse).then(function (trans) {
           cb(null, { success: success, message: status, balance: trans.newWalletBalance });
           return null;
         });
       } else {
-        console.error('result error ==== :', result);
+        (0, _createLogging.loggingFunction)({ Model: 'Transaction', Function: 'Braintree Transaction Error', Error: result }, 'error');
         var _success = result.success,
             message = result.message,
             params = result.params;
@@ -161,7 +162,7 @@ module.exports = function (Transaction) {
       }
       return null;
     }).catch(function (error) {
-      console.log('Error in creating Braintree transaction : ', error);
+      (0, _createLogging.loggingFunction)({ Model: 'Transaction', Function: 'Create Sale Function Error', Error: error }, 'error');
       cb(error);
     });
   };

@@ -27,17 +27,6 @@ module.exports = function (Product) {
   Product.observe('before save', function (ctx, next) {
 
     if (ctx.instance && ctx.instance.benchmarkId) {
-      // let benchmarkId = ctx.instance.benchmarkId;
-      // let Benchmark = app.models.Benchmark;
-      // let cost = ctx.instance.cost.value;
-      // //Get the benchmark and calculate the rate
-      // Benchmark.findById(benchmarkId, (err, bMark)=>{
-      //   var revenueRequired = ( cost * bMark.marginRate * bMark.overheadCost );
-      //   var valuePerGame = ( bMark.gamePlayRate * bMark.realValuePerCoin );
-      //   ctx.instance.productRate = Math.round(( revenueRequired / valuePerGame )) || 0;
-      //   ctx.instance.gamePlayRate = bMark.gamePlayRate;
-      //   next();
-      // });
       attachBenchmark(ctx, 'instance', next);
     } else if (ctx.data && ctx.data.benchmarkId) {
       //Get the benchmark and calculate the rate

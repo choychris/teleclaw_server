@@ -6,6 +6,14 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes":{
+    "code_index":{
+      "keys":{
+        "id": 1,
+        "code": 1
+      }
+    }
+  },
   "properties": {
     "id": {
       "type": "string",
@@ -23,20 +31,63 @@
     "description": {
       "type": "string"
     },
+    "type":{
+      "type": "string",
+      "required": true
+    },
     "launching": {
       "type": "boolean",
-      "required": true,
-      "default": false
+      "required": true
     },
-    "period": {
-      "type": "object"
+    "startTime": {
+      "type": "date",
+      "required": true
     },
-    "eventDetails": {
-      "type": "object"
+    "endTime": {
+      "type": "date",
+      "required": true
+    },
+    "code": {
+      "type": "string"
+    },
+    "rewardAmount": {
+      "type": "number",
+      "required": true
+    },
+    "maxNum" : {
+      "type": "number"
+    },
+    "currentNum": {
+      "type": "number"    
+    },
+    "location": {
+      "type": "string"
+    },
+    "claimedUser":{
+      "type": "array"
     }
   },
   "validations": [],
   "relations": {},
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

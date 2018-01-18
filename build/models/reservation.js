@@ -27,14 +27,17 @@ module.exports = function (Reservation) {
   Reservation.observe('before save', function (ctx, next) {
     var Machine = app.models.Machine;
     if (!ctx.isNewInstance) {
+      // machineId of currently reserving
       var _ctx$currentInstance = ctx.currentInstance,
           id = _ctx$currentInstance.id,
           status = _ctx$currentInstance.status,
           userId = _ctx$currentInstance.userId,
           machineId = _ctx$currentInstance.machineId;
+      // machineId of newly reserve
 
       if (ctx.data && ctx.data.machineId) {
-        var sameMachine = machineId === ctx.data.machineId;
+        // this logic to check if the user is currently making a reserve, and
+        // the user want to make reserve to another machine
         if (status === 'open' && !!machineId) {
           (0, _makeTransaction.makeCalculation)(Machine, machineId, 'reservation', 1, 'minus');
         }
@@ -88,12 +91,11 @@ module.exports = function (Reservation) {
     var Machine = app.models.Machine;
     Machine.findById(machineId, function (err, machine) {
       // check if machine is still in playing
-      var currentId = machine.currentUser ? machine.currentUser.id : null;
-      if (machine.status == 'open' && currentId == userId) {
+      var currentId = machine.currentUser ? machine.currentUser.id : 'null';
+      if (machine.status == 'open' && currentId.toString() == userId.toString()) {
         //find next reservation
         Reservation.find({ where: { machineId: machineId, status: 'open' }, order: 'lastUpdated ASC', limit: 1 }, function (error, foundReserve) {
           if (foundReserve === null || foundReserve.length === 0) {
-            console.log('when no reserve');
             updateMachine(machineId, 'open', null);
             if (!!cb) {
               cb(null, 'machine_open');
@@ -102,16 +104,20 @@ module.exports = function (Reservation) {
             //update the next reserve and trigger pusher in after save
             foundReserve[0].updateAttributes({ status: 'close' }, function (newError, instance) {
               updateMachine(machineId, 'open', { id: instance.userId });
-              timeOutReserve(machineId, userId, Machine, Reservation);
+              timeOutReserve(machineId, instance.userId, Machine, Reservation);
               if (!!cb) {
                 cb(null, 'next_reserve');
               }
             });
           }
         });
-      } else {
+      } else if (machine.status == 'playing') {
         if (!!cb) {
           cb(null, 'machine_playing');
+        }
+      } else if (machine.status == 'close') {
+        if (!!cb) {
+          cb(null, 'machine_closed');
         }
       }
     });
@@ -130,6 +136,7 @@ module.exports = function (Reservation) {
   }
 
   function timeOutReserve(machineId, userId, Machine, Reservation) {
+    console.log('userId in timeout', userId);
     setTimeout(function () {
       (0, _gamePlayTimer.checkMachineStatus)(machineId, userId, Machine, Reservation);
     }, 8000);
