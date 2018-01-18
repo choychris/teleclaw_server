@@ -9,7 +9,7 @@ module.exports = function(Reward) {
   var app = require('../server');
 
   //make loggings for monitor purpose
-  loggingModel(Reward);
+  //loggingModel(Reward);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Reward);

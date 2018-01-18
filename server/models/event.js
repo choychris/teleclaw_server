@@ -6,7 +6,7 @@ const shortid = require('shortid');
 
 module.exports = function(Event) {
   //make loggings for monitor purpose
-  loggingModel(Event);
+  //loggingModel(Event);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Event);
