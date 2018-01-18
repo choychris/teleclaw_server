@@ -46,7 +46,7 @@ testProduction:
     - buildProduction
   script: 
     - npm install -g mocha
-    - mocha ./test/mocha/root.js
+    - NODE_ENV=production npm run unit_test
     - npm prune --production
   artifacts:
     paths:

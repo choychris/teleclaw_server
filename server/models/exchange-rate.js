@@ -7,7 +7,7 @@ module.exports = function(Exchangerate){
 
   const app = require('../server');
   //make loggings for monitor purpose
-  loggingModel(Exchangerate);
+  //loggingModel(Exchangerate);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Exchangerate);

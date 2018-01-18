@@ -2,6 +2,8 @@
 
 // Import winston logger
 var winston = require('winston');
+require('winston-papertrail').Papertrail;
+
 var winstonLogger = new (winston.Logger)({
     levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
     colors : { info : 'cyan' , error : 'red' }
@@ -11,9 +13,25 @@ winstonLogger.add(winston.transports.Console, {
   colorize: true,
 });
 
+var winstonPapertrail = new winston.transports.Papertrail({
+  host: 'logs.papertrailapp.com',
+  port: 33263,
+  levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
+  colorize: true
+})
+
+var papertrailLogger = new winston.Logger({
+  transports: [winstonPapertrail]
+});
+
+
 function logger(level,message){
   //papertrail.log(level,message);
-  winstonLogger.log(level,message);
+  if(process.env.NODE_ENV === 'production'){
+    papertrailLogger.log(level,message);
+  }else{
+    winstonLogger.log(level,message);
+  }
 };
 
 // Define Functions : Logging Access Action
