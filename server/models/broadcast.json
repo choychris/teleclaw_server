@@ -23,11 +23,7 @@
       "type": "date",
       "required": true
     },
-<<<<<<< HEAD
     "images": {
-=======
-    "image": {
->>>>>>> 74e81c5bd1c308fcea903df3b00f628dccde5013
       "type": "string",
       "required": true
     },
