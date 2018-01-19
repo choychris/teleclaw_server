@@ -15,7 +15,7 @@
       "type": "date",
       "required": true
     },
-    "shippmentAddress": {
+    "address": {
       "type": "object",
       "required": true
     },
@@ -26,7 +26,7 @@
     "status": {
       "type": "string"
     },
-    "userId":{
+    "userId": {
       "type": "string",
       "required": true
     },
@@ -39,6 +39,9 @@
     },
     "courier": {
       "type": "object"
+    },
+    "easyship_shipment_id": {
+      "type": "string"
     }
   },
   "validations": [],

@@ -38,7 +38,12 @@ module.exports = function (Machine) {
             productId = _ctx$data.productId,
             iotPlatform = _ctx$data.iotPlatform;
 
+        var oldStatus = ctx.currentInstance.status;
         if (!!status && !reservation && !productId) {
+          //look for reservation if the machine go online from offline again
+          if (status == 'open' && oldStatus == 'close') {
+            ctx.hookState.resume = true;
+          }
           ctx.hookState.pusher = true;
           ctx.data.lastStatusChanged = new Date().getTime();
         } else if (!!reservation && !productId) {
@@ -46,6 +51,7 @@ module.exports = function (Machine) {
         } else if (sku == 0) {
           ctx.hookState.pusher = true;
           ctx.data.status = 'close';
+          ctx.data.currentUser = null;
         }
       }
       next();
@@ -70,6 +76,11 @@ module.exports = function (Machine) {
 
       var player = currentUser ? currentUser : null;
       if (ctx.hookState && ctx.hookState.pusher) {
+        //look for reservation if the machine go online from offline again
+        if (ctx.hookState.resume === true) {
+          var Reservation = app.models.Reservation;
+          Reservation.endEngage(id, 'null', null);
+        }
         updateProductStatus(productId);
         app.pusher.trigger('presence-machine-' + id, 'machine_event', { status: status, reservation: reservation, currentUser: player, lastUpdated: new Date().getTime() });
       }
@@ -80,10 +91,15 @@ module.exports = function (Machine) {
   // function to check whether all machine not available
   function updateProductStatus(productId) {
     var Product = app.models.Product;
-    function updateProductStatus(newStatus, productId) {
+    function updateProductStatus(newMachineStatus, productId) {
       Product.findById(productId, function (err, foundProduct) {
         var oldStatus = foundProduct.status;
-        oldStatus.machineStatus = newStatus;
+        if (newMachineStatus) {
+          oldStatus.machineStatus = newMachineStatus;
+          oldStatus.maintainStatus = false;
+        } else {
+          oldStatus.machineStatus = newMachineStatus;
+        }
         foundProduct.updateAttributes({ status: oldStatus });
       });
     };

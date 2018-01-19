@@ -1,6 +1,6 @@
 'use strict';
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel, loggingRemote } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction } from '../utils/createLogging.js';
 const request = require('request');
 const Promise = require('bluebird');
 const shortid = require('shortid');
@@ -21,22 +21,24 @@ module.exports = function(User) {
 
   User.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
-      ctx.instance.referral = { code: shortid.generate(), isReferred: false, numOfRefer: 0};
+      // set user's properties when create new user
+      ctx.instance.referral = { code: shortid.generate(), isReferred: false, numOfReferred: 0};
       ctx.instance.bindedDevice = [];
+      ctx.instance.address = {};
+      ctx.instance.preference = { sound: true, vibration: true };
     }
     next();
   });
 
   User.observe('after save', (ctx, next)=>{
     if(ctx.isNewInstance){
-      let Event = app.models.Event;
-      let Wallet = app.models.Wallet;
-      let Reservation = app.models.Reservation;
-      Event.find({'where': {'launching': true, 'eventDetails.newUser.initialCoins': {'exists': true}}}, (err, event)=>{
+      let { Event, Wallet, Reservation } = app.models;
+      Event.findOne({'where': {'launching': true, type: 'signUp'}, order: 'startTime DESC'}, (err, event)=>{
         if(err){
+          loggingFunction('User | ', 'Event.findOne error | ', err, 'error');
           next(err);
         }
-        let initialCoins = event.length > 0 ? event.eventDetails.newUser.initialCoins : 60;
+        let initialCoins = event ? event.rewardAmount : 0;
         let wallet = {
           balance: initialCoins,
           userId: ctx.instance.id
@@ -47,32 +49,30 @@ module.exports = function(User) {
           machineId: null,
           productId: null
         }
+        // create wallet and reservation for user
         Wallet.create(wallet, (error, wallet)=>{})
         Reservation.create(reserve, (error, reserve)=>{})
-      })
+      })//<-- eveny.findOne end
     };
     next();
   });
 
+  // update user login time when user login
   User.afterRemote('auth', (ctx, result, next)=>{
     if(result.result.lbToken !== undefined){
       let { userId } = result.result.lbToken;
       User.findById(userId, (error, user)=>{
         user.updateAttributes({lastLogIn: new Date().getTime()})
-      })
-    }
+      });
+    };
     next();
   })
 
   User.auth = (userInfo, cb) => {
     // console.log(userInfo)
-    // console log the remote method
-    //loggingRemote(User, 'User', 'auth');
+    let { UserIdentity, Role, Rolemap } = app.models;
 
-    let UserIdentity = app.models.UserIdentity;
-    let Role = app.models.Role;
-    let Rolemap = app.models.Rolemap;
-
+    // 1st check whether the token is valid from Facebook
     checkTokenValid(userInfo.accessToken)
       .then(res => {
         // === check if the access token is short live token ===
@@ -81,12 +81,14 @@ module.exports = function(User) {
           request(`https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=${FB_CLIENT_ID}&client_secret=${FB_APP_SECRET}&fb_exchange_token=${userInfo.accessToken}`,
             (err, res, body) => {
               if(err){
+                loggingFunction('User | ', 'exchange long live token error | ', err, 'error');
                 let reqError = { message:'Request from facebook error',status: 401 };
                 cb(reqError);
               }
               let result = JSON.parse(body);
               // console.log('facebook result : ', result);
               if(result.error){
+                loggingFunction('User | ', 'exchange long live token error | ', result.error, 'error');
                 let tokenError = {message: result.error.message, status: 401 }
                 cb(tokenError);
               } 
@@ -109,11 +111,13 @@ module.exports = function(User) {
       return new Promise((resolve, reject)=> {
         request(`https://graph.facebook.com/debug_token?input_token=${fbtoken}&access_token=${FB_CLIENT_ID}|${FB_APP_SECRET}`, (err, res, body)=>{
           if(err){
+            loggingFunction('User | ', 'fb check token valid api error | ', err, 'error');
             reject(err);
             return false
           }
           let result = JSON.parse(body);
           if(result.error !== undefined){
+            loggingFunction('User | ', 'fb check token valid api error | ', result.error, 'error');
             reject(result.error.message);
             return false
           } else {
@@ -140,7 +144,7 @@ module.exports = function(User) {
               cb(null, res)
             })
             .catch(err => {
-              console.log(err)
+              loggingFunction('User | ', 'checkExistThenLogin error | ', err, 'error');
               cb(err);
             }) // <----- checkuserexist promise
         } else {
@@ -160,16 +164,17 @@ module.exports = function(User) {
       return new Promise((resolve, reject)=>{
         UserIdentity.findById(id, (err, identity)=>{
           if(err){
-            console.log('find identity error : ', err);
+            loggingFunction('User | ', 'find identity error | ', err, 'error');
             reject(err);
           } else if (identity === null) {
-            console.log('find no identity');
             resolve(false)
           } else {
             identity.updateAttributes({username: username, email: email, picture: picture, accesstoken: accessToken}, (err, instance)=>{
-              if(err){console.log('update user identity error : ', err);};
+              if(err){
+                loggingFunction('User | ', 'update user identity error | ', err, 'error');
+                reject(err)
+              };
             });
-            console.log('found an identity : ', identity);
             resolve(true);
           }
         });
@@ -181,10 +186,10 @@ module.exports = function(User) {
       return new Promise((resolve, reject)=>{
         User.login(loginCred, (loginError,token)=>{
           if(loginError){
-            console.log('login error : ', loginError);
+            loggingFunction('User | ', 'user login error | ', loginError, 'error');
             reject({'loginError': loginError});
           } else {
-            console.log('login success : ', loginCred.username);
+            loggingFunction('User | ', 'user login | ', `logIn success : ${token.userId}`);
             resolve({newUser: isNew, lbToken: token, fbToken: userInfo.accessToken, ttl: userInfo.expiresIn});
           }
         });
@@ -204,6 +209,7 @@ module.exports = function(User) {
       return new Promise((resolve, reject)=>{ 
         User.create(userData, (userCreateErr, createdUser)=>{
           if(userCreateErr){
+            loggingFunction('User | ', 'create user error | ', userCreateErr, 'error');
             reject({type: 'create user error', error: userCreateErr})
           };
           let identityInfo = {
@@ -219,6 +225,7 @@ module.exports = function(User) {
           UserIdentity.create(identityInfo, (identityErr, identity)=>{
             if(identityErr){
               // console.log('create identity error : ', identityErr);
+              loggingFunction('User | ', 'create identity error | ', identityErr, 'error');
               reject({type: 'create identity error', error: identityErr});
             }
           });
@@ -245,16 +252,19 @@ module.exports = function(User) {
 
   // remote method to create teleClaw admin (wip)
   User.createAdmin = (info, cb) => {
-    let Role = app.models.Role;
-    let Rolemap = app.models.Rolemap;
-    Role.find({where: { name: 'teleClawAdmin' }})
-      .then(role=>{
-        cb(null, 'hi')
-        console.log(role);
-      })
-      .catch(err=>{
-        cb(err)
-      })
+    let { Role, Rolemap } = app.models;
+    let { name, password } = info;
+    Role.findOne({where: { name: 'teleClawAdmin' }})
+    .then(role=>{
+      return [User.create({username: name, password:password, admin: true}), role]
+    }).spread((user, role)=>{
+      return Rolemap.create({ principalType: 'USER' , principalId: user.id, roleId: role.id });
+    }).then(res=>{
+      cb(null, 'create admin success');
+    }).catch(err=>{
+      loggingFunction('User | ', 'create admin error | ', err, 'error');
+      cb(err)
+    });
   };
 
   User.remoteMethod(
@@ -285,7 +295,7 @@ module.exports = function(User) {
             name: identity.username,
             picture: picture
           }
-        }
+        };
         var auth = pusher.authenticate(socketId, channel, presenceData);
         res.send(auth);
       };

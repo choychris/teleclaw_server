@@ -37,13 +37,14 @@
       "type": "object"
     },
     "status": {
-      "machineStatus": "boolean",
-      "maintainStatus": "boolean",
-      "visible": "boolean"
+      "type": {
+        "machineStatus": "boolean",
+        "maintainStatus": "boolean",
+        "visible": "boolean"
+      }
     },
     "deliveryPrice": {
-      "type": "string",
-      "value": "number"
+      "type": "object"
     },
     "level": {
       "type": "object"
@@ -94,6 +95,13 @@
         "__get__machines",
         "__get__cameras"
       ]
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW",
+      "property": "imageUpload"
     },
     {
       "accessType": "WRITE",

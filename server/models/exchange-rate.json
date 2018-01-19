@@ -14,7 +14,7 @@
     "created": {
       "type": "date"
     },
-    "lastUpdated":{
+    "lastUpdated": {
       "type": "date"
     },
     "coins": {
@@ -30,15 +30,13 @@
       "type": "object",
       "required": true
     },
-    "realValuePerCoin": {
-      "type": "object"
-    },
     "status": {
-      "type": "string",
+      "type": "boolean",
       "required": true
     },
-    "images": {
-      "type": "object"
+    "realValuePerCoin": {
+      "type": "object",
+      "required": true
     }
   },
   "validations": [],

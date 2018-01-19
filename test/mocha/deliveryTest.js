@@ -62,12 +62,13 @@ describe('Login / Create User first', function(){
 
 // |================ GET Delivery Rate ================|
 describe('Get delivery rate quote', function(){
+  this.timeout(4000);
   it('should return the list of courier rate', function(done){
-  global.productIds = [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}]
+  global.productIds = [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c', playId:'BkSMizqzM'}, {id: '1677fd31-8dde-4350-8c55-4d2d158b8e39', playId: 'ByE0nW5fG'}]
   var api = supertest.agent(baseUrl);
   var data = {
     products: global.productIds,
-    countryCode: 'US',
+    countryCode: 'hk',
     postalCode: 10030
   }
   api
@@ -77,35 +78,39 @@ describe('Get delivery rate quote', function(){
     .end(function(err,res){
       res.body.should.be.an('object');
       res.status.should.equal(200);
-      global.selectedRate = res.body.result[0]
+      console.log(res.body);
+      global.selectedRate = res.body.result[0] || res.body.result;
       done()
     });
   });
 })
 
-describe('Get delivery rate quote', function(){
+describe('Submit a delivery', function(){
   it('should return the list of courier rate', function(done){
-  global.productIds = [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}]
   var api = supertest.agent(baseUrl);
   var data = {
-   shippmentAddress: {
-    address: "3B, Todex Building, San Po Kong",
-    region: "Kowloon",
+   address: {
+    line1: "3B, Todex Building, San Po Kong",
+    line2: "Kowloon",
     country: "Hong Kong",
+    countryCode: "hk",
+    city: "Hong Kong",
     postalCode: 0,
+    state: null,
     name: "Chris",
-    phone: "12345678"
+    phone: +85212345678,
+    email: 'teleclaw.live@gmail.com'
    },
    cost: global.selectedRate.coins_value,
    status: 'pending',
    userId: global.lbUserId,
-   products: [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c'}],
+   products: global.productIds,
    courier: global.selectedRate
   }
   api
-    .post(`/api/deliveries?access_token=${global.accessToken}`)
+    .post(`/api/deliveries/new?access_token=${global.accessToken}`)
     .set('Accept', 'application/json')
-    .send(data)
+    .send({data: data})
     .end(function(err,res){
       console.log(res.body)
       res.body.should.be.an('object');
@@ -114,5 +119,23 @@ describe('Get delivery rate quote', function(){
     });
   });
 })
+
+describe('Get Plays', function(){
+  it('should return the list plays', function(done){
+  var api = supertest.agent(baseUrl);
+
+  api
+    .get(`/api/plays/${'BkSMizqzM'}?access_token=${global.accessToken}`)
+    .set('Accept', 'application/json')
+    .end(function(err,res){
+      console.log(res.body)
+      res.body.should.be.an('object');
+      res.status.should.equal(200);
+      done()
+    });
+  });
+})
+
+
 
 

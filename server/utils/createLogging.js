@@ -2,18 +2,36 @@
 
 // Import winston logger
 var winston = require('winston');
+require('winston-papertrail').Papertrail;
 
-function logger(level,message){
-  //papertrail.log(level,message);
-  var winstonLogger = new (winston.Logger)({
+var winstonLogger = new (winston.Logger)({
     levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
     colors : { info : 'cyan' , error : 'red' }
   });
-  winstonLogger.add(winston.transports.Console, {
-    prettyPrint: true,
-    colorize: true,
-  });
-  winstonLogger.log(level,message);
+winstonLogger.add(winston.transports.Console, {
+  prettyPrint: true,
+  colorize: true,
+});
+
+var winstonPapertrail = new winston.transports.Papertrail({
+  host: 'logs.papertrailapp.com',
+  port: 33263,
+  levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
+  colorize: true
+})
+
+var papertrailLogger = new winston.Logger({
+  transports: [winstonPapertrail]
+});
+
+
+function logger(level,message){
+  //papertrail.log(level,message);
+  if(process.env.NODE_ENV === 'production'){
+    papertrailLogger.log(level,message);
+  }else{
+    winstonLogger.log(level,message);
+  }
 };
 
 // Define Functions : Logging Access Action
@@ -109,14 +127,8 @@ export function loggingModel(model){
 
 
 // Define Function : Logging Function Behaviour
-export function loggingFunction(logData,level){
-  // Common Log Data Format : modelName , functionName , description , data , message
-  let logMessage = ``;
-  Object.keys(logData).map((logProp,index)=>{
-    if(index === 0) logMessage += 'Process Function | \n';
-    logMessage += `${logProp} : ${logData[logProp]} | \n`;
-  });
-  logger((level === undefined) ? 'info' : level,logMessage);
+export function loggingFunction(where, description, data, level){
+  winstonLogger.log((level === undefined) ? 'info' : level, where, description, data);
 }
 
 

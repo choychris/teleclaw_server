@@ -12,15 +12,8 @@ module.exports = function(Paymentgateway) {
     let now = new Date().getTime();
     if(ctx.isNewInstance){
       ctx.instance.created = now;
-    }else{
-      if(!!ctx.instance){
-        ctx.instance.lastTopUp = now;
-      }
-      if(!!ctx.data){
-        ctx.data.lastTopUp = now;
-      } 
-    }
+    };
     next();
-  })
+  });
 
 };

@@ -2,6 +2,14 @@
   "name": "user",
   "base": "User",
   "idInjection": true,
+  "indexes": {
+    "code_index": {
+      "keys": {
+        "id": 1,
+        "referral.code": 1
+      }
+    }
+  },
   "options": {
     "validateUpsert": true
   },
@@ -27,13 +35,17 @@
       "type": "string"
     },
     "phone": {
-      "type": "integer"
+      "type": "number"
     },
     "address": {
-      "type": "string"
+      "type": "object"
     },
     "referral": {
-      "type": "object"
+      "type": {
+        "code": "string",
+        "isReferred": "boolean",
+        "numOfReferred": "number"
+      }
     },
     "email": {
       "type": "string"
@@ -51,6 +63,10 @@
       "type": "string",
       "required": true,
       "default": "en"
+    },
+    "preference": {
+      "type": "object",
+      "required": "true"
     },
     "counrtyCode": {
       "type": "string"
@@ -151,7 +167,7 @@
     {
       "accessType": "WRITE",
       "principalType": "ROLE",
-      "principalId": "$authenticated",
+      "principalId": "teleClawAdmin",
       "permission": "ALLOW"
     },
     {
@@ -159,6 +175,13 @@
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",
       "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW",
+      "property": "createAdmin"
     }
   ],
   "methods": {}

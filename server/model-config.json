@@ -13,6 +13,9 @@
       "./mixins"
     ]
   },
+  "Email": {
+    "dataSource": "Email"
+  },
   "machine": {
     "dataSource": "mongodb",
     "public": true
@@ -108,5 +111,9 @@
   "paymentGateway": {
     "dataSource": "mongodb",
     "public": false
+  },
+  "broadcast": {
+    "dataSource": "mongodb",
+    "public": true
   }
 }

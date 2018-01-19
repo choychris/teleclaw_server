@@ -25,9 +25,18 @@
     "notify": {
       "type": "string"
     },
+    "message": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
     "userId": {
       "type": "string",
       "required": true
+    },
+    "machineId": {
+      "type": "string"
     },
     "playId": {
       "type": "string"
@@ -66,6 +75,31 @@
       "primaryKey": "id"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": {}
 }

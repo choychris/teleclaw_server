@@ -9,6 +9,7 @@ var _gamePlayTimer = require('../utils/gamePlayTimer.js');
 var _makeTransaction = require('../utils/makeTransaction.js');
 
 var shortid = require('shortid');
+
 module.exports = function (Play) {
 
   var app = require('../server');
