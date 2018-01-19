@@ -32,7 +32,7 @@
       "type": "number",
       "required": true
     },
-    "productRate":{
+    "productRate": {
       "type": "number",
       "required": true
     }

@@ -25,17 +25,17 @@
     "notify": {
       "type": "string"
     },
-    "message":{
+    "message": {
       "type": "string"
     },
-    "email":{
+    "email": {
       "type": "string"
     },
     "userId": {
       "type": "string",
       "required": true
     },
-    "machineId":{
+    "machineId": {
       "type": "string"
     },
     "playId": {

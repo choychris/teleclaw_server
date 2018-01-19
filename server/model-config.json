@@ -111,5 +111,9 @@
   "paymentGateway": {
     "dataSource": "mongodb",
     "public": false
+  },
+  "broadcast": {
+    "dataSource": "mongodb",
+    "public": true
   }
 }
