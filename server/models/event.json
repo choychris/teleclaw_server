@@ -3,16 +3,16 @@
   "plural": "events",
   "base": "PersistedModel",
   "idInjection": false,
-  "options": {
-    "validateUpsert": true
-  },
-  "indexes":{
-    "code_index":{
-      "keys":{
+  "indexes": {
+    "code_index": {
+      "keys": {
         "id": 1,
         "code": 1
       }
     }
+  },
+  "options": {
+    "validateUpsert": true
   },
   "properties": {
     "id": {
@@ -31,7 +31,7 @@
     "description": {
       "type": "string"
     },
-    "type":{
+    "type": {
       "type": "string",
       "required": true
     },
@@ -54,16 +54,16 @@
       "type": "number",
       "required": true
     },
-    "maxNum" : {
+    "maxNum": {
       "type": "number"
     },
     "currentNum": {
-      "type": "number"    
+      "type": "number"
     },
     "location": {
       "type": "string"
     },
-    "claimedUser":{
+    "claimedUser": {
       "type": "array"
     }
   },

@@ -14,7 +14,7 @@
     "created": {
       "type": "date"
     },
-    "lastUpdated":{
+    "lastUpdated": {
       "type": "date"
     },
     "coins": {

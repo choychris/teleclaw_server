@@ -26,10 +26,10 @@
     "status": {
       "type": "string"
     },
-    "tracking":{
+    "tracking": {
       "type": "string"
     },
-    "userId":{
+    "userId": {
       "type": "string",
       "required": true
     },
@@ -43,7 +43,7 @@
     "courier": {
       "type": "object"
     },
-    "easyship_shipment_id":{
+    "easyship_shipment_id": {
       "type": "string"
     }
   },

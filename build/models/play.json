@@ -48,8 +48,8 @@
       "type": "string",
       "required": true
     },
-    "deliveryId":{
-      "type":"string"
+    "deliveryId": {
+      "type": "string"
     },
     "transactionId": {
       "type": "string",

@@ -2,16 +2,16 @@
   "name": "user",
   "base": "User",
   "idInjection": true,
-  "options": {
-    "validateUpsert": true
-  },
-  "indexes":{
-    "code_index":{
-      "keys":{
+  "indexes": {
+    "code_index": {
+      "keys": {
         "id": 1,
         "referral.code": 1
       }
     }
+  },
+  "options": {
+    "validateUpsert": true
   },
   "properties": {
     "id": {
@@ -41,9 +41,11 @@
       "type": "object"
     },
     "referral": {
-      "code": "string",
-      "isReferred": "boolean",
-      "numOfReferred": "number"
+      "type": {
+        "code": "string",
+        "isReferred": "boolean",
+        "numOfReferred": "number"
+      }
     },
     "email": {
       "type": "string"
@@ -64,7 +66,7 @@
     },
     "preference": {
       "type": "object",
-      "required" : "true"
+      "required": "true"
     },
     "counrtyCode": {
       "type": "string"
