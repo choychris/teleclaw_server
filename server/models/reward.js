@@ -49,7 +49,7 @@ module.exports = function(Reward) {
         return Event.findOne({where:{launching: true, type: 'checkIn'}});
       }
     }).then(foundEvent=>{
-      if(foundEvent !== undefined){
+      if(foundEvent !== undefined && foundEvent !== null){
         let { type, rewardAmount } = foundEvent;
         return Promise.all([Wallet.findOne({where: {userId: userId}}), Reward.create({type, rewardAmount, userId})])
       }

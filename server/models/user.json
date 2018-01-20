@@ -65,8 +65,7 @@
       "default": "en"
     },
     "preference": {
-      "type": "object",
-      "required": "true"
+      "type": "object"
     },
     "counrtyCode": {
       "type": "string"

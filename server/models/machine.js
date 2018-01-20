@@ -61,6 +61,7 @@ module.exports = function(Machine) {
       if(!ctx.instance.iotPlatform){
         ctx.instance.iotPlatform = { gizwits:{} }
       }
+      ctx.instance.currentUser = null;
       next();
     }
   });
