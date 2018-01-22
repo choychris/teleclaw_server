@@ -23,6 +23,10 @@
       "type": "date",
       "required": true
     },
+    "status": {
+      "type": "boolean",
+      "required": true
+    },
     "images": {
       "type": "string",
       "required": true
