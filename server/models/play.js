@@ -32,7 +32,7 @@ module.exports = function(Play) {
         let duration = (new Date(ctx.data.ended).getTime() - new Date(created).getTime())/1000
         ctx.data.duration = duration;
         // if the user win, update product and machine sku
-        if(ctx.data.finalResult){
+        if(ctx.data.finalResult === true){
           makeCalculation(Product, productId, 'sku', 1, 'minus');
           makeCalculation(Machine, machineId, 'sku', 1, 'minus');
         }

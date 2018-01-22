@@ -38,7 +38,7 @@ module.exports = function(Machine) {
         // if machine's reservation is updated
         }else if(!!reservation && !productId){
           ctx.hookState.pusher = true;
-        }else if(sku == 0){
+        }else if(sku <= 0){
           // disable machine is sku == 0;
           ctx.hookState.pusher = true;
           ctx.data.status = 'close';
