@@ -55,24 +55,24 @@ const generateJSONAPI = (url, filter) => {
 //   });
 // });
 
-describe('Login teleClawAdmin', function(){
-  it('login - status 200 and token', function(done){
-  var api = supertest.agent(baseUrl);
-  var userInfo = {
-    username: 'teleclaw.live@gmail.com',
-    password : 'teleclawlive123',
-  };
-  api.post(`/api/users/login`)
-    .send(userInfo)
-    .set('Accept', 'application/json')
-    .end(function(err,res){
-        global.adminToken = res.body.id;
-        res.body.should.be.an('object');
-        res.status.should.equal(200);
-        done();
-     });
-  });
-});
+// describe('Login teleClawAdmin', function(){
+//   it('login - status 200 and token', function(done){
+//   var api = supertest.agent(baseUrl);
+//   var userInfo = {
+//     username: 'teleclaw.live@gmail.com',
+//     password : 'teleclawlive123',
+//   };
+//   api.post(`/api/users/login`)
+//     .send(userInfo)
+//     .set('Accept', 'application/json')
+//     .end(function(err,res){
+//         global.adminToken = res.body.id;
+//         res.body.should.be.an('object');
+//         res.status.should.equal(200);
+//         done();
+//      });
+//   });
+// });
 
 // |================== Clean Event and Peform Refer API ==================|
 function testCases(description, endTime, maxNum, currentNum, code){
@@ -207,7 +207,7 @@ describe('a user claim kol reward', function(){
   var api = supertest.agent(baseUrl);
   var data = {
     "userId": global.lbUserId,
-    "code": 'iamakol'
+    "code": 'kol2'
   }
     api.post(`/api/rewards/refer?access_token=${global.accessToken}`)
       .send({data: data})

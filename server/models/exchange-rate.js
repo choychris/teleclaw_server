@@ -23,7 +23,9 @@ module.exports = function(Exchangerate){
         ctx.instance.realValuePerCoin[k] = calculateRealValue(currency[k], coins, bonus)
       })
       Exchangerate.findOne({where: {status: true}, order: 'realValuePerCoin.usd ASC'}, (err, res)=>{
-        ctx.hookState.lowestRate = res.realValuePerCoin.hkd;
+        if(res !== null){
+          ctx.hookState.lowestRate = res.realValuePerCoin.hkd;
+        }
       })
       next(); 
     }else{
@@ -37,22 +39,25 @@ module.exports = function(Exchangerate){
   };
 
   Exchangerate.observe('after save', (ctx, next)=>{
-      
     Exchangerate.findOne({where: {status: true}, order: 'realValuePerCoin.usd ASC'})
     .then(res=>{
-      if(res.realValuePerCoin.hkd !== ctx.hookState.lowestRate){
-        let { Benchmark } = app.models;
-        Benchmark.find({},(err, all)=>{
-          all.map(each=>{
-            let {  costRange, overheadCost, marginRate, gamePlayRate } = each;
-            let { min, max } = costRange;
-            let cost = (min + max)/2 ;
-            let revenueRequired = ( cost * marginRate * overheadCost );
-            let valuePerGame = ( gamePlayRate * res.realValuePerCoin.hkd );
-            each.updateAttributes({productRate:Math.round(( revenueRequired / valuePerGame )) || 0})
+      if(res !== null){
+        if(res.realValuePerCoin.hkd !== ctx.hookState.lowestRate){
+          let { Benchmark } = app.models;
+          Benchmark.find({},(err, all)=>{
+            all.map(each=>{
+              let {  costRange, overheadCost, marginRate, gamePlayRate } = each;
+              let { min, max } = costRange;
+              let cost = (min + max)/2 ;
+              let revenueRequired = ( cost * marginRate * overheadCost );
+              let valuePerGame = ( gamePlayRate * res.realValuePerCoin.hkd );
+              each.updateAttributes({productRate:Math.round(( revenueRequired / valuePerGame )) || 0})
+            })
           })
-        })
-        next();
+          next();
+        }else{
+          next();
+        }
       }else{
         next();
       }

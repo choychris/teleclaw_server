@@ -36,6 +36,7 @@ module.exports = function(Reward) {
   // remote method to create a checkIn reward
   Reward.checkIn = (userId, cb) => {
     let { User, Event, Wallet } = app.models;
+    console.log('checkIn reward');
     //let cutOffTime = moment().set({h:7, m:0, s:0, ms:0});
     let minTime = moment().startOf('day').valueOf();
     let maxTime = moment().endOf('day').valueOf();
