@@ -1,97 +1,99 @@
 'use strict';
 
-// Import winston logger
+// Import winston Logger
 var winston = require('winston');
 require('winston-papertrail').Papertrail;
 
-var winstonLogger = new (winston.Logger)({
-    levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
-    colors : { info : 'cyan' , error : 'red' }
-  });
-winstonLogger.add(winston.transports.Console, {
-  prettyPrint: true,
-  colorize: true,
-});
-
-var winstonPapertrail = new winston.transports.Papertrail({
-  host: 'logs.papertrailapp.com',
-  port: 33263,
+var winstonLogger = new winston.Logger({
   levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
+  colors : { info : 'cyan' , error : 'red' },
+  prettyPrint: true,
   colorize: true
-})
-
-var papertrailLogger = new winston.Logger({
-  transports: [winstonPapertrail]
 });
 
 
-function logger(level,message){
-  //papertrail.log(level,message);
-  if(process.env.NODE_ENV === 'production'){
-    papertrailLogger.log(level,message);
-  }else{
-    winstonLogger.log(level,message);
-  }
-};
+if(process.env.NODE_ENV === 'development'){
+  winstonLogger.add(winston.transports.Console)
+}
+
+if(!!process.env.PAPERTRAIL_PORT){
+  var winstonPapertrail = new winston.transports.Papertrail({
+    host: 'logs.papertrailapp.com',
+    port: process.env.PAPERTRAIL_PORT
+  });
+
+  winstonLogger = new winston.Logger({
+    levels : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5  },
+    colors : { info : 'cyan' , error : 'red' },
+    prettyPrint: true,
+    colorize: true,
+    transports: [
+      winstonPapertrail,
+      new winston.transports.Console()
+    ]
+  });
+}
 
 // Define Functions : Logging Access Action
 export function loggingAccess(model){
   model.observe('access',(ctx, next)=>{
-
     // Logging Model Name
-    let logMessage = `accessing | model : ${ctx.Model.modelName} | \n`;
+    let user = null;
 
-    // Logging Query
-    const { where , include } = ctx.query;
-    logMessage += (where !== undefined) ? `where : ${JSON.stringify(where)} | ` : ``;
-    logMessage += (include !== undefined) ? `where : ${JSON.stringify(include)} | ` : ``;
-    // logMessage += (order !== undefined) ? `where : ${JSON.stringify(order)} | ` : ``;
-
-    // Logging User Data
-    const { accessToken } = ctx.options;
-    if(accessToken !== undefined && accessToken !== null){
-      const { userId } = accessToken;
-      logMessage += `user : ${userId} | `;
-      // logMessage += `access_token : ${id}`;
+    if(!!ctx.query){
+      // Logging Query
+      const { where , include } = ctx.query;
+      logMessage += (where !== undefined) ? `where : ${JSON.stringify(where)} | ` : ``;
+      logMessage += (include !== undefined) ? `where : ${JSON.stringify(include)} | ` : ``;
+      // Logging User Data
+      const { accessToken } = ctx.options;
+      if(accessToken !== undefined && accessToken !== null){
+        const { userId } = accessToken;
+        user = userId
+      }
+      
+      winstonLogger.log('info', `Access: ${ctx.Model.modelName}`, `user id : ${user}`, ctx.query);
+    }else{
+      const { accessToken } = ctx.options;
+      if(accessToken !== undefined && accessToken !== null){
+        const { userId } = accessToken;
+        user = userId
+      }
+      
+      winstonLogger.log('info', `Access: ${ctx.Model.modelName}`, `user id : ${user}`);
     }
-
-    // Logging in Local and Papertrail
-    logger('info',logMessage);
     next();
   });
 }
 
 // Define Functions : Logging Before Save and After Save Action
 export function loggingSave(model){
-  model.observe('before save',(ctx, next)=>{
+  // model.observe('before save',(ctx, next)=>{
 
-    // Logging Model Name
-    let logMessage = `Before Saving | model : ${ctx.Model.modelName} | \n`;
+  //   // Logging Model Name
+  //   let logMessage = `Before Saving | model : ${ctx.Model.modelName} | \n`;
 
-    // Logging Instance
-    logMessage += (ctx.isNewInstance) ? 
-      `action : Creating | data : ${JSON.stringify(ctx.instance)}` : 
-      `action : Updating | data : ${JSON.stringify(ctx.data)}`;
+  //   // Logging Instance
+  //   logMessage += (ctx.isNewInstance) ? 
+  //     `action : Creating | data : ${JSON.stringify(ctx.instance)}` : 
+  //     `action : Updating | data : ${JSON.stringify(ctx.data)}`;
 
-    // Logging in Local and Papertrail
-    logger('info',logMessage);
-    next();
-  });
+  //   // Logging in Local and Papertrail
+  //   winstonLogger('info',logMessage);
+  //   next();
+  // });
 
   model.observe('after save',(ctx,next)=>{
-
-    // Logging Model Name
-    let logMessage = `After Saving | model : ${ctx.Model.modelName} | `;
-
     // Logging Instance
-    logMessage += (ctx.isNewInstance) ? 
-      `action : Success Creating | data : ${JSON.stringify(ctx.instance)}` : 
-      `action : Success Updating | data : ${JSON.stringify(ctx.instance)}`;
-
-    // Logging in Local and Papertrail
-    logger('info',logMessage);
-    next();
+    if(ctx.isNewInstance){
+      winstonLogger.log('info', `${ctx.Model.modelName}`, 'Success Creating |', ctx.instance);
+      next();
+    }else{
+      winstonLogger.log('info', `${ctx.Model.modelName}`, 'Success Updating |', ctx.instance);
+      next();
+    }
   });
+  
 }
 
 // Define Function : Logging Remote Function Behaviour
@@ -113,7 +115,7 @@ export function loggingRemote(model,modelName,methodName){
     logMessage += (ctx.args.params) ? ` args : ${JSON.stringify(ctx.args.params)} | ` : ` args : ${JSON.stringify(ctx.args)} | `;
 
     // Logging in Local and Papertrail
-    logger('info',logMessage);
+    winstonLogger('info',logMessage);
     next();
 
   });

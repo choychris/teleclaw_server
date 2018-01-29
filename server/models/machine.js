@@ -14,7 +14,7 @@ module.exports = function(Machine) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  //loggingModel(Machine);
+  loggingModel(Machine);
 
   // assgin an id to each newly created model
   assignKey(Machine);

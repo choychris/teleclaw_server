@@ -11,7 +11,7 @@ module.exports = function(Play) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  //loggingModel(Play);
+  loggingModel(Play);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Play);

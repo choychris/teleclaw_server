@@ -1,8 +1,11 @@
 'use strict';
 
 import { assignKey } from '../utils/beforeSave.js';
+import { loggingModel } from '../utils/createLogging.js';
 
-module.exports = function(Paymentgateway) {
+module.exports = function(Paymentgateway){
+  
+  loggingModel(Paymentgateway)
 
   // assgin an id to each newly created model
   assignKey(Paymentgateway);

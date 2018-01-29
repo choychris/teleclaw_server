@@ -22,7 +22,7 @@ module.exports = function(Transaction) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  //loggingModel(Transaction);
+  loggingModel(Transaction);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Transaction);

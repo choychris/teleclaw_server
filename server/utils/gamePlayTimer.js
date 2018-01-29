@@ -1,8 +1,8 @@
 'use strict';
 function compareTimeStamp(time, duration){
   let now = new Date().getTime();
-  console.log('compare time now : ', now);
-  console.log('now and last updated time different : ', (now - time));
+  // console.log('compare time now : ', now);
+  // console.log('now and last updated time different : ', (now - time));
   if((now - time) > duration){
     return true; //<--- = there is no response from user
   }else{
