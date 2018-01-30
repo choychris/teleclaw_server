@@ -41,25 +41,22 @@ export function loggingAccess(model){
     let user = null;
 
     if(!!ctx.query){
-      // Logging Query
-      const { where , include } = ctx.query;
-      logMessage += (where !== undefined) ? `where : ${JSON.stringify(where)} | ` : ``;
-      logMessage += (include !== undefined) ? `where : ${JSON.stringify(include)} | ` : ``;
+      
       // Logging User Data
       const { accessToken } = ctx.options;
       if(accessToken !== undefined && accessToken !== null){
         const { userId } = accessToken;
         user = userId
       }
-      
-      winstonLogger.log('info', `Access: ${ctx.Model.modelName}`, `user id : ${user}`, ctx.query);
+      // Logging Query
+      winstonLogger.log('info', ` | Access - ${ctx.Model.modelName} |`, `User Id - ${user} |`, ctx.query);
     }else{
       const { accessToken } = ctx.options;
       if(accessToken !== undefined && accessToken !== null){
         const { userId } = accessToken;
         user = userId
       }
-      
+      // Logging Query
       winstonLogger.log('info', `Access: ${ctx.Model.modelName}`, `user id : ${user}`);
     }
     next();
@@ -86,10 +83,10 @@ export function loggingSave(model){
   model.observe('after save',(ctx,next)=>{
     // Logging Instance
     if(ctx.isNewInstance){
-      winstonLogger.log('info', `${ctx.Model.modelName}`, 'Success Creating |', ctx.instance);
+      winstonLogger.log('info', `${ctx.Model.modelName}`, '| Success Creating |', JSON.stringify(ctx.instance));
       next();
     }else{
-      winstonLogger.log('info', `${ctx.Model.modelName}`, 'Success Updating |', ctx.instance);
+      winstonLogger.log('info', `${ctx.Model.modelName}`, '| Success Updating |', JSON.stringify(ctx.instance));
       next();
     }
   });
