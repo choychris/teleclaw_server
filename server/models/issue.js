@@ -8,7 +8,7 @@ module.exports = function(Issue) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  //loggingModel(Issue);
+  loggingModel(Issue);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Issue);

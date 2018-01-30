@@ -7,7 +7,7 @@ module.exports = function(Benchmark) {
 
   const app = require('../server');
   //make loggings for monitor purpose
-  //loggingModel(Benchmark);
+  loggingModel(Benchmark);
 
   //assgin an id to each newly created model
   assignKey(Benchmark);

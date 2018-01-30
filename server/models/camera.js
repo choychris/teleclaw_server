@@ -4,7 +4,7 @@ import { loggingModel } from '../utils/createLogging.js';
 
 module.exports = function(Camera) {
   //make loggings for monitor purpose
-  //loggingModel(Camera);
+  loggingModel(Camera);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Camera);

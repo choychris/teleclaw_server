@@ -10,7 +10,7 @@ module.exports = function(Reservation) {
 
   var app = require('../server');
   //make loggings for monitor purpose
-  //loggingModel(Reservation);
+  loggingModel(Reservation);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Reservation);
