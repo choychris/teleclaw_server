@@ -13,7 +13,7 @@ function compareTimeStamp(time, duration){
 export function checkMachineStatus(machineId, userId, Machine, Reservation){
   Machine.findById(machineId, (err, instance)=>{
     if(compareTimeStamp(instance.lastStatusChanged, 6000)){
-      console.log("next reserve trigger : ", userId);
+      //console.log("next reserve trigger : ", userId);
       Reservation.endEngage(machineId, userId, null);
     }
   });
