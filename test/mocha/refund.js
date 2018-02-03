@@ -42,7 +42,7 @@ describe('refund coins to users', function(){
       .set('Accept', 'application/json')
       .end(function(err,res){
         console.log(res.body);
-        res.body.result.should.be.an('object');
+        res.body.should.be.an('object');
         res.status.should.equal(200);
         done();
       })

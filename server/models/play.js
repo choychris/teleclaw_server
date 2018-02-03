@@ -47,10 +47,24 @@ module.exports = function(Play) {
 
   Play.refund = (userId, cb) => {
 
-    let Transaction = app.models.Transaction;
+    let { Reservation, Transaction, Machine } = app.models;
+
+    function updateMachine(machineId, userId){
+       Machine.findById(machineId)
+       .then(machine=>{
+          return machine.updateAttributes({status: 'open'})
+       }).then(res=>{
+          Reservation.endEngage(machineId, userId, null);
+       }).catch(error=>{
+          loggingFunction('Play | ', 'Update machine in Play refund Error | ', error, 'error');
+          cb(error)
+       })
+    }
+
     Play.findOne({where: {userId: userId}, order: 'created DESC'})
       .then(result=>{
-        if((new Date().getTime() - new Date(result.created).getTime()) < 50000){
+        if((new Date().getTime() - new Date(result.created).getTime()) > 50000){
+          updateMachine(result.machineId, userId)
           return Transaction.findById(result.transactionId)
         }else{
           cb(null, 'refund_fail')
@@ -65,7 +79,7 @@ module.exports = function(Play) {
         }
       }).catch(error=>{
         loggingFunction('Play | ', ' Play refund Error | ', error, 'error');
-        cb(err)
+        cb(error)
       })
   }
 
