@@ -93,6 +93,13 @@
       "permission": "ALLOW"
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "refund"
+    },
+    {
       "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "$owner",
