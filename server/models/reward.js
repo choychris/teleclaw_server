@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel, loggingFunction } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLogging.js';
 import { createNewTransaction } from '../utils/makeTransaction.js'
 var moment = require('moment');
 
@@ -10,6 +10,8 @@ module.exports = function(Reward) {
 
   //make loggings for monitor purpose
   loggingModel(Reward);
+  loggingRemote(Reward, 'checkIn')
+  loggingRemote(Reward, 'refer')
 
   // assgin last updated time / created time to model
   updateTimeStamp(Reward);

@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp } from '../utils/beforeSave.js';
-import { loggingModel, loggingFunction } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLogging.js';
 import { checkMachineStatus } from '../utils/gamePlayTimer.js';
 import { makeCalculation, createNewTransaction } from '../utils/makeTransaction.js';
 
@@ -12,6 +12,7 @@ module.exports = function(Play) {
   var app = require('../server');
   //make loggings for monitor purpose
   loggingModel(Play);
+  loggingRemote(Play, 'refund')
 
   // assgin last updated time / created time to model
   updateTimeStamp(Play);
