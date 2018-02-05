@@ -15,7 +15,7 @@ module.exports = function(User) {
 
   //make loggings for monitor purpose
   loggingModel(User);
-  loggingRemote(User, 'auth');
+  //loggingRemote(User, 'auth');
 
   // assgin last updated time / created time to model
   updateTimeStamp(User);
@@ -236,6 +236,7 @@ module.exports = function(User) {
             let thisRoleId = data.id;
             Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
           });
+          loggingFunction('User | ', 'User sign Up Success| ', userData, 'info');
           let loginCred = { ttl : newUser.expiresIn , username : newUser.userId + '@teleclaw' , password : userData.password };
           resolve(loginCred);
         });

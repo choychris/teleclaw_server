@@ -111,7 +111,7 @@ export function loggingRemote(model,methodName){
     let data = (ctx.args.params) ? ctx.args.params  : ctx.args
 
     // Logging in Local and Papertrail
-    winstonLogger.log('info', `Remote Method | method : ${methodName} | `, `user id : ${userId}`,  data);
+    winstonLogger.log('info', `Remote Method | method : ${methodName} | `, `user id : ${user}`,  data);
     next();
 
   });
