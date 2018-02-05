@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel, loggingFunction } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLogging.js';
 import { makeCalculation, createNewTransaction } from '../utils/makeTransaction.js';
 
 const braintree = require("braintree");
@@ -23,6 +23,8 @@ module.exports = function(Transaction) {
   var app = require('../server');
   //make loggings for monitor purpose
   loggingModel(Transaction);
+  loggingRemote(Transaction, 'clientToken')
+  loggingRemote(Transaction, 'createSale')
 
   // assgin last updated time / created time to model
   updateTimeStamp(Transaction);

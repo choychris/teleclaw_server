@@ -1,6 +1,6 @@
 'use strict';
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel, loggingFunction } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLogging.js';
 const request = require('request');
 const Promise = require('bluebird');
 const shortid = require('shortid');
@@ -15,6 +15,7 @@ module.exports = function(User) {
 
   //make loggings for monitor purpose
   loggingModel(User);
+  //loggingRemote(User, 'auth');
 
   // assgin last updated time / created time to model
   updateTimeStamp(User);
@@ -235,6 +236,7 @@ module.exports = function(User) {
             let thisRoleId = data.id;
             Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
           });
+          loggingFunction('User | ', 'User sign Up Success| ', userData, 'info');
           let loginCred = { ttl : newUser.expiresIn , username : newUser.userId + '@teleclaw' , password : userData.password };
           resolve(loginCred);
         });

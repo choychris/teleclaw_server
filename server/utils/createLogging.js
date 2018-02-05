@@ -94,25 +94,24 @@ export function loggingSave(model){
 }
 
 // Define Function : Logging Remote Function Behaviour
-export function loggingRemote(model,modelName,methodName){
+export function loggingRemote(model,methodName){
   model.beforeRemote(methodName,(ctx,modelInstance,next)=>{
 
     // Logging Model Name
-    let logMessage = `Remote Method | method : ${methodName} | model : ${modelName} | \n`;
-
+    let user;
     // Logging User Data
     const { accessToken } = ctx.req;
     if(accessToken !== undefined && accessToken !== null){
       const { id , userId } = accessToken;
-      logMessage += `user : ${userId} | `;
+      user = userId ;
       // logMessage += `access_token : ${id} |`;
     }
 
     // Logging Parameters
-    logMessage += (ctx.args.params) ? ` args : ${JSON.stringify(ctx.args.params)} | ` : ` args : ${JSON.stringify(ctx.args)} | `;
+    let data = (ctx.args.params) ? ctx.args.params  : ctx.args
 
     // Logging in Local and Papertrail
-    winstonLogger('info',logMessage);
+    winstonLogger.log('info', `Remote Method | method : ${methodName} | `, `user id : ${user}`,  data);
     next();
 
   });
@@ -120,7 +119,7 @@ export function loggingRemote(model,modelName,methodName){
 
 // Define Function : Logging Model Behaviour
 export function loggingModel(model){
-  loggingAccess(model);
+  //loggingAccess(model);
   loggingSave(model);
 }
 
