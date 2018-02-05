@@ -9,7 +9,7 @@ module.exports = function createErrorLogger(options) {
     //   console.log('Unhandled error for request %s %s: %s',
     //     req.method, req.url, err.stack || err);
     // }
-    loggingFunction(`Url: ${req.url}`,`method: ${req.method} | status: ${status}`, err.message,'error')
+    loggingFunction(`Url: ${req.url}`,`method: ${req.method} | status: ${status}`, err.message || err, 'error');
 
     // Let the next error handler middleware
     // produce the HTTP response
