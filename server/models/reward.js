@@ -116,12 +116,12 @@ module.exports = function(Reward) {
           return Promise.all([Event.findOne({where: {type: 'referral', launching: true}}), referrer, user]);
         }
       }).then(result=>{
-        if(result !== undefined){
+        if(result !== undefined && result !== null){
           let foundEvent = result[0] ;
           let referringUser = result[1] ;
           let user = result[2];
           let { type, rewardAmount, maxNum } = foundEvent;
-          if(referringUser.referral.numOfReferred >= maxNum){ //<-- if user reach maximum refer
+          if( !!maxNum && (referringUser.referral.numOfReferred >= maxNum)){ //<-- if user reach maximum refer
             cb(null, 'referer_reach_max_refer')
             return null;
           }else{
@@ -157,7 +157,7 @@ module.exports = function(Reward) {
       }).then(foundEvent=>{
         if(foundEvent !== undefined){
           let now = new Date().getTime();
-          if(foundEvent.maxNum && (foundEvent.maxNum >= foundEvent.currentNum)){ //<-- event reach max joiner
+          if(!!foundEvent.maxNum && (foundEvent.maxNum >= foundEvent.currentNum)){ //<-- event reach max joiner
             cb(null, 'event_is_full');
           }else if(now > foundEvent.endTime){ //<-- event ended
             cb(null, 'event_ended');
