@@ -96,6 +96,7 @@ module.exports = function(Reward) {
         }else if(foundEvent !== null){
           promotionCode(foundEvent)
         }else{
+          loggingFunction('Reward | ', 'find code in user or event | ', 'invalid_code', 'info');
           cb(null, 'invalid_code');
         }
         return null
@@ -109,19 +110,22 @@ module.exports = function(Reward) {
     function referFriends(referrer){
       User.findById(userId).then(user=>{
         if(user.referral.code === code){ //<-- if user entering his own code
+          loggingFunction('Reward | ', 'referFriends | ', 'invalid_code', 'info');
           return cb(null, 'invalid_code');
         }else if(user.referral.isReferred){//<-- if user is already refered by other
+          loggingFunction('Reward | ', 'referFriends | ', 'already_being_referred', 'info');
           return cb(null, 'already_being_referred');
         }else{
           return Promise.all([Event.findOne({where: {type: 'referral', launching: true}}), referrer, user]);
         }
       }).then(result=>{
-        if(result !== undefined){
+        if(result !== undefined && result !== null){
           let foundEvent = result[0] ;
           let referringUser = result[1] ;
           let user = result[2];
           let { type, rewardAmount, maxNum } = foundEvent;
-          if(referringUser.referral.numOfReferred >= maxNum){ //<-- if user reach maximum refer
+          if( maxNum !== null && (referringUser.referral.numOfReferred >= maxNum)){ //<-- if user reach maximum refer
+            loggingFunction('Reward | ', 'referFriends | ', 'referer_reach_max_refer', 'info');
             cb(null, 'referer_reach_max_refer')
             return null;
           }else{
@@ -150,6 +154,7 @@ module.exports = function(Reward) {
       Event.find({where: {claimedUser: {in :[userId]}, type: 'promotion', launching: true, code: code}})
       .then(currentEvent=>{
         if(currentEvent.length !== 0){
+          loggingFunction('Reward | ', 'promotionCode | ', 'reward_already_claimed', 'info');
           return cb(null, 'reward_already_claimed');
         }else{
           return promotionEvent;
@@ -157,9 +162,11 @@ module.exports = function(Reward) {
       }).then(foundEvent=>{
         if(foundEvent !== undefined){
           let now = new Date().getTime();
-          if(foundEvent.maxNum && (foundEvent.maxNum >= foundEvent.currentNum)){ //<-- event reach max joiner
+          if(foundEvent.maxNum !== null && (foundEvent.maxNum >= foundEvent.currentNum)){ //<-- event reach max joiner
+            loggingFunction('Reward | ', 'promotionCode | ', 'event_is_full', 'info');
             cb(null, 'event_is_full');
           }else if(now > foundEvent.endTime){ //<-- event ended
+            loggingFunction('Reward | ', 'promotionCode | ', 'event_ended', 'info');
             cb(null, 'event_ended');
           }else{
             let { id, currentNum, rewardAmount, type } = foundEvent;
