@@ -202,25 +202,25 @@ function testCases(description, endTime, maxNum, currentNum, code){
 //   });
 // });
 
-describe('a user claim kol reward', function(){
-  it('claim success - return success', function(done){
-  var api = supertest.agent(baseUrl);
-  var data = {
-    "userId": global.lbUserId,
-    "code": 'kol2'
-  }
-    api.post(`/api/rewards/refer?access_token=${global.accessToken}`)
-      .send({data: data})
-      .set('Accept', 'application/json')
-      .end(function(err,res){
-        console.log(res.body);
-        res.body.should.be.an('object');
-        //res.body.result.success.should.equal(true);
-        res.status.should.equal(200);
-        done();
-    });
-  });
-});
+// describe('a user claim kol reward', function(){
+//   it('claim success - return success', function(done){
+//   var api = supertest.agent(baseUrl);
+//   var data = {
+//     "userId": global.lbUserId,
+//     "code": 'kol2'
+//   }
+//     api.post(`/api/rewards/refer?access_token=${global.accessToken}`)
+//       .send({data: data})
+//       .set('Accept', 'application/json')
+//       .end(function(err,res){
+//         console.log(res.body);
+//         res.body.should.be.an('object');
+//         //res.body.result.success.should.equal(true);
+//         res.status.should.equal(200);
+//         done();
+//     });
+//   });
+// });
 
 // describe('a user claim promtion reward', function(){
 //     it('user already claimed', function(done){
