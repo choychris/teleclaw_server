@@ -28,6 +28,9 @@
     "finalResult": {
       "type": "boolean"
     },
+    "errorRefund": {
+      "type": "boolean"
+    },
     "movement": {
       "type": [
         "object"

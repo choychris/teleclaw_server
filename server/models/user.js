@@ -60,15 +60,15 @@ module.exports = function(User) {
   });
 
   // update user login time when user login
-  User.afterRemote('auth', (ctx, result, next)=>{
-    if(result.result.lbToken !== undefined){
-      let { userId } = result.result.lbToken;
-      User.findById(userId, (error, user)=>{
-        user.updateAttributes({lastLogIn: new Date().getTime()})
-      });
-    };
-    next();
-  })
+  // User.afterRemote('auth', (ctx, result, next)=>{
+  //   if(result.result.lbToken !== undefined){
+  //     let { userId } = result.result.lbToken;
+  //     User.findById(userId, (error, user)=>{
+  //       user.updateAttributes({lastLogIn: new Date().getTime()})
+  //     });
+  //   };
+  //   next();
+  // })
 
   User.auth = (userInfo, cb) => {
     // console.log(userInfo)
@@ -201,7 +201,7 @@ module.exports = function(User) {
     //perform create user steps
     function signUpUser(newUser){
       let userData = {
-        lastLogIn: new Date().getTime(),
+        lastLogIn: 10000,
         name: newUser.username, 
         username: newUser.userId + '@teleclaw',
         email: newUser.email || null,

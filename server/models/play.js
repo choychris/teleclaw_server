@@ -38,9 +38,11 @@ module.exports = function(Play) {
           makeCalculation(Machine, machineId, 'sku', 1, 'minus');
         }
         // after 8 sec, check if user has reponsed
-        setTimeout(()=>{
-          checkMachineStatus(machineId, userId, Machine, Reservation)
-        }, 8000)
+        if(!ctx.data.errorRefund){
+          setTimeout(()=>{
+            checkMachineStatus(machineId, userId, Machine, Reservation)
+          }, 8000)
+        }
       }
       next();
     }
@@ -66,6 +68,7 @@ module.exports = function(Play) {
       .then(result=>{
         if((new Date().getTime() - new Date(result.created).getTime()) <= 50000){
           updateMachine(result.machineId, userId)
+          result.updateAttributes({errorRefund: true, finalResult: false, ended: new Date().getTime()});
           return Transaction.findById(result.transactionId)
         }else{
           cb(null, 'refund_fail')
