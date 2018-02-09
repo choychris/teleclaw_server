@@ -65,28 +65,37 @@ export function loggingAccess(model){
 
 // Define Functions : Logging Before Save and After Save Action
 export function loggingSave(model){
-  // model.observe('before save',(ctx, next)=>{
+  model.observe('before save',(ctx, next)=>{
 
-  //   // Logging Model Name
-  //   let logMessage = `Before Saving | model : ${ctx.Model.modelName} | \n`;
+    // // Logging Model Name
+    // let logMessage = `Before Saving | model : ${ctx.Model.modelName} | \n`;
 
-  //   // Logging Instance
-  //   logMessage += (ctx.isNewInstance) ? 
-  //     `action : Creating | data : ${JSON.stringify(ctx.instance)}` : 
-  //     `action : Updating | data : ${JSON.stringify(ctx.data)}`;
+    // // Logging Instance
+    // logMessage += (ctx.isNewInstance) ? 
+    //   `action : Creating | data : ${JSON.stringify(ctx.instance)}` : 
+    //   `action : Updating | data : ${JSON.stringify(ctx.data)}`;
 
-  //   // Logging in Local and Papertrail
-  //   winstonLogger('info',logMessage);
-  //   next();
-  // });
+    // Logging in Local and Papertrail
+    if(!ctx.isNewInstance){
+      if(ctx.instance){
+        winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating Instance |', JSON.stringify(ctx.instance));
+        next();
+      }else if(ctx.data){
+        winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating data |', JSON.stringify(ctx.data));
+        next();
+      }
+    }else{
+      next();
+    }
+  });
 
   model.observe('after save',(ctx,next)=>{
     // Logging Instance
     if(ctx.isNewInstance){
-      winstonLogger.log('info', `${ctx.Model.modelName}`, '| Success Creating |', JSON.stringify(ctx.instance));
+      winstonLogger.log('info', `${ctx.Model.modelName}`, '| Create Success  |', JSON.stringify(ctx.instance));
       next();
     }else{
-      winstonLogger.log('info', `${ctx.Model.modelName}`, '| Success Updating |', JSON.stringify(ctx.instance));
+      winstonLogger.log('info', `${ctx.Model.modelName}`, '| Update |', 'Success');
       next();
     }
   });

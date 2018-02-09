@@ -12,7 +12,7 @@ function compareTimeStamp(time, duration){
 //if machine has not update in last 8 sec, clean it.
 export function checkMachineStatus(machineId, userId, Machine, Reservation){
   Machine.findById(machineId, (err, instance)=>{
-    if(compareTimeStamp(instance.lastStatusChanged, 6000)){
+    if(compareTimeStamp(instance.lastStatusChanged, 8000)){
       console.log("next reserve trigger : ", userId);
       Reservation.endEngage(machineId, userId, null);
     }
