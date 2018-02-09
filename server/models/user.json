@@ -41,11 +41,9 @@
       "type": "object"
     },
     "referral": {
-      "type": {
-        "code": "string",
-        "isReferred": "boolean",
-        "numOfReferred": "number"
-      }
+      "code": "string",
+      "isReferred": "boolean",
+      "numOfReferred": "number"
     },
     "email": {
       "type": "string"

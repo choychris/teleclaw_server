@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel, loggingFunction } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLogging.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
 import { sendEmail } from '../utils/nodeMailer.js'
 const request = require('request');
@@ -15,6 +15,7 @@ module.exports = function(Machine) {
   var app = require('../server');
   //make loggings for monitor purpose
   loggingModel(Machine);
+  loggingRemote(Machine, 'gamePlay')
 
   // assgin an id to each newly created model
   assignKey(Machine);

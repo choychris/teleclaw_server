@@ -28,6 +28,9 @@
     "finalResult": {
       "type": "boolean"
     },
+    "errorRefund": {
+      "type": "boolean"
+    },
     "movement": {
       "type": [
         "object"
@@ -91,6 +94,13 @@
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "refund"
     },
     {
       "accessType": "WRITE",

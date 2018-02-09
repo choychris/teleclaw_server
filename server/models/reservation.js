@@ -71,9 +71,11 @@ module.exports = function(Reservation) {
   // the remote method to immediately change the machine status and find the next user
   Reservation.endEngage = (machineId, userId, cb) => {
     let Machine = app.models.Machine;
+
     Machine.findById(machineId, (err, machine)=>{
       // check if machine is still in playing
       let currentId = machine.currentUser ? machine.currentUser.id : 'null' ;
+      loggingFunction('Reservation | ', ' end user engage | ', {machineId: machineId, userId: userId}, 'info');
       if(machine.status == 'open' && (currentId.toString() == userId.toString())){
         //find next reservation
         Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{

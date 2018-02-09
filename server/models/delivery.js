@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel, loggingFunction } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLogging.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
 const request = require('request');
 const Promise = require('bluebird');
@@ -12,6 +12,8 @@ module.exports = function(Delivery) {
   var app = require('../server');
   //make loggings for monitor purpose
   loggingModel(Delivery);
+  loggingRemote(Delivery, 'new')
+  loggingRemote(Delivery, 'getRate')
 
   // assgin last updated time / created time to model
   updateTimeStamp(Delivery);
