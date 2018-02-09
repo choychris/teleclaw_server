@@ -3,10 +3,8 @@ const Promise = require('bluebird');
 const moment = require('moment');
 const crypto = require('crypto');
 const uuidv4 = require('uuid/v4');
-const hmacsha1 = require('hmacsha1');
-var Hashes = require('jshashes')
 
-var RPCClient = require('@alicloud/pop-core').RPCClient;
+
 // function startRecording(userId, playId){
 //   let action = 'AddLiveAppRecordConfig';
 //   let domainName = "live.teleclaw.win";
@@ -54,20 +52,22 @@ var RPCClient = require('@alicloud/pop-core').RPCClient;
 //     console.log('body:', body)
 //   })
 // }
+var RPCClient = require('@alicloud/pop-core').RPCClient;
+var client = new RPCClient({
+  accessKeyId: 'LTAIkymjN0JQllFL',
+  secretAccessKey: 'bWU0LoiYuHKftF62KhqvWOjQg1wyny',
+  endpoint: 'https://live.aliyuncs.com',
+  apiVersion: '2016-11-01'
+});
+
+let domainName = "live.teleclaw.win";
+let AppName = "teleclaw";
+let streamName = '101';
+let OssEndpoint = 'oss-ap-southeast-1.aliyuncs.com';
+let OssBucket = "teleclaw"
 
 function startRecording(userId, playId){
-  var client = new RPCClient({
-    accessKeyId: 'LTAIkymjN0JQllFL',
-    secretAccessKey: 'bWU0LoiYuHKftF62KhqvWOjQg1wyny',
-    endpoint: 'https://live.aliyuncs.com',
-    apiVersion: '2016-11-01'
-  });
 
-  let domainName = "live.teleclaw.win";
-  let AppName = "teleclaw";
-  let streamName = '101';
-  let OssEndpoint = 'oss-ap-southeast-1.aliyuncs.com';
-  let OssBucket = "teleclaw"
   let formatName = 'mp4';
   let formatPrefix = `record/${AppName}/${streamName}/{EscapedStartTime}_{EscapedEndTime}`
 
@@ -78,7 +78,7 @@ function startRecording(userId, playId){
     OssBucket: OssBucket,
     "RecordFormat.1.Format": formatName,
     "RecordFormat.1.OssObjectPrefix": formatPrefix,
-    "RecordFormat.1.CycleDuration": 900
+    "RecordFormat.1.CycleDuration": 21600
   }
 
   client.request('AddLiveAppRecordConfig', params, {
@@ -88,10 +88,43 @@ function startRecording(userId, playId){
     method: 'GET', // set the http method, default is GET
     headers: {}, // set the http request headers
   }).then(res=>{
-    console.log('RES : ', res)
+    console.log('RECORD CONFIG RES : ', res)
   }).catch(err=>{
-    console.log('ERROR : ', err)
+    console.log('RECORD CONFIG ERROR : ', err)
   })
 }
 
+function createIndex(userId, playId){
+
+  let startTime = moment().subtract(35, 's').format('YYYY-MM-DDTHH:mm:ssZ')
+  let endTime = moment().subtract(2, 's').format('YYYY-MM-DDTHH:mm:ssZ')
+
+  let params = {
+    DomainName: domainName,
+    AppName: AppName,
+    StreamName: streamName,
+    OssEndpoint: OssEndpoint,
+    OssBucket: OssBucket,
+    OssObject: 'abcd',
+    StartTime: startTime,
+    EndTime: endTime
+  }
+
+  client.request('CreateLiveStreamRecordIndexFiles', params, {
+    timeout: 3000, // default 3000 ms
+    formatAction: true, // default true, format the action to Action
+    formatParams: true, // default true, format the parameter name to first letter upper case
+    method: 'GET', // set the http method, default is GET
+    headers: {}, // set the http request headers
+  }).then(res=>{
+    console.log('RECORD INDEX RES : ', res)
+  }).catch(err=>{
+    console.log('RECORD INDEX ERROR : ', err)
+  })
+
+}
+
 startRecording();
+setTimeout(()=>{
+  createIndex();
+}, 36000)
