@@ -47,6 +47,7 @@ describe('Change a machine to different status', function(){
         .set('Accept', 'application/json')
         .end(function(err,res){
             global.accessToken = res.body.result.lbToken.id;
+            console.log(global.accessToken);
             global.lbUserId = res.body.result.lbToken.userId;
             res.body.result.should.be.an('object');
             res.status.should.equal(200);
