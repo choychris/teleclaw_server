@@ -13,10 +13,12 @@ function compareTimeStamp(time, duration){
 };
 //if machine has not update in last 8 sec, clean it.
 export function checkMachineStatus(machineId, userId, Machine, Reservation){
+  let now = new Date().getTime();
   Machine.findById(machineId, (err, instance)=>{
+    let information = `userId: ${userId}, now: ${now}, lastUpdate: ${instance.lastStatusChanged}`
+    loggingFunction('Util | ', 'Check Time | ', information , 'info');
     if(compareTimeStamp(instance.lastStatusChanged, 6500)){
       //console.log("next reserve trigger : ", userId);
-      loggingFunction('Util | ', 'Timeout Trigger | ', `userId: ${userId}`, 'info');
       Reservation.endEngage(machineId, userId, null);
     }
   });

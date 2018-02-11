@@ -139,6 +139,7 @@ module.exports = function(Reservation) {
   );
 
   Reservation.serverlessWorker = (machineId, cb) => {
+
     //find next reservation
     Reservation.findOne({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC'}, (error, foundReserve)=>{
       if(foundReserve === null){
@@ -149,6 +150,7 @@ module.exports = function(Reservation) {
         foundReserve.updateAttributes({status: 'close'}, (newError, instance)=>{
           updateMachine(machineId, 'open', {id: instance.userId})
           // after 8 sec, check if user has reponsed
+          let Machine = app.models.Machine;
           timeOutReserve(machineId, instance.userId, Machine, Reservation);
           cb(null, 'next_reserve'); 
         });
