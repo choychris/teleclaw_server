@@ -138,4 +138,33 @@ module.exports = function(Reservation) {
     }
   );
 
+  Reservation.serverlessWorker = (machineId, cb) => {
+    //find next reservation
+    Reservation.findOne({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC'}, (error, foundReserve)=>{
+      if(foundReserve === null){
+        updateMachine(machineId, 'open', null)
+        cb(null, 'machine_open'); 
+      }else{
+        //update the next reserve and trigger pusher in after save
+        foundReserve.updateAttributes({status: 'close'}, (newError, instance)=>{
+          updateMachine(machineId, 'open', {id: instance.userId})
+          // after 8 sec, check if user has reponsed
+          timeOutReserve(machineId, instance.userId, Machine, Reservation);
+          cb(null, 'next_reserve'); 
+        });
+      }
+    });
+  };
+
+  Reservation.remoteMethod(
+    'serverlessWorker',
+    {
+      http: {path: '/:machineId/serverlessWorker', verb: 'get'},
+      accepts: [
+        {arg: 'machineId', type: 'string', required: true}
+      ],
+      returns: {arg: 'result', type: 'string'} 
+    }
+  );
+
 };

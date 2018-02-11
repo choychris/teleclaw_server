@@ -75,6 +75,13 @@
       "property": "endEngage"
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW",
+      "property": "serverlessWorker"
+    },
+    {
       "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",
