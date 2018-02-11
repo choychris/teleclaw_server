@@ -25,7 +25,7 @@ module.exports = function(Issue) {
         // update user's email if user has no email in facebook;
         User.findById(userId, (err, user)=>{
           if(user.email === null){
-            user.updateAttributes({email: email});
+            user.updateAttributes({Email: email});
           }
         })
       }
