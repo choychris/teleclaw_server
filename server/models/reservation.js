@@ -75,7 +75,13 @@ module.exports = function(Reservation) {
     Machine.findById(machineId, (err, machine)=>{
       // check if machine is still in playing
       let currentId = machine.currentUser ? machine.currentUser.id : 'null' ;
-      loggingFunction('Reservation | ', ' end user engage | ', {machineId: machineId, userId: userId}, 'info');
+      let infomation = {
+        machineId: machineId,
+        machineStatus: machine.status,
+        userId: userId.toString(),
+        currentId: currentId.toString()
+      };
+      loggingFunction('Reservation | ', 'end user engage | ', JSON.stringify(infomation), 'info');
       if(machine.status == 'open' && (currentId.toString() == userId.toString())){
         //find next reservation
         Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
@@ -115,7 +121,6 @@ module.exports = function(Reservation) {
 
   // after 8 sec, check if user has reponsed
   function timeOutReserve(machineId, userId, Machine, Reservation){
-    console.log('userId in timeout', userId)
       setTimeout(()=>{
         checkMachineStatus(machineId, userId, Machine, Reservation)
       }, 8000)

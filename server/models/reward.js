@@ -38,7 +38,6 @@ module.exports = function(Reward) {
   // remote method to create a checkIn reward
   Reward.checkIn = (userId, cb) => {
     let { User, Event, Wallet } = app.models;
-    console.log('checkIn reward');
     //let cutOffTime = moment().set({h:7, m:0, s:0, ms:0});
     let minTime = moment().startOf('day').valueOf();
     let maxTime = moment().endOf('day').valueOf();
@@ -47,6 +46,7 @@ module.exports = function(Reward) {
       let lastLogIn = moment(user.lastLogIn).valueOf();
       // to determine user's lastLogin in today time range;
       if((minTime < lastLogIn) && (lastLogIn < maxTime)){
+        loggingFunction('Reward | ', 'checkIn reward | reward_already_claimed', {userId: userId}, 'info');
         return cb(null, 'reward_already_claimed');
       }else{
         return Event.findOne({where:{launching: true, type: 'checkIn'}});
