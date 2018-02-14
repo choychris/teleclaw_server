@@ -28,6 +28,11 @@ module.exports = function(User) {
       ctx.instance.address = {};
       ctx.instance.status = true;
       ctx.instance.preference = { sound: true, vibration: true };
+    }else{
+      if(ctx.data && ctx.data.lastLogIn !== undefined){
+        // lastLogIn should be decide by backend
+        ctx.data.lastLogIn = new Date().getTime();
+      }
     }
     next();
   });
