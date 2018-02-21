@@ -16,7 +16,7 @@ if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
   });
 }
 
-global.accessToken = 'ODAwHtfGXVbprY5vz7OgItbLtDmDH7tXZmKdoHrwxJlKEeTuDDQCYBI7IuwCDsnv';
+global.accessToken = 'Tyoz2OHEFHF2aa2cGsDa8nSlAAJaScQG80SEl72CjlvJWqLtBpBgLLAfrIdbEPSj';
 global.lbUserId ='5a3b720bbf73350182f3d254';
 
 const generateJSONAPI = (url, filter) => {

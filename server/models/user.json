@@ -155,7 +155,8 @@
         "__get__reservation",
         "__get__paymentGateway",
         "__get__transactions",
-        "__get__deliveries"
+        "__get__deliveries",
+        "__findById__accessTokens"
       ]
     },
     {

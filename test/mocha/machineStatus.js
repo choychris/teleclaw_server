@@ -47,7 +47,7 @@ describe('Change a machine to different status', function(){
         .set('Accept', 'application/json')
         .end(function(err,res){
             global.accessToken = res.body.result.lbToken.id;
-            console.log(global.accessToken);
+            console.log(res.body.result);
             global.lbUserId = res.body.result.lbToken.userId;
             res.body.result.should.be.an('object');
             res.status.should.equal(200);
@@ -255,22 +255,24 @@ describe('Change a machine to different status', function(){
 
 
   // |================ End Engagement API ================|
-  // describe('end an engagement, check reservation', function(){
-  //   it('should return next reservation object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let machineId = global.Machine.id;
-  //     let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
-  //     api
-  //       .get(url)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         console.log(res.body)
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('end an engagement, check reservation', function(){
+    it('should return next reservation object', function(done){
+      setTimeout(()=>{
+        var api = supertest.agent(baseUrl);
+        let machineId = global.Machine.id;
+        let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
+        api
+          .get(url)
+          .set('Accept', 'application/json')
+          .end(function(err,res){
+            console.log(res.body)
+            res.body.should.be.an('object');
+            res.status.should.equal(200);
+            done();
+          });
+      }, 6500);
+    });
+  });
 
 
 
