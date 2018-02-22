@@ -162,7 +162,7 @@ module.exports = function(Reward) {
       }).then(foundEvent=>{
         if(foundEvent !== undefined){
           let now = new Date().getTime();
-          if(foundEvent.maxNum !== null && (foundEvent.maxNum >= foundEvent.currentNum)){ //<-- event reach max joiner
+          if(foundEvent.maxNum !== null && (foundEvent.maxNum <= foundEvent.currentNum)){ //<-- event reach max joiner
             loggingFunction('Reward | ', 'promotionCode | ', 'event_is_full', 'info');
             cb(null, 'event_is_full');
           }else if(now > foundEvent.endTime){ //<-- event ended
