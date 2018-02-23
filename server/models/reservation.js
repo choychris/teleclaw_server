@@ -123,7 +123,7 @@ module.exports = function(Reservation) {
   function timeOutReserve(machineId, userId, Machine, Reservation){
       setTimeout(()=>{
         checkMachineStatus(machineId, userId, Machine, Reservation)
-      }, 8000)
+      }, 12000)
   }
 
   Reservation.remoteMethod(

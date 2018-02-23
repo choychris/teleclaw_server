@@ -41,7 +41,7 @@ module.exports = function(Play) {
         if(!ctx.data.errorRefund){
           setTimeout(()=>{
             checkMachineStatus(machineId, userId, Machine, Reservation)
-          }, 8000)
+          }, 12000)
         }
       }
       next();

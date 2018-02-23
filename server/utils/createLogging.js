@@ -78,10 +78,20 @@ export function loggingSave(model){
     // Logging in Local and Papertrail
     if(!ctx.isNewInstance){
       if(ctx.instance){
-        winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating Instance |', JSON.stringify(ctx.instance));
+        let loggingBody = {
+          timeStamp: new Date(),
+          objectId: ctx.currentInstance.id,
+          update: ctx.instance
+        }
+        winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating Instance |', JSON.stringify(loggingBody));
         next();
       }else if(ctx.data){
-        winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating data |', JSON.stringify(ctx.data));
+        let loggingBody = {
+          timeStamp: new Date(),
+          objectId: ctx.currentInstance.id,
+          update: ctx.data
+        }
+        winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating data |', JSON.stringify(loggingBody));
         next();
       }
     }else{
@@ -93,9 +103,6 @@ export function loggingSave(model){
     // Logging Instance
     if(ctx.isNewInstance){
       winstonLogger.log('info', `${ctx.Model.modelName}`, '| Create Success  |', JSON.stringify(ctx.instance));
-      next();
-    }else{
-      winstonLogger.log('info', `${ctx.Model.modelName}`, '| Update |', 'Success');
       next();
     }
   });
@@ -120,7 +127,7 @@ export function loggingRemote(model,methodName){
     let data = (ctx.args.params) ? ctx.args.params  : ctx.args
 
     // Logging in Local and Papertrail
-    winstonLogger.log('info', `Remote Method | method : ${methodName} | `, `user id : ${user}`,  data);
+    winstonLogger.log('info', `Remote: ${methodName} | `, `user: ${user} | timeStamp: ${new Date()}`,  JSON.stringify(data));
     next();
 
   });
