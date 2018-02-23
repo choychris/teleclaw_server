@@ -104,7 +104,10 @@ export function loggingSave(model){
     if(ctx.isNewInstance){
       winstonLogger.log('info', `${ctx.Model.modelName}`, '| Create Success  |', JSON.stringify(ctx.instance));
       next();
+    }else{
+      next();
     }
+
   });
   
 }
