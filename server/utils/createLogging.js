@@ -85,10 +85,17 @@ export function loggingSave(model){
         }
         winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating Instance |', JSON.stringify(loggingBody));
         next();
-      }else if(ctx.data){
+      }else if(ctx.data && ctx.currentInstance !== undefined){
         let loggingBody = {
           timeStamp: new Date(),
           objectId: ctx.currentInstance.id,
+          update: ctx.data
+        }
+        winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating data |', JSON.stringify(loggingBody));
+        next();
+      }else if(ctx.data){
+        let loggingBody = {
+          timeStamp: new Date(),
           update: ctx.data
         }
         winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating data |', JSON.stringify(loggingBody));
