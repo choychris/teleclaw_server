@@ -64,7 +64,7 @@ describe('Login / Create User first', function(){
 describe('Get delivery rate quote', function(){
   this.timeout(4000);
   it('should return the list of courier rate', function(done){
-  global.productIds = [{"id":'22195d6a-454c-436a-a13f-32f0b44d330c', playId:'BkSMizqzM'}, {id: '1677fd31-8dde-4350-8c55-4d2d158b8e39', playId: 'ByE0nW5fG'}]
+  global.productIds = [{"id":'ae55c637-26a8-45f6-9fb0-fe716bcfe176', playId:'BkSMizqzM'}, {id: 'ae55c637-26a8-45f6-9fb0-fe716bcfe176', playId: 'ByE0nW5fG'}]
   var api = supertest.agent(baseUrl);
   var data = {
     products: global.productIds,
@@ -85,56 +85,56 @@ describe('Get delivery rate quote', function(){
   });
 })
 
-describe('Submit a delivery', function(){
-  it('should return the list of courier rate', function(done){
-  var api = supertest.agent(baseUrl);
-  var data = {
-   address: {
-    line1: "3B, Todex Building, San Po Kong",
-    line2: "Kowloon",
-    country: "Hong Kong",
-    countryCode: "hk",
-    city: "Hong Kong",
-    postalCode: 0,
-    state: null,
-    name: "Chris",
-    phone: +85212345678,
-    email: 'teleclaw.live@gmail.com'
-   },
-   cost: global.selectedRate.coins_value,
-   status: 'pending',
-   userId: global.lbUserId,
-   products: global.productIds,
-   courier: global.selectedRate
-  }
-  api
-    .post(`/api/deliveries/new?access_token=${global.accessToken}`)
-    .set('Accept', 'application/json')
-    .send({data: data})
-    .end(function(err,res){
-      console.log(res.body)
-      res.body.should.be.an('object');
-      res.status.should.equal(200);
-      done()
-    });
-  });
-})
+// describe('Submit a delivery', function(){
+//   it('should return the list of courier rate', function(done){
+//   var api = supertest.agent(baseUrl);
+//   var data = {
+//    address: {
+//     line1: "3B, Todex Building, San Po Kong",
+//     line2: "Kowloon",
+//     country: "Hong Kong",
+//     countryCode: "hk",
+//     city: "Hong Kong",
+//     postalCode: 0,
+//     state: null,
+//     name: "Chris",
+//     phone: +85212345678,
+//     email: 'teleclaw.live@gmail.com'
+//    },
+//    cost: global.selectedRate.coins_value,
+//    status: 'pending',
+//    userId: global.lbUserId,
+//    products: global.productIds,
+//    courier: global.selectedRate
+//   }
+//   api
+//     .post(`/api/deliveries/new?access_token=${global.accessToken}`)
+//     .set('Accept', 'application/json')
+//     .send({data: data})
+//     .end(function(err,res){
+//       console.log(res.body)
+//       res.body.should.be.an('object');
+//       res.status.should.equal(200);
+//       done()
+//     });
+//   });
+// })
 
-describe('Get Plays', function(){
-  it('should return the list plays', function(done){
-  var api = supertest.agent(baseUrl);
+// describe('Get Plays', function(){
+//   it('should return the list plays', function(done){
+//   var api = supertest.agent(baseUrl);
 
-  api
-    .get(`/api/plays/${'BkSMizqzM'}?access_token=${global.accessToken}`)
-    .set('Accept', 'application/json')
-    .end(function(err,res){
-      console.log(res.body)
-      res.body.should.be.an('object');
-      res.status.should.equal(200);
-      done()
-    });
-  });
-})
+//   api
+//     .get(`/api/plays/${'BkSMizqzM'}?access_token=${global.accessToken}`)
+//     .set('Accept', 'application/json')
+//     .end(function(err,res){
+//       console.log(res.body)
+//       res.body.should.be.an('object');
+//       res.status.should.equal(200);
+//       done()
+//     });
+//   });
+// })
 
 
 
