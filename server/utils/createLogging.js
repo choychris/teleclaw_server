@@ -28,8 +28,7 @@ if(!!process.env.PAPERTRAIL_PORT){
     prettyPrint: true,
     colorize: true,
     transports: [
-      winstonPapertrail,
-      new winston.transports.Console()
+      winstonPapertrail
     ]
   });
 }
@@ -80,7 +79,6 @@ export function loggingSave(model){
       if(ctx.instance){
         let loggingBody = {
           timeStamp: new Date(),
-          objectId: ctx.currentInstance.id,
           update: ctx.instance
         }
         winstonLogger.log('info', `${ctx.Model.modelName}`, '| Updating Instance |', JSON.stringify(loggingBody));

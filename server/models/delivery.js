@@ -208,14 +208,15 @@ module.exports = function(Delivery) {
 
           return Promise.mapSeries(result, data=>{
             let { courier_id, courier_name, min_delivery_time, max_delivery_time, total_charge,  courier_does_pickup } = data;
+            let total_delivery_cost = total_charge + 8 ;
             let oneChoice = {
               courier_id,
               courier_name,
               min_delivery_time,
               max_delivery_time,
               courier_does_pickup,
-              total_charge,
-              coins_value: Math.round(total_charge / realValuePerCoin.hkd)
+              total_charge: total_delivery_cost,
+              coins_value: Math.round(total_delivery_cost / realValuePerCoin.hkd)
             };
             return oneChoice;
           })
