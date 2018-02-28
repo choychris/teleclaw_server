@@ -16,7 +16,7 @@ if(process.env.NODE_ENV === 'development'){
   winstonLogger.add(winston.transports.Console)
 }
 
-if(!!process.env.PAPERTRAIL_PORT){
+if(process.env.NODE_ENV === 'production'){
   var winstonPapertrail = new winston.transports.Papertrail({
     host: 'logs.papertrailapp.com',
     port: process.env.PAPERTRAIL_PORT
