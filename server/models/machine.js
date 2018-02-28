@@ -35,7 +35,9 @@ module.exports = function(Machine) {
             ctx.hookState.resume = true
           }
           ctx.hookState.pusher = true;
+          ctx.hookState.lastStatusChanged = true;
           ctx.data.lastStatusChanged = new Date().getTime();
+          
         // if machine's reservation is updated
         }else if(!!reservation && !productId){
           ctx.hookState.pusher = true;
@@ -77,11 +79,16 @@ module.exports = function(Machine) {
           let Reservation = app.models.Reservation
           Reservation.endEngage(id, 'null', null);
         }
-        checkAllMachines(productId);
         app.pusher.trigger(`presence-machine-${id}`, 'machine_event', {status: status, reservation: reservation, currentUser: player, lastUpdated: new Date().getTime()});
       }
+
+      if(ctx.hookState && ctx.hookState.lastStatusChanged){
+        checkAllMachines(productId);
+      }
+      next();
+    }else{
+      next();
     } 
-    next();
   });
 
   // function to check whether all machine not available

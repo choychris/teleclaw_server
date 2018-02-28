@@ -3,9 +3,8 @@ const Promise = require('bluebird');
 
 export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMinus){
   model.findById(modelId, (err, foundModel)=>{
-    let parsedModel = JSON.parse(JSON.stringify(foundModel));
     if(plusOrMinus === 'minus'){
-      let newNumber = parsedModel[modelAttribute] - amount;
+      let newNumber = foundModel[modelAttribute] - amount;
       let roundNumber = Math.round(newNumber);
       foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
@@ -13,7 +12,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
         }
       });
     }else if(plusOrMinus === 'plus'){
-      let newNumber = parsedModel[modelAttribute] + amount;
+      let newNumber = foundModel[modelAttribute] + amount;
       let roundNumber = Math.round(newNumber);
        foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
         if(err){
