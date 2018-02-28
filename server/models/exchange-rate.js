@@ -22,7 +22,7 @@ module.exports = function(Exchangerate){
       Object.keys(currency).map(k=>{
         ctx.instance.realValuePerCoin[k] = calculateRealValue(currency[k], coins, bonus)
       })
-      Exchangerate.findOne({where: {status: true}, order: 'realValuePerCoin.usd ASC'}, (err, res)=>{
+      Exchangerate.findOne({where: {status: true}, order: 'realValuePerCoin.hkd ASC'}, (err, res)=>{
         if(res !== null){
           ctx.hookState.lowestRate = res.realValuePerCoin.hkd;
         }
@@ -39,7 +39,7 @@ module.exports = function(Exchangerate){
   };
 
   Exchangerate.observe('after save', (ctx, next)=>{
-    Exchangerate.findOne({where: {status: true}, order: 'realValuePerCoin.usd ASC'})
+    Exchangerate.findOne({where: {status: true}, order: 'realValuePerCoin.hkd ASC'})
     .then(res=>{
       if(res !== null){
         if(res.realValuePerCoin.hkd !== ctx.hookState.lowestRate){

@@ -23,8 +23,8 @@ const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
-global.accessToken = 'ODAwHtfGXVbprY5vz7OgItbLtDmDH7tXZmKdoHrwxJlKEeTuDDQCYBI7IuwCDsnv';
-global.lbUserId ='5a3b720bbf73350182f3d254';
+global.accessToken = 'stPA1Nz6Sy6zHjDmYoZGutTWpaEmLH03JhprkA7EEk450OFB6JSBIgrAlwBEkTXo';
+global.lbUserId ='5a378cfe3d4405006a68798a';
 
 describe('Test a payment flow', function(){
 
@@ -68,7 +68,7 @@ describe('Test a payment flow', function(){
       var url = `/api/exchangeRates/findOne?access_token=${global.accessToken}`
       var filter = {
         where: {
-          coins: 60
+          coins: 80
         }
       }
       api
@@ -107,7 +107,7 @@ describe('Test a payment flow', function(){
     this.timeout(4000);
     it('create success - status 200 and response', function(done){
       var data = {
-        paymentNonce: 'fake-valid-visa-nonce',
+        paymentNonce: 'fake-paypal-billing-agreement-nonce',
         rateId: global.rateId
       }
 

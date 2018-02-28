@@ -86,7 +86,7 @@ module.exports = function(Transaction) {
           cb(err)
         }
         //let token = response.clientToken.length != 1 ? response.clientToken : response.clientToken[0];
-        console.log('Braintree generate clientToken | ', response);
+        //console.log('Braintree generate clientToken | ', response);
         //loggingFunction('Transaction | ', 'Braintree generate clientToken | ', response)
         cb(null, response.clientToken)
       })
@@ -116,12 +116,15 @@ module.exports = function(Transaction) {
       let foundRate = result[0];
       let foundGateway = result[1];
       let saleConfig = {
-        amount: `${foundRate.currency.usd}.00`,
+        amount: `${foundRate.currency.hkd}.00`,
         paymentMethodNonce: paymentNonce,
         customerId: foundGateway.id,
         options: {
           submitForSettlement: true,
-          storeInVaultOnSuccess: true
+          storeInVaultOnSuccess: true,
+          paypal: {
+            description: "Teleclaw Coins Purchase."
+          }
         }
       };
       return [braintreeGateway.transaction.sale(saleConfig), foundRate];
@@ -140,9 +143,21 @@ module.exports = function(Transaction) {
             return null;
           });
       } else {
-        loggingFunction('Transaction | ', 'Braintree Transaction Error | ', result, 'error')
         let { success, message, params } = result;
+        loggingFunction('Transaction | ', 'Braintree Transaction Error | ', message, 'error')
         let gatewayReponse = {message: message, amount: params.transaction.amount }
+        if(!!result.transaction){
+          gatewayReponse.transaction = {
+            id: result.transaction.id,
+            status: result.transaction.status,
+            gatewayRejectionReason: result.transaction.gatewayRejectionReason,
+            processorResponseCode: result.transaction.processorResponseCode,
+            processorResponseText: result.transaction.processorResponseText,
+            additionalProcessorResponse: result.transaction.additionalProcessorResponse,
+            processorSettlementResponseCode: result.transaction.processorSettlementResponseCode,
+            processorSettlementResponseText: result.transaction.processorSettlementResponseText
+          }
+        }
         createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
           .then(trans=>{
             cb(null, {success: success, message: message, balance: trans.newWalletBalance})
