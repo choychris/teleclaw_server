@@ -29,11 +29,11 @@ module.exports = function(Reservation) {
       if(ctx.data && ctx.data.machineId){
         // this logic is to check if the user is currently making a reserve, and
         // the user want to make reserve to another machine
-        if(status === 'open' && !!machineId){
-            makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
+        if(ctx.data.status === 'open' && !!machineId){
+          makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
       }
-      if(ctx.data && ctx.data.status === 'cancel'){
+      if(ctx.data && ctx.data.status === 'cancel' && !!machineId){
         let { id, status, userId, machineId } = ctx.currentInstance;
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         ctx.data.machineId = null ;

@@ -20,19 +20,22 @@ const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
+global.lbUserId = '5a3b720bbf73350182f3d254';
+global.accessToken = 'Xm2DDG9RhRHmHNAfM6TVX34kzBiDc3Rm1PVqLIOTbnMjelS5L8yOFmBeN5KCMA88';
+
 describe('Change a machine to different status', function(){
 
   // |================== Authenticate User API ==================|
-  //if(process.env.NODE_ENV === 'staging'){
+  // if(process.env.NODE_ENV === 'staging'){
     describe('Login / Create User first', function(){
       it('login / create current user - status 200 and token', function(done){
       var api = supertest.agent(baseUrl);
       var userInfo = {
         prvoider: 'facebook',
-        accessToken : 'EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
+        accessToken : 'AACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
         username : 'Lap Chi',
         expiresIn: 5173511,
-        userId:  "10156122556431165",
+        userId:  "1015612255643116",
         picture: {
           height: 100,
           is_silhouette: false,
@@ -55,46 +58,46 @@ describe('Change a machine to different status', function(){
          });
       });
     });
-  //}
+  // }
 
   // |================ GET Machine ================|
-  describe('Find product list', function(){
-    it('shoule return list of product', function(done){
-      var api = supertest.agent(baseUrl);
-      api
-        .get(`/api/products?access_token=${global.accessToken}`)
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-            res.body.should.be.an('array');
-            res.status.should.equal(200);
-            global.Product = res.body[0];
-            console.log(global.Product.id)
-            done();
-        });
-    });
-  });
+  // describe('Find product list', function(){
+  //   it('shoule return list of product', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     api
+  //       .get(`/api/products?access_token=${global.accessToken}`)
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //           res.body.should.be.an('array');
+  //           res.status.should.equal(200);
+  //           global.Product = res.body[0];
+  //           console.log(global.Product.id)
+  //           done();
+  //       });
+  //   });
+  // });
 
-  describe('Find a product include machines', function(){
-    it('should return first product and machine', function(done){
-      console.log(global.accessToken);
-      var api = supertest.agent(baseUrl);
-      var url = `/api/products/${global.Product.id}/machines/?access_token=${global.accessToken}`
-      var filter = {
-        include: "cameras"
-      }
-      api
-        .get(generateJSONAPI(url, filter))
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-            //console.log(res.body)
-            res.body.should.be.an('array');
-            res.status.should.equal(200);
-            global.Machine = res.body[0];
-            //console.log(global.Machine);
-            done();
-        });
-    });
-  });
+  // describe('Find a product include machines', function(){
+  //   it('should return first product and machine', function(done){
+  //     console.log(global.accessToken);
+  //     var api = supertest.agent(baseUrl);
+  //     var url = `/api/products/${global.Product.id}/machines/?access_token=${global.accessToken}`
+  //     var filter = {
+  //       include: "cameras"
+  //     }
+  //     api
+  //       .get(generateJSONAPI(url, filter))
+  //       .set('Accept', 'application/json')
+  //       .end(function(err,res){
+  //           //console.log(res.body)
+  //           res.body.should.be.an('array');
+  //           res.status.should.equal(200);
+  //           global.Machine = res.body[0];
+  //           //console.log(global.Machine);
+  //           done();
+  //       });
+  //   });
+  // });
 
   // |================ PATCH Machine API ================|
   // describe('Change the machine iotPlatform info', function(){
@@ -130,29 +133,31 @@ describe('Change a machine to different status', function(){
   // });
 
   // |================ Game play API ================|
-  describe('Start a game play of machine', function(){
-    it('should return game play object', function(done){
-      var api = supertest.agent(baseUrl);
-      let machineId = global.Machine.id;
-      let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
-      let data = {
-        productId: global.Product.id,
-        userId: global.lbUserId
-      }
-      api
-        .post(url)
-        .set('Accept', 'application/json')
-        .send({data: data})
-        .end(function(err,res){
-            console.log(res.body)
-            global.result = res.body.result;
-            console.log(res.body.result.gizwits)
-            res.body.should.be.an('object');
-            res.status.should.equal(200);
-            done();
-        });
-    });
-  });
+  // describe('Start a game play of machine', function(){
+  //   it('should return game play object', function(done){
+  //     var api = supertest.agent(baseUrl);
+  //     //let machineId = global.Machine.id;
+  //     let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
+  //     let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
+  //     let data = {
+  //       //productId: global.Product.id,
+  //       productId: 'ae55c637-26a8-45f6-9fb0-fe716bcfe176',
+  //       userId: global.lbUserId
+  //     }
+  //     api
+  //       .post(url)
+  //       .set('Accept', 'application/json')
+  //       .send({data: data})
+  //       .end(function(err,res){
+  //           console.log(res.body)
+  //           global.result = res.body.result;
+  //           console.log(res.body.result.gizwits)
+  //           res.body.should.be.an('object');
+  //           res.status.should.equal(200);
+  //           done();
+  //       });
+  //   });
+  // });
 
   // |================ Reservation API ================|
   // describe('Make reservation when machine is playing', function(){
@@ -206,7 +211,8 @@ describe('Change a machine to different status', function(){
   // describe('cancel a reservation', function(){
   //   it('should return next reservation object', function(done){
   //     var api = supertest.agent(baseUrl);
-  //     let reservationId = global.result.reservation.id;
+  //     //let reservationId = global.result.reservation.id;
+  //     let reservationId = '12345678abc';
   //     let url = `/api/reservations/${reservationId}?access_token=${global.accessToken}`;
   //     let reserveObj = {
   //       status: 'cancel'
@@ -226,53 +232,53 @@ describe('Change a machine to different status', function(){
 
   // |================ Play End API ================|
   
-    describe('update play end', function(){
-      this.timeout(20000);
-      it('should return play object', function(done){
-        setTimeout(()=>{
-          if(global.result.userId !== undefined){
-            var api = supertest.agent(baseUrl);
-            let playId = global.result.playId;
-            let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
-            let ended = new Date().getTime();
-            api
-              .patch(url)
-              .send({ended: ended, finalResult: false})
-              .set('Accept', 'application/json')
-              .end(function(err,res){
-                console.log(res.body)
-                res.body.should.be.an('object');
-                res.status.should.equal(200);
-                done();
-              });
-          }else{
-            global.result.userId.should.not.be.a('string')
-            done();
-          }
-        }, 15000)
-      });
-    });
+    // describe('update play end', function(){
+    //   this.timeout(20000);
+    //   it('should return play object', function(done){
+    //     setTimeout(()=>{
+    //       if(global.result.userId !== undefined){
+    //         var api = supertest.agent(baseUrl);
+    //         let playId = global.result.playId;
+    //         let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
+    //         let ended = new Date().getTime();
+    //         api
+    //           .patch(url)
+    //           .send({ended: ended, finalResult: false})
+    //           .set('Accept', 'application/json')
+    //           .end(function(err,res){
+    //             console.log(res.body)
+    //             res.body.should.be.an('object');
+    //             res.status.should.equal(200);
+    //             done();
+    //           });
+    //       }else{
+    //         global.result.userId.should.not.be.a('string')
+    //         done();
+    //       }
+    //     }, 15000)
+    //   });
+    // });
 
 
   // |================ End Engagement API ================|
-  describe('end an engagement, check reservation', function(){
-    it('should return next reservation object', function(done){
-      setTimeout(()=>{
-        var api = supertest.agent(baseUrl);
-        let machineId = global.Machine.id;
-        let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
-        api
-          .get(url)
-          .set('Accept', 'application/json')
-          .end(function(err,res){
-            console.log(res.body)
-            res.body.should.be.an('object');
-            res.status.should.equal(200);
-            done();
-          });
-      }, 6500);
-    });
-  });
+  // describe('end an engagement, check reservation', function(){
+  //   it('should return next reservation object', function(done){
+  //     setTimeout(()=>{
+  //       var api = supertest.agent(baseUrl);
+  //       let machineId = global.Machine.id;
+  //       let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
+  //       api
+  //         .get(url)
+  //         .set('Accept', 'application/json')
+  //         .end(function(err,res){
+  //           console.log(res.body)
+  //           res.body.should.be.an('object');
+  //           res.status.should.equal(200);
+  //           done();
+  //         });
+  //     }, 6500);
+  //   });
+  // });
 
 
 

@@ -23,8 +23,8 @@ const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
-global.accessToken = 'stPA1Nz6Sy6zHjDmYoZGutTWpaEmLH03JhprkA7EEk450OFB6JSBIgrAlwBEkTXo';
-global.lbUserId ='5a378cfe3d4405006a68798a';
+// global.accessToken = 'stPA1Nz6Sy6zHjDmYoZGutTWpaEmLH03JhprkA7EEk450OFB6JSBIgrAlwBEkTXo';
+// global.lbUserId ='5a378cfe3d4405006a68798a';
 
 describe('Test a payment flow', function(){
 

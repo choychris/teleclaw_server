@@ -2,7 +2,8 @@
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
 import { loggingModel } from '../utils/createLogging.js';
-import { sendEmail } from '../utils/nodeMailer.js'
+import { sendEmail } from '../utils/nodeMailer.js';
+import { createNewTransaction } from '../utils/makeTransaction.js';
 
 module.exports = function(Issue) {
 
@@ -53,5 +54,30 @@ module.exports = function(Issue) {
       next();
     }
   })
+
+  Issue.userRefund = (data, cb) => {
+    let { userId, issueId, amount } = data;
+    console.log(data);
+    createNewTransaction(userId, amount, 'refund', 'plus', true)
+    .then(trans=>{
+      return [trans, Issue.findById(issueId)]
+    }).spread((trans, issue)=>{
+      return issue.updateAttributes({refund: {amount: amount, tansactionId: trans.id}})
+    }).then(changedIssue=>{
+      cb(null, changedIssue);
+    }).catch(error=>{
+      loggingFunction('Issue | ', 'create Refund error | ', error, 'error')
+      cb(error);
+    })
+  };
+
+  Issue.remoteMethod(
+    'userRefund',
+    {
+      http: {path: '/userRefund', verb: 'post'}, 
+      accepts: {arg: 'data', type: 'object', http: {source: 'body'}},
+      returns: {arg: 'response', type: 'object'}
+    }
+  );
 
 };

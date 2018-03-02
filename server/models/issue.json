@@ -89,6 +89,13 @@
       "permission": "ALLOW"
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teleClawAdmin",
+      "permission": "ALLOW",
+      "property": "userRefund"
+    },
+    {
       "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",

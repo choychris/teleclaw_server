@@ -12,6 +12,7 @@ module.exports = function(User) {
   let app = require('../server');
   // Remove existing validations for email
   delete User.validations.email;
+  User.disableRemoteMethodByName('login');
 
   //make loggings for monitor purpose
   loggingModel(User);
@@ -129,7 +130,7 @@ module.exports = function(User) {
             return false
           } else {
             let valid = (result.data.is_valid && result.data.expires_at > new Date().getTime()/1000 ) ? 'valid' : 'invalid' ;
-            valid == 'valid' ? resolve(true) : reject('invalid token') ;
+            valid == 'valid' ? resolve(true) : reject(new Error('invalid token')) ;
             return true;
           }
         });
@@ -241,7 +242,7 @@ module.exports = function(User) {
             let thisRoleId = data.id;
             Rolemap.create({ principalType: 'USER' , principalId: createdUser.id, roleId: thisRoleId });
           });
-          loggingFunction('User | ', 'User sign Up Success| ', userData, 'info');
+          loggingFunction('User | ', 'User sign Up Success| ', newUser.username, 'info');
           let loginCred = { ttl : newUser.expiresIn , username : newUser.userId + '@teleclaw' , password : userData.password };
           resolve(loginCred);
         });
@@ -261,10 +262,10 @@ module.exports = function(User) {
   // remote method to create teleClaw admin (wip)
   User.createAdmin = (info, cb) => {
     let { Role, Rolemap } = app.models;
-    let { name, password } = info;
+    let { username, password } = info;
     Role.findOne({where: { name: 'teleClawAdmin' }})
     .then(role=>{
-      return [User.create({username: name, password:password, admin: true}), role]
+      return [User.create({username: username, password:password, admin: true}), role]
     }).spread((user, role)=>{
       return Rolemap.create({ principalType: 'USER' , principalId: user.id, roleId: role.id });
     }).then(res=>{
@@ -281,6 +282,36 @@ module.exports = function(User) {
       http: {path: '/createAdmin', verb: 'post'}, 
       accepts: {arg: 'info', type: 'object', http: {source: 'body'}},
       returns: {arg: 'result', type: 'string'}
+    }
+  );
+
+  User.loginAdmin = (info, cb) => {
+    let { Role, Rolemap } = app.models;
+    let { username, password, ttl } = info;
+    let loginttl = ttl || 1230000 ;
+    User.findOne({where:{username: username}})
+    .then(user=>{
+      if(!!user && user.admin){
+        return User.login({username: username, password: password, ttl: loginttl})
+      }else{
+        return 'authorization_required'
+      }
+    })
+    .then(res => {
+      cb(null, res)
+    })
+    .catch(error=>{
+      loggingFunction('User | ', 'Login admin error |', error, 'error');
+      cb(error)
+    })
+  };
+
+  User.remoteMethod(
+    'loginAdmin',
+    {
+      http: {path: '/loginAdmin', verb: 'post'}, 
+      accepts: {arg: 'info', type: 'object', http: {source: 'body'}},
+      returns: {arg: 'response', type: 'object'}
     }
   );
 
