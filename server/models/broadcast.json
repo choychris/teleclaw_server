@@ -13,13 +13,17 @@
       "required": true
     },
     "name": {
-      "type": "string",
+      "type": "object",
       "required": true
     },
     "description": {
-      "type": "string"
+      "type": "object"
     },
     "created": {
+      "type": "date",
+      "required": true
+    },
+    "startTime":{
       "type": "date",
       "required": true
     },
@@ -28,8 +32,7 @@
       "required": true
     },
     "images": {
-      "type": "string",
-      "required": true
+      "type": "object"
     },
     "link": {
       "type": "string"

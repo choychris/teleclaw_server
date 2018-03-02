@@ -311,7 +311,7 @@ module.exports = function(User) {
     {
       http: {path: '/loginAdmin', verb: 'post'}, 
       accepts: {arg: 'info', type: 'object', http: {source: 'body'}},
-      returns: {arg: 'result', type: 'object'}
+      returns: {arg: 'response', type: 'object'}
     }
   );
 
