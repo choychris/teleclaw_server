@@ -84,13 +84,13 @@ module.exports = function(Reservation) {
       loggingFunction('Reservation | ', 'end user engage | ', JSON.stringify(infomation), 'info');
       if(machine.status == 'open' && (currentId.toString() == userId.toString())){
         //find next reservation
-        Reservation.find({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC', limit: 1}, (error, foundReserve)=>{
-          if(foundReserve === null || foundReserve.length === 0){
+        Reservation.findOne({where: {machineId: machineId, status: 'open'}, order: 'lastUpdated ASC'}, (error, foundReserve)=>{
+          if(foundReserve === null){
             updateMachine(machineId, 'open', null)
             if(!!cb){ cb(null, 'machine_open'); }
           }else{
             //update the next reserve and trigger pusher in after save
-            foundReserve[0].updateAttributes({status: 'close'}, (newError, instance)=>{
+            foundReserve.updateAttributes({status: 'close'}, (newError, instance)=>{
               updateMachine(machineId, 'open', {id: instance.userId})
               // after 8 sec, check if user has reponsed
               timeOutReserve(machineId, instance.userId, Machine, Reservation);
@@ -103,6 +103,8 @@ module.exports = function(Reservation) {
         if(!!cb){ cb(null, 'machine_playing'); }
       }else if(machine.status == 'close'){
         if(!!cb){ cb(null, 'machine_closed'); }
+      }else{
+        if(!!cb){ cb(null, 'machine_ready'); }
       }
     });
   };//<--- endEngage remote method end
