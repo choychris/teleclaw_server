@@ -15,7 +15,7 @@ module.exports = function(Machine) {
   var app = require('../server');
   //make loggings for monitor purpose
   loggingModel(Machine);
-  loggingRemote(Machine, 'gamePlay')
+  //loggingRemote(Machine, 'gamePlay')
 
   // assgin an id to each newly created model
   assignKey(Machine);
@@ -122,12 +122,20 @@ module.exports = function(Machine) {
   // })
 
   // machine game play remote method
-  Machine.gamePlay = (machineId, data, cb) => {
+  Machine.gamePlay = (httpReq, machineId, data, cb) => {
+    httpReq.setTimeout(1000*240);
     let { productId, userId } = data;
     let Product = app.models.Product;
     let Play = app.models.Play;
     let User = app.models.User;
 
+    let loggingInfo = {
+      userId,
+      machineId,
+      productId,
+      timeStamp: new Date()
+    }
+    loggingFunction('Machine | ', 'gamePlay Remote | ', JSON.stringify(loggingInfo), 'info');
     let response = {};
     // perform : 1. get user; 2. get machine; 3. get produdct, from database
     Promise.all([findUserInclude(userId, 'wallet'), Machine.findById(machineId), Product.findById(productId)])
@@ -385,7 +393,7 @@ module.exports = function(Machine) {
       //let { transactionId, userId, machineId, productId, playId } = afterRemote;
       
       // check the result after 47s
-      setTimeout(()=>{checkPlayResult(playId)}, 47000)
+      setTimeout(()=>{checkPlayResult(playId)}, 62000)
 
       //check if the result is updated manually
       function checkPlayResult(playId){
@@ -409,6 +417,7 @@ module.exports = function(Machine) {
       {
         http: {path: '/:machineId/gamePlay', verb: 'post'},
         accepts: [
+          {arg: "req", type: "object", http: {source: "req"}},
           {arg: 'machineId', type: 'string', required: true},
           {arg: 'data', type: 'object', required: true}
         ],

@@ -57,7 +57,6 @@ module.exports = function(Issue) {
 
   Issue.userRefund = (data, cb) => {
     let { userId, issueId, amount } = data;
-    console.log(data);
     createNewTransaction(userId, amount, 'refund', 'plus', true)
     .then(trans=>{
       return [trans, Issue.findById(issueId)]
