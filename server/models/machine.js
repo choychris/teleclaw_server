@@ -393,7 +393,7 @@ module.exports = function(Machine) {
       //let { transactionId, userId, machineId, productId, playId } = afterRemote;
       
       // check the result after 47s
-      setTimeout(()=>{checkPlayResult(playId)}, 47000)
+      setTimeout(()=>{checkPlayResult(playId)}, 62000)
 
       //check if the result is updated manually
       function checkPlayResult(playId){

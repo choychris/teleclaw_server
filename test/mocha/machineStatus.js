@@ -232,76 +232,76 @@ describe('Change a machine to different status', function(){
 
   // |================ Play End API ================|
   
-    describe('update play end', function(){
-      this.timeout(20000);
-      it('should return play object', function(done){
-        setTimeout(()=>{
-          if(global.result.userId !== undefined){
-            var api = supertest.agent(baseUrl);
-            let playId = global.result.playId;
-            let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
-            let ended = new Date().getTime();
-            api
-              .patch(url)
-              .send({ended: ended, finalResult: false})
-              .set('Accept', 'application/json')
-              .end(function(err,res){
-                console.log(res.body)
-                res.body.should.be.an('object');
-                res.status.should.equal(200);
-                done();
-              });
-          }else{
-            global.result.userId.should.not.be.a('string')
-            done();
-          }
-        }, 15000)
-      });
-    });
+    // describe('update play end', function(){
+    //   this.timeout(20000);
+    //   it('should return play object', function(done){
+    //     setTimeout(()=>{
+    //       if(global.result.userId !== undefined){
+    //         var api = supertest.agent(baseUrl);
+    //         let playId = global.result.playId;
+    //         let url = `/api/plays/${playId}?access_token=${global.accessToken}`;
+    //         let ended = new Date().getTime();
+    //         api
+    //           .patch(url)
+    //           .send({ended: ended, finalResult: false})
+    //           .set('Accept', 'application/json')
+    //           .end(function(err,res){
+    //             console.log(res.body)
+    //             res.body.should.be.an('object');
+    //             res.status.should.equal(200);
+    //             done();
+    //           });
+    //       }else{
+    //         global.result.userId.should.not.be.a('string')
+    //         done();
+    //       }
+    //     }, 15000)
+    //   });
+    // });
 
 
   // |================ End Engagement API ================|
-  describe('end an engagement, check reservation', function(){
-    this.timeout(10000);
-    it('should return next reservation object', function(done){
-      setTimeout(()=>{
-        var api = supertest.agent(baseUrl);
-        //let machineId = global.Machine.id;
-        let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
-        let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
-        api
-          .get(url)
-          .set('Accept', 'application/json')
-          .end(function(err,res){
-            console.log(res.body)
-            res.body.should.be.an('object');
-            res.status.should.equal(200);
-            done();
-          });
-      }, 8000);
-    });
-  });
+  // describe('end an engagement, check reservation', function(){
+  //   this.timeout(10000);
+  //   it('should return next reservation object', function(done){
+  //     setTimeout(()=>{
+  //       var api = supertest.agent(baseUrl);
+  //       //let machineId = global.Machine.id;
+  //       let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
+  //       let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
+  //       api
+  //         .get(url)
+  //         .set('Accept', 'application/json')
+  //         .end(function(err,res){
+  //           console.log(res.body)
+  //           res.body.should.be.an('object');
+  //           res.status.should.equal(200);
+  //           done();
+  //         });
+  //     }, 8000);
+  //   });
+  // });
 
-  describe('end an engagement, check reservation', function(){
-    this.timeout(10000);
-    it('should return next reservation object', function(done){
-      setTimeout(()=>{
-        var api = supertest.agent(baseUrl);
-        //let machineId = global.Machine.id;
-        let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
-        let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
-        api
-          .get(url)
-          .set('Accept', 'application/json')
-          .end(function(err,res){
-            console.log(res.body)
-            res.body.should.be.an('object');
-            res.status.should.equal(200);
-            done();
-          });
-      }, 7000);
-    });
-  });
+  // describe('end an engagement, check reservation', function(){
+  //   this.timeout(10000);
+  //   it('should return next reservation object', function(done){
+  //     setTimeout(()=>{
+  //       var api = supertest.agent(baseUrl);
+  //       //let machineId = global.Machine.id;
+  //       let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
+  //       let url = `/api/reservations/${machineId}/${global.lbUserId}/endEngage?access_token=${global.accessToken}`;
+  //       api
+  //         .get(url)
+  //         .set('Accept', 'application/json')
+  //         .end(function(err,res){
+  //           console.log(res.body)
+  //           res.body.should.be.an('object');
+  //           res.status.should.equal(200);
+  //           done();
+  //         });
+  //     }, 7000);
+  //   });
+  // });
 
 
 
