@@ -160,28 +160,30 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ Reservation API ================|
-  // describe('Make reservation when machine is playing', function(){
-  //   it('should return reservation_made object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     let machineId = global.Machine.id;
-  //     let secondUser = '5a378cfe3d4405006a68798a';
-  //     let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
-  //     let data = {
-  //       productId: global.Product.id,
-  //       userId: secondUser
-  //     }
-  //     api
-  //       .post(url)
-  //       .set('Accept', 'application/json')
-  //       .send({data: data})
-  //       .end(function(err,res){
-  //         console.log(res.body);
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('Make reservation when machine is playing', function(){
+    it('should return reservation_made object', function(done){
+      var api = supertest.agent(baseUrl);
+      //let machineId = global.Machine.id;
+      let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
+      let secondUser = '5a378cfe3d4405006a68798a';
+      let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
+      let data = {
+        //productId: global.Product.id,
+        productId: 'ae55c637-26a8-45f6-9fb0-fe716bcfe176',
+        userId: secondUser
+      }
+      api
+        .post(url)
+        .set('Accept', 'application/json')
+        .send({data: data})
+        .end(function(err,res){
+          console.log(res.body);
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
   //GET:: reservation
   // describe('Get a users reservation', function(){

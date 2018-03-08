@@ -17,7 +17,7 @@ export function checkMachineStatus(machineId, userId, Machine, Reservation){
   Machine.findById(machineId, (err, instance)=>{
     let information = `userId: ${userId}, now: ${now}, lastUpdate: ${instance.lastStatusChanged}, different: ${(now - instance.lastStatusChanged)}`;
     loggingFunction('Util | ', 'Check Time | ', information , 'info');
-    if(compareTimeStamp(instance.lastStatusChanged, 10000)){
+    if(compareTimeStamp(instance.lastStatusChanged, 11000)){
       //console.log("next reserve trigger : ", userId);
       Reservation.endEngage(machineId, userId, null);
     }

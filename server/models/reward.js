@@ -84,7 +84,7 @@ module.exports = function(Reward) {
     let { User, Event, Wallet } = app.models;
 
     if(code === null){
-      cb(null, 'missing_code');
+      cb(null, 'missingCode');
     }else{
       Promise.all([User.findOne({where: {"referral.code": code}}), Event.findOne({where: {type: 'promotion', launching: true, code: code}})])
       .then(result=>{
@@ -96,8 +96,8 @@ module.exports = function(Reward) {
         }else if(foundEvent !== null){
           promotionCode(foundEvent)
         }else{
-          loggingFunction('Reward | ', 'find code in user or event | ', 'invalid_code', 'info');
-          cb(null, 'invalid_code');
+          loggingFunction('Reward | ', 'find code in user or event | ', 'invalidCode', 'info');
+          cb(null, 'invalidCode');
         }
         return null
       }).catch(error=>{
@@ -110,11 +110,11 @@ module.exports = function(Reward) {
     function referFriends(referrer){
       User.findById(userId).then(user=>{
         if(user.referral.code === code){ //<-- if user entering his own code
-          loggingFunction('Reward | ', 'referFriends | ', 'invalid_code', 'info');
-          return cb(null, 'invalid_code');
+          loggingFunction('Reward | ', 'referFriends | ', 'invalidCode', 'info');
+          return cb(null, 'invalidCode');
         }else if(user.referral.isReferred){//<-- if user is already refered by other
-          loggingFunction('Reward | ', 'referFriends | ', 'already_being_referred', 'info');
-          return cb(null, 'already_being_referred');
+          loggingFunction('Reward | ', 'referFriends | ', 'alreadyReferred', 'info');
+          return cb(null, 'alreadyReferred');
         }else{
           return Promise.all([Event.findOne({where: {type: 'referral', launching: true}}), referrer, user]);
         }
@@ -125,8 +125,8 @@ module.exports = function(Reward) {
           let user = result[2];
           let { type, rewardAmount, maxNum } = foundEvent;
           if( maxNum !== null && (referringUser.referral.numOfReferred >= maxNum)){ //<-- if user reach maximum refer
-            loggingFunction('Reward | ', 'referFriends | ', 'referer_reach_max_refer', 'info');
-            cb(null, 'referer_reach_max_refer')
+            loggingFunction('Reward | ', 'referFriends | ', 'maxRefer', 'info');
+            cb(null, 'maxRefer')
             return null;
           }else{
             let { referral } = referringUser ;
@@ -154,8 +154,8 @@ module.exports = function(Reward) {
       Event.find({where: {claimedUser: {in :[userId]}, type: 'promotion', launching: true, code: code}})
       .then(currentEvent=>{
         if(currentEvent.length !== 0){
-          loggingFunction('Reward | ', 'promotionCode | ', 'reward_already_claimed', 'info');
-          return cb(null, 'reward_already_claimed');
+          loggingFunction('Reward | ', 'promotionCode | ', 'rewardClaimed', 'info');
+          return cb(null, 'rewardClaimed');
         }else{
           return promotionEvent;
         }
@@ -163,11 +163,11 @@ module.exports = function(Reward) {
         if(foundEvent !== undefined){
           let now = new Date().getTime();
           if(foundEvent.maxNum !== null && (foundEvent.maxNum <= foundEvent.currentNum)){ //<-- event reach max joiner
-            loggingFunction('Reward | ', 'promotionCode | ', 'event_is_full', 'info');
-            cb(null, 'event_is_full');
+            loggingFunction('Reward | ', 'promotionCode | ', 'eventFull', 'info');
+            cb(null, 'eventFull');
           }else if(now > foundEvent.endTime){ //<-- event ended
-            loggingFunction('Reward | ', 'promotionCode | ', 'event_ended', 'info');
-            cb(null, 'event_ended');
+            loggingFunction('Reward | ', 'promotionCode | ', 'eventEnded', 'info');
+            cb(null, 'eventEnded');
           }else{
             let { id, currentNum, rewardAmount, type } = foundEvent;
             foundEvent.updateAttributes({currentNum: currentNum + 1})
