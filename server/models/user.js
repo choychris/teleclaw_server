@@ -24,7 +24,7 @@ module.exports = function(User) {
   User.observe('before save', (ctx, next)=>{
     if(ctx.isNewInstance){
       // set user's properties when create new user
-      ctx.instance.referral = { code: shortid.generate(), isReferred: false, numOfReferred: 0};
+      ctx.instance.referral = { code: generateReferCode(), isReferred: false, numOfReferred: 0};
       ctx.instance.bindedDevice = [];
       ctx.instance.address = {};
       ctx.instance.status = true;
@@ -37,6 +37,12 @@ module.exports = function(User) {
     }
     next();
   });
+
+  function generateReferCode(){
+    let random = shortid.generate().substring(0,3)
+    let combine = new Date().getTime() + "_" + random ;
+    return combine.slice(6);
+  }
 
   User.observe('after save', (ctx, next)=>{
     if(ctx.isNewInstance){
