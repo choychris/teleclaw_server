@@ -218,7 +218,8 @@ module.exports = function(User) {
         username: newUser.userId + '@teleclaw',
         email: newUser.email || null,
         password: newUser.userId,
-        language: newUser.language
+        language: newUser.language,
+        picture: newUser.picture.data.url
       }
       return new Promise((resolve, reject)=>{ 
         User.create(userData, (userCreateErr, createdUser)=>{
@@ -232,7 +233,7 @@ module.exports = function(User) {
             provider: 'facebook',
             username: newUser.username,
             email: newUser.email || null,
-            picture: newUser.picture,
+            picture: newUser.picture.data,
             accesstoken: newUser.accessToken
           };
           //create the identity with the facebook info
@@ -333,7 +334,7 @@ module.exports = function(User) {
     UserIdentity.findOne({where: {userId: id}}, (error, identity)=>{
       if(identity !== null){
         // console.log(identity);
-        let picture = identity.picture ? identity.picture.url : null ;
+        let picture = identity.picture ? identity.picture.data.url : null ;
         var presenceData = {
           user_id: id,
           user_info: {
