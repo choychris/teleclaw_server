@@ -338,7 +338,7 @@ module.exports = function(Machine) {
     findUserInclude(userId, {relation: 'userIdentities', scope: {limit: 1}})
       .then(parsedUser=>{
           //console.log('USER obj :', parsedUser);
-          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.data.url : null ;
+          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
           let player = {
             id: userId,
             name: parsedUser.name,

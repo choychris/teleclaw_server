@@ -183,7 +183,7 @@ module.exports = function(User) {
           } else if (identity === null) {
             resolve(false)
           } else {
-            identity.updateAttributes({username: username, email: email, picture: picture, accesstoken: accessToken}, (err, instance)=>{
+            identity.updateAttributes({username: username, email: email, picture: picture.data, accesstoken: accessToken}, (err, instance)=>{
               if(err){
                 loggingFunction('User | ', 'update user identity error | ', err, 'error');
                 reject(err)
