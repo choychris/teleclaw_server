@@ -40,6 +40,9 @@
     "address": {
       "type": "object"
     },
+    "picture": {
+      "type": "string"
+    },
     "referral": {
       "code": "string",
       "isReferred": "boolean",

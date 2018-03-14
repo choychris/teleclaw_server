@@ -337,8 +337,8 @@ module.exports = function(Machine) {
   function updateCurrentUser(userId, machineId){
     findUserInclude(userId, {relation: 'userIdentities', scope: {limit: 1}})
       .then(parsedUser=>{
-          // console.log('USER obj :', parsedUser);
-          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
+          //console.log('USER obj :', parsedUser);
+          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.data.url : null ;
           let player = {
             id: userId,
             name: parsedUser.name,
