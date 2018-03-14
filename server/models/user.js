@@ -334,7 +334,7 @@ module.exports = function(User) {
     UserIdentity.findOne({where: {userId: id}}, (error, identity)=>{
       if(identity !== null){
         // console.log(identity);
-        let picture = identity.picture ? identity.picture.data.url : null ;
+        let picture = identity.picture ? identity.picture.url : null ;
         var presenceData = {
           user_id: id,
           user_info: {
