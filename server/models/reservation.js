@@ -41,15 +41,19 @@ module.exports = function(Reservation) {
         if(ctx.data.status === 'close' && !!ctx.data.machineId){
           makeCalculation(Machine, ctx.data.machineId, 'reservation', 1, 'minus');
         }
+        // when the user cancel the reserve
+        if(ctx.data.status === 'cancel' && !!machineId){
+          //let { id, status, userId, machineId } = ctx.currentInstance;
+          makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
+          ctx.data.machineId = null ;
+          ctx.data.productId = null ;
+        }
       }
-      if(ctx.data && ctx.data.status === 'cancel' && !!machineId){
-        //let { id, status, userId, machineId } = ctx.currentInstance;
-        makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
-        ctx.data.machineId = null ;
-        ctx.data.productId = null ;
-      }
-    };
-    next();
+      next();
+    }else{
+      next();
+    }
+    
   });
 
   Reservation.observe('after save', (ctx, next)=>{
