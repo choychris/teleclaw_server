@@ -33,9 +33,17 @@ module.exports = function(Reservation) {
         if(ctx.data.status === 'open' && status === 'open' && !!machineId){
           makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
+        // when user make a new reservation
+        if(ctx.data.status === 'open' && !!ctx.data.machineId){
+          makeCalculation(Machine, ctx.data.machineId, 'reservation', 1, 'plus');
+        }
+        // when it is user's turn to play
+        if(ctx.data.status === 'close' && !!ctx.data.machineId){
+          makeCalculation(Machine, ctx.data.machineId, 'reservation', 1, 'minus');
+        }
       }
       if(ctx.data && ctx.data.status === 'cancel' && !!machineId){
-        let { id, status, userId, machineId } = ctx.currentInstance;
+        //let { id, status, userId, machineId } = ctx.currentInstance;
         makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         ctx.data.machineId = null ;
         ctx.data.productId = null ;
@@ -58,10 +66,6 @@ module.exports = function(Reservation) {
           lastUpdated: lastUpdated
         };
         app.pusher.trigger(`reservation-${userId.toString()}`, 'your_turn', pusherObj)
-        makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
-      // when user make a new reservation
-      }else if(status === 'open' && !!machineId){
-        makeCalculation(Machine, machineId, 'reservation', 1, 'plus');
       }
       next();
     }else{
