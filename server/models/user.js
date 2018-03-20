@@ -350,7 +350,7 @@ module.exports = function(User) {
     UserIdentity.findOne({where: {userId: id}}, (error, identity)=>{
       if(identity !== null){
         // console.log(identity);
-        let picture = identity.picture ? identity.picture.url : null ;
+        let picture = identity.picture ? identity.picture.url : "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?_nc_cat=0&oh=3f6c91428fc256182541f697d6bb84d3&oe=5B3B0A2F" ;
         var presenceData = {
           user_id: id,
           user_info: {
