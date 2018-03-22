@@ -210,6 +210,7 @@ module.exports = function(Machine) {
         response.playId = res.id;
         cb(null, response);
       }).catch(error=>{
+        createNewTransaction(userId, gamePlayRate, 'refund', 'plus', true);
         loggingFunction('Machine | ', 'start game function error | ', error, 'error');
         cb(error)
       });
@@ -231,12 +232,13 @@ module.exports = function(Machine) {
       // first, login the user to get token
       return new Promise((resolve, reject)=>{
         request(createUser, (err, res, body)=>{
-          const { token, uid, expire_at } = JSON.parse(body);
+          
           User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
-            if(err || error){ 
+            if(err || error || !body){ 
               loggingFunction('Machine | ', 'login gizwits user error | ', err || error, 'error');
               reject(err || error);
             };
+            const { token, uid, expire_at } = JSON.parse(body);
             // check whether the user has already bind this machine
             let gizwits = {
               init: {
@@ -251,7 +253,7 @@ module.exports = function(Machine) {
               }
             };
             if(user.length === 0){ 
-              bindMac(deviceMAC, token, machineId, gizwits, resolve) 
+              bindMac(deviceMAC, token, machineId, gizwits, resolve, reject) 
               User.update({ id: userId },{ $push: { "bindedDevice": deviceId }}, { allowExtendedOperators: true })
             }else{
               resolve(gizwits);
@@ -263,7 +265,7 @@ module.exports = function(Machine) {
     };
 
     // bind mac API to gizwits
-    function bindMac(deviceMAC, token, machineId, gizwits, resolve){
+    function bindMac(deviceMAC, token, machineId, gizwits, resolve, reject){
       const now = Math.round(new Date().getTime()/1000);
       // bind mac API to gizwits
       const bindMac = {
@@ -281,15 +283,16 @@ module.exports = function(Machine) {
         })
       };
       request(bindMac, (err, res, bindBody)=>{
-        const { host, wss_port } = JSON.parse(bindBody);
-        if(err){
+        if(err || !bindBody){
           loggingFunction('Machine | ', 'gizwits bind mac error | ', err, 'error');
-          Promise.reject(err)
-        };
-        let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
-        updateMachineAttri(machineId, update);
-        gizwits.websocket = {host: host, wss_port: wss_port};
-        resolve(gizwits);
+          reject(err)
+        } else {
+          const { host, wss_port } = JSON.parse(bindBody);
+          let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
+          updateMachineAttri(machineId, update);
+          gizwits.websocket = {host: host, wss_port: wss_port};
+          resolve(gizwits);
+        }
       });
     }//<--- bind mac API function end
 
