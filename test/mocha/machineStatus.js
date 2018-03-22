@@ -20,44 +20,44 @@ const generateJSONAPI = (url, filter) => {
   return url + '&filter=' + JSON.stringify(filter) ;
 }
 
-// global.lbUserId = '5a3b720bbf73350182f3d254';
-// global.accessToken = 'Xm2DDG9RhRHmHNAfM6TVX34kzBiDc3Rm1PVqLIOTbnMjelS5L8yOFmBeN5KCMA88';
+global.lbUserId = '5a3b720bbf73350182f3d254';
+global.accessToken = 'Xm2DDG9RhRHmHNAfM6TVX34kzBiDc3Rm1PVqLIOTbnMjelS5L8yOFmBeN5KCMA88';
 
 describe('Change a machine to different status', function(){
 
   // |================== Authenticate User API ==================|
   // if(process.env.NODE_ENV === 'staging'){
-    describe('Login / Create User first', function(){
-      it('login / create current user - status 200 and token', function(done){
-      var api = supertest.agent(baseUrl);
-      var userInfo = {
-        prvoider: 'facebook',
-        accessToken : 'EAACDHoPDoIMBACi8UtenZAA9ffIWZCGTYJMoIINEAIqB6ahmXjSA9iDiVFkiBwRor6zifxpkyIcC4Yd1iZCsRwVvKt3kKNQOMypyabDCETPZCzwWAoif5CsZASoplZCLwt6o1TCyZBdo0xF7BabYoJyeXGutBZAq9x3BRoIfuQgJMdHDHYI5MQe0ljvCpSZBqGIZBH1xNdUx9eAAomuUlZBw0ZAYKZBaEKrNSGnuTR02BhCdWjAZDZD',
-        username : 'Helen Albdijdgghfef Sadanman',
-        expiresIn: 5173511,
-        userId:  "100024904778656",
-        picture: {data: {
-          height: 100,
-          is_silhouette: false,
-          url: "https://scontent.xx.fbcdn.net/v/t1.0-1/p100x100/1916279_10154397272841165_6485132739615337980_n.jpg?oh=838585186d56fc60e4dcfa90aa9ee10e&oe=5A8E8B2F",
-          width: 100
-        }}
-      }
+    // describe('Login / Create User first', function(){
+    //   it('login / create current user - status 200 and token', function(done){
+    //   var api = supertest.agent(baseUrl);
+    //   var userInfo = {
+    //     prvoider: 'facebook',
+    //     accessToken : 'EAACDHoPDoIMBACi8UtenZAA9ffIWZCGTYJMoIINEAIqB6ahmXjSA9iDiVFkiBwRor6zifxpkyIcC4Yd1iZCsRwVvKt3kKNQOMypyabDCETPZCzwWAoif5CsZASoplZCLwt6o1TCyZBdo0xF7BabYoJyeXGutBZAq9x3BRoIfuQgJMdHDHYI5MQe0ljvCpSZBqGIZBH1xNdUx9eAAomuUlZBw0ZAYKZBaEKrNSGnuTR02BhCdWjAZDZD',
+    //     username : 'Helen Albdijdgghfef Sadanman',
+    //     expiresIn: 5173511,
+    //     userId:  "100024904778656",
+    //     picture: {data: {
+    //       height: 100,
+    //       is_silhouette: false,
+    //       url: "https://scontent.xx.fbcdn.net/v/t1.0-1/p100x100/1916279_10154397272841165_6485132739615337980_n.jpg?oh=838585186d56fc60e4dcfa90aa9ee10e&oe=5A8E8B2F",
+    //       width: 100
+    //     }}
+    //   }
 
-      api
-        .post(`/api/users/auth`)
-        .send(userInfo)
-        .set('Accept', 'application/json')
-        .end(function(err,res){
-            global.accessToken = res.body.result.lbToken.id;
-            console.log(res.body.result);
-            global.lbUserId = res.body.result.lbToken.userId;
-            res.body.result.should.be.an('object');
-            res.status.should.equal(200);
-            done();
-         });
-      });
-    });
+    //   api
+    //     .post(`/api/users/auth`)
+    //     .send(userInfo)
+    //     .set('Accept', 'application/json')
+    //     .end(function(err,res){
+    //         global.accessToken = res.body.result.lbToken.id;
+    //         console.log(res.body.result);
+    //         global.lbUserId = res.body.result.lbToken.userId;
+    //         res.body.result.should.be.an('object');
+    //         res.status.should.equal(200);
+    //         done();
+    //      });
+    //   });
+    // });
   // }
 
   // |================ GET Machine ================|
@@ -160,30 +160,30 @@ describe('Change a machine to different status', function(){
   });
 
   // |================ Reservation API ================|
-  // describe('Make reservation when machine is playing', function(){
-  //   it('should return reservation_made object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     //let machineId = global.Machine.id;
-  //     let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
-  //     let secondUser = '5a378cfe3d4405006a68798a';
-  //     let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
-  //     let data = {
-  //       //productId: global.Product.id,
-  //       productId: 'ae55c637-26a8-45f6-9fb0-fe716bcfe176',
-  //       userId: secondUser
-  //     }
-  //     api
-  //       .post(url)
-  //       .set('Accept', 'application/json')
-  //       .send({data: data})
-  //       .end(function(err,res){
-  //         console.log(res.body);
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('Make reservation when machine is playing', function(){
+    it('should return reservation_made object', function(done){
+      var api = supertest.agent(baseUrl);
+      //let machineId = global.Machine.id;
+      let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
+      let secondUser = '5a378cfe3d4405006a68798a';
+      let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
+      let data = {
+        //productId: global.Product.id,
+        productId: 'ae55c637-26a8-45f6-9fb0-fe716bcfe176',
+        userId: secondUser
+      }
+      api
+        .post(url)
+        .set('Accept', 'application/json')
+        .send({data: data})
+        .end(function(err,res){
+          console.log(res.body);
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
   //GET:: reservation
   // describe('Get a users reservation', function(){
@@ -210,27 +210,27 @@ describe('Change a machine to different status', function(){
   // });
 
   //PATCH:: reservation
-  // describe('cancel a reservation', function(){
-  //   it('should return next reservation object', function(done){
-  //     var api = supertest.agent(baseUrl);
-  //     //let reservationId = global.result.reservation.id;
-  //     let reservationId = '12345678abc';
-  //     let url = `/api/reservations/${reservationId}?access_token=${global.accessToken}`;
-  //     let reserveObj = {
-  //       status: 'cancel'
-  //     };
-  //     api
-  //       .patch(url)
-  //       .send(reserveObj)
-  //       .set('Accept', 'application/json')
-  //       .end(function(err,res){
-  //         console.log(res.body)
-  //         res.body.should.be.an('object');
-  //         res.status.should.equal(200);
-  //         done();
-  //       });
-  //   });
-  // });
+  describe('cancel a reservation', function(){
+    it('should return next reservation object', function(done){
+      var api = supertest.agent(baseUrl);
+      //let reservationId = global.result.reservation.id;
+      let reservationId = '12345678abc';
+      let url = `/api/reservations/${reservationId}?access_token=${global.accessToken}`;
+      let reserveObj = {
+        status: 'cancel'
+      };
+      api
+        .patch(url)
+        .send(reserveObj)
+        .set('Accept', 'application/json')
+        .end(function(err,res){
+          console.log(res.body)
+          res.body.should.be.an('object');
+          res.status.should.equal(200);
+          done();
+        });
+    });
+  });
 
   // |================ Play End API ================|
   

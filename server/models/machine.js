@@ -338,7 +338,8 @@ module.exports = function(Machine) {
     findUserInclude(userId, {relation: 'userIdentities', scope: {limit: 1}})
       .then(parsedUser=>{
           //console.log('USER obj :', parsedUser);
-          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : null ;
+          let dummyUrl = "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?_nc_cat=0&oh=3f6c91428fc256182541f697d6bb84d3&oe=5B3B0A2F";
+          let picture = parsedUser.userIdentities[0].picture ? parsedUser.userIdentities[0].picture.url : dummyUrl ;
           let player = {
             id: userId,
             name: parsedUser.name,

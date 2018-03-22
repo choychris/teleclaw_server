@@ -183,7 +183,14 @@ module.exports = function(User) {
           } else if (identity === null) {
             resolve(false)
           } else {
-            identity.updateAttributes({username: username, email: email, picture: picture.data, accesstoken: accessToken}, (err, instance)=>{
+            let dummyProfile = {
+              width: 50,
+              height: 50,
+              url: "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?_nc_cat=0&oh=3f6c91428fc256182541f697d6bb84d3&oe=5B3B0A2F",
+              is_silhouette:true
+            }
+            let profilePic = picture ? picture.data : dummyProfile;
+            identity.updateAttributes({username: username, email: email, picture: profilePic, accesstoken: accessToken}, (err, instance)=>{
               if(err){
                 loggingFunction('User | ', 'update user identity error | ', err, 'error');
                 reject(err)
@@ -212,6 +219,14 @@ module.exports = function(User) {
 
     //perform create user steps
     function signUpUser(newUser){
+      let dummyProfile = {
+        width: 50,
+        height: 50,
+        url: "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?_nc_cat=0&oh=3f6c91428fc256182541f697d6bb84d3&oe=5B3B0A2F",
+        is_silhouette:true
+      }
+      let profilePic = newUser.picture ? newUser.picture.data : dummyProfile;
+
       let userData = {
         lastLogIn: 10000,
         name: newUser.username, 
@@ -219,7 +234,7 @@ module.exports = function(User) {
         email: newUser.email || null,
         password: newUser.userId,
         language: newUser.language,
-        picture: newUser.picture.data.url
+        picture: profilePic.url
       }
       return new Promise((resolve, reject)=>{ 
         User.create(userData, (userCreateErr, createdUser)=>{
@@ -227,13 +242,14 @@ module.exports = function(User) {
             loggingFunction('User | ', 'create user error | ', userCreateErr, 'error');
             reject({type: 'create user error', error: userCreateErr})
           };
+
           let identityInfo = {
             id: newUser.userId,
             userId: createdUser.id,
             provider: 'facebook',
             username: newUser.username,
             email: newUser.email || null,
-            picture: newUser.picture.data,
+            picture: profilePic,
             accesstoken: newUser.accessToken
           };
           //create the identity with the facebook info
@@ -334,7 +350,7 @@ module.exports = function(User) {
     UserIdentity.findOne({where: {userId: id}}, (error, identity)=>{
       if(identity !== null){
         // console.log(identity);
-        let picture = identity.picture ? identity.picture.url : null ;
+        let picture = identity.picture ? identity.picture.url : "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?_nc_cat=0&oh=3f6c91428fc256182541f697d6bb84d3&oe=5B3B0A2F" ;
         var presenceData = {
           user_id: id,
           user_info: {
