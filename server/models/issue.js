@@ -1,7 +1,7 @@
 'use strict';
 
 import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js';
+import { loggingModel, loggingFunction } from '../utils/createLogging.js';
 import { sendEmail } from '../utils/nodeMailer.js';
 import { createNewTransaction } from '../utils/makeTransaction.js';
 
@@ -25,9 +25,7 @@ module.exports = function(Issue) {
       if(!!email){
         // update user's email if user has no email in facebook;
         User.findById(userId, (err, user)=>{
-          if(user.email === null){
-            user.updateAttributes({Email: email});
-          }
+          user.updateAttributes({UserEmail: email});
         })
       }
       next();
