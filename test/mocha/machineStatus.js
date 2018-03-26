@@ -137,7 +137,7 @@ describe('Change a machine to different status', function(){
     it('should return game play object', function(done){
       var api = supertest.agent(baseUrl);
       //let machineId = global.Machine.id;
-      let machineId = "84c80e26-c1be-45e5-bb60-9e8fcb4a4930";
+      let machineId = "ff0df9b7-e62d-41e3-bfe9-6ddf417df302";
       let url = `/api/machines/${machineId}/gamePlay?access_token=${global.accessToken}`
       let data = {
         //productId: global.Product.id,

@@ -210,9 +210,15 @@ module.exports = function(Machine) {
         response.playId = res.id;
         cb(null, response);
       }).catch(error=>{
-        createNewTransaction(userId, gamePlayRate, 'refund', 'plus', true);
+        
         loggingFunction('Machine | ', 'start game function error | ', error, 'error');
-        cb(error)
+        createNewTransaction(userId, gamePlayRate, 'refund', 'plus', true)
+        .then(refundRes=>{
+          return Play.create({userId, machineId, productId, transactionId: refundRes.id, expectedResult: false})
+        }).then(playRes=>{
+          cb(null, {playId: playRes.id, gizwits: "no response"})
+        })
+        
       });
     }//<--- start game function end
 
@@ -232,11 +238,10 @@ module.exports = function(Machine) {
       // first, login the user to get token
       return new Promise((resolve, reject)=>{
         request(createUser, (err, res, body)=>{
-          
           User.find({where: {id: userId, bindedDevice: deviceId}}, (error, user)=>{
             if(err || error || !body){ 
               loggingFunction('Machine | ', 'login gizwits user error | ', err || error, 'error');
-              reject(err || error);
+              reject(err || error || Error("no response from gizwits"));
             };
             const { token, uid, expire_at } = JSON.parse(body);
             // check whether the user has already bind this machine
@@ -285,7 +290,7 @@ module.exports = function(Machine) {
       request(bindMac, (err, res, bindBody)=>{
         if(err || !bindBody){
           loggingFunction('Machine | ', 'gizwits bind mac error | ', err, 'error');
-          reject(err)
+          reject(err || Error("no response from gizwits"))
         } else {
           const { host, wss_port } = JSON.parse(bindBody);
           let update =  {'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port};
@@ -405,7 +410,7 @@ module.exports = function(Machine) {
         Play.findById(playId, (err, instance)=>{
           //console.log('final play instance : ', instance);
           if(instance.finalResult === undefined){
-            let attri = {ended: new Date().getTime(), finalResult: false};
+            let attri = {ended: new Date().getTime(), finalResult: false, systemUpdate: true};
             instance.updateAttributes(attri);
           }
         });

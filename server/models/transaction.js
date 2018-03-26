@@ -144,7 +144,8 @@ module.exports = function(Transaction) {
           });
       } else {
         let { success, message, params } = result;
-        loggingFunction('Transaction | ', 'Braintree Transaction Error | ', message, 'error')
+        let responseMessage = result.transaction.processorResponseCode ? message + " (code : " + result.transaction.processorResponseCode + ")": message;
+        loggingFunction('Transaction | ', 'Braintree Transaction Error | ', responseMessage, 'error')
         let gatewayReponse = {message: message, amount: params.transaction.amount }
         if(!!result.transaction){
           gatewayReponse.transaction = {
@@ -160,7 +161,7 @@ module.exports = function(Transaction) {
         }
         createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
           .then(trans=>{
-            cb(null, {success: success, message: message, balance: trans.newWalletBalance})
+            cb(null, {success: success, message: responseMessage, balance: trans.newWalletBalance})
             return null;
           });
       }
