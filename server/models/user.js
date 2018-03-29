@@ -39,9 +39,13 @@ module.exports = function(User) {
   });
 
   function generateReferCode(){
-    let random = shortid.generate().substring(0,3)
-    let combine = new Date().getTime() + "_" + random ;
-    return combine.slice(6);
+    //let random = shortid.generate().substring(0,3)
+    let combine = new Date().getTime();
+    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for(var i=0;i<3;i++){
+      combine += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return combine.slice(5);
   }
 
   User.observe('after save', (ctx, next)=>{
