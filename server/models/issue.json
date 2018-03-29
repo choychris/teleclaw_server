@@ -22,6 +22,9 @@
     "pusher": {
       "type": "string"
     },
+    "refund": {
+      "type": "object"
+    },
     "notify": {
       "type": "string"
     },
