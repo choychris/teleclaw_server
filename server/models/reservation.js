@@ -27,7 +27,7 @@ module.exports = function(Reservation) {
       // machineId of currently reserving
       let { id, status, userId, machineId } = ctx.currentInstance;
       // ctx.data.machineId = machineId of newly reserve
-      if(ctx.data && ctx.data.machineId){
+      if(!!ctx.data){
         // this logic is to check if the user is currently making a reserve, and
         // the user want to make reserve to another machine
         if(ctx.data.status === 'open' && status === 'open' && !!machineId){
