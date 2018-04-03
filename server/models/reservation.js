@@ -39,7 +39,7 @@ module.exports = function(Reservation) {
         }
         // when it is user's turn to play
         if(ctx.data.status === 'close' && !!machineId){
-          makeCalculation(Machine, ctx.data.machineId, 'reservation', 1, 'minus');
+          makeCalculation(Machine, machineId, 'reservation', 1, 'minus');
         }
         // when the user cancel the reserve
         if(ctx.data.status === 'cancel' && !!machineId){
