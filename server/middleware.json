@@ -45,9 +45,9 @@
     "loopback#urlNotFound": {}
   },
   "final:after": {
-    "./error-logger":{},
+    "./error-logger": {},
     "strong-error-handler": {
-      "params":{
+      "params": {
         "log": true,
         "debug": true
       }
