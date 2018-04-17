@@ -409,7 +409,7 @@ module.exports = function(Machine) {
         //console.log('check play result trigger HERE')
         Play.findById(playId, (err, instance)=>{
           //console.log('final play instance : ', instance);
-          if(instance.finalResult === undefined){
+          if(instance.finalResult === undefined && instance.catched === undefined){
             let attri = {ended: new Date().getTime(), finalResult: false, systemUpdate: true};
             instance.updateAttributes(attri);
             Transaction.findById(instance.transactionId)

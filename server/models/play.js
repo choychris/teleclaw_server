@@ -66,7 +66,7 @@ module.exports = function(Play) {
 
     Play.findOne({where: {userId: userId}, order: 'created DESC'})
       .then(result=>{
-        if((new Date().getTime() - new Date(result.created).getTime()) <= 50000){
+        if((new Date().getTime() - new Date(result.created).getTime()) <= 80000){
           updateMachine(result.machineId, userId)
           result.updateAttributes({errorRefund: true, finalResult: false, ended: new Date().getTime()});
           return Transaction.findById(result.transactionId)

@@ -31,10 +31,8 @@
     "errorRefund": {
       "type": "boolean"
     },
-    "movement": {
-      "type": [
-        "object"
-      ]
+    "catched": {
+      "type": "boolean"
     },
     "systemUpdate": {
       "type": "boolean"
