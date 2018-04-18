@@ -1,6 +1,5 @@
 {
-  "name": "broadcast",
-  "plural": "broadcasts",
+  "name": "turnserver",
   "base": "PersistedModel",
   "idInjection": false,
   "options": {
@@ -12,35 +11,26 @@
       "id": true,
       "required": true
     },
-    "name": {
-      "type": "object",
-      "required": true
-    },
-    "description": {
-      "type": "object"
-    },
     "created": {
       "type": "date",
       "required": true
     },
-    "startTime": {
-      "type": "date",
+    "urls": {
+      "type": "string",
       "required": true
     },
-    "status": {
-      "type": "boolean",
+    "username": {
+      "type": "string",
       "required": true
     },
-    "images": {
-      "type": "object"
-    },
-    "link": {
-      "type": "string"
+    "credential": {
+      "type": "string",
+      "required": true
     }
   },
   "validations": [],
   "relations": {},
-  "acls": [
+  "acls": [    
     {
       "accessType": "*",
       "principalType": "ROLE",
@@ -64,7 +54,6 @@
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",
       "permission": "ALLOW"
-    }
-  ],
+    }],
   "methods": {}
 }

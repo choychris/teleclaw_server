@@ -44,14 +44,16 @@
       "type": "string"
     },
     "referral": {
-      "code": "string",
-      "isReferred": "boolean",
-      "numOfReferred": "number"
+      "type": {
+        "code": "string",
+        "isReferred": "boolean",
+        "numOfReferred": "number"
+      }
     },
     "email": {
       "type": "string"
     },
-    "Email":{
+    "Email": {
       "type": "string"
     },
     "password": {

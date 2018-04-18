@@ -397,7 +397,7 @@ module.exports = function(Machine) {
 
     //if the user is able to start a game play;
     if(ctx.result.result.gizwits !== undefined){
-      let Play = app.models.Play;
+      let { Play, Transaction } = app.models;
       let { userId, playId } = ctx.result.result;
       //let { transactionId, userId, machineId, productId, playId } = afterRemote;
       
@@ -409,9 +409,13 @@ module.exports = function(Machine) {
         //console.log('check play result trigger HERE')
         Play.findById(playId, (err, instance)=>{
           //console.log('final play instance : ', instance);
-          if(instance.finalResult === undefined){
+          if(instance.finalResult === undefined && instance.catched === undefined){
             let attri = {ended: new Date().getTime(), finalResult: false, systemUpdate: true};
             instance.updateAttributes(attri);
+            Transaction.findById(instance.transactionId)
+            .then(trans=>{
+              createNewTransaction(userId, trans.amount, 'refund', 'plus', true)
+            })
           }
         });
       };

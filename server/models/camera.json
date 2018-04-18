@@ -28,6 +28,9 @@
     "webrtcServer": {
       "type": "string"
     },
+    "webrtcBackUpServer": {
+      "type": "string"
+    },
     "rtspDdnsUrl": {
       "type": "string"
     },

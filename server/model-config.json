@@ -115,5 +115,9 @@
   "broadcast": {
     "dataSource": "mongodb",
     "public": true
+  },
+  "turnserver": {
+    "dataSource": "mongodb",
+    "public": true
   }
 }
