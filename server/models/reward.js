@@ -199,4 +199,33 @@ module.exports = function(Reward) {
     }
   );
 
+  Reward.rewardedVideo = (data, cb) => {
+    let { userId, method } = data;
+    let { Event } = app.models;
+    Event.findOne({where:{type: 'videoAds', launching:true}})
+    .then(event=>{
+      if(method === 'get'){
+        cb(null, {amount: event.rewardAmount});
+      }else if(method === 'claim'){
+        loggingFunction('Reward | ', 'rewardedVideo claim | user:', userId, 'info');
+        Reward.create({type: 'videoAds', rewardAmount: event.rewardAmount, userId})
+        .then(res=>{
+          cb(null, {success: true, rewardAmount: event.rewardAmount});
+        })
+      }
+    }).catch(error=>{
+      loggingFunction('Reward | ', 'rewardedVideo promise chain error | ', error, 'error');
+      cb(error)    
+    })
+  };
+
+  Reward.remoteMethod(
+    'rewardedVideo',
+    {
+      http: {path: '/rewardedVideo', verb: 'post'}, 
+      accepts: {arg: 'data', type: 'object', http: {source: 'body'}},
+      returns: {arg: 'response', type: 'object'}
+    }
+  );
+
 };

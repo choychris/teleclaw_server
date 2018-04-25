@@ -70,6 +70,13 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "refer"
+    },    
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "rewardedVideo"
     },
     {
       "accessType": "WRITE",
