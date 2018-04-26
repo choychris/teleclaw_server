@@ -213,6 +213,7 @@ module.exports = function(Reward) {
           cb(null, {success: true, rewardAmount: event.rewardAmount});
         })
       }
+      return null;
     }).catch(error=>{
       loggingFunction('Reward | ', 'rewardedVideo promise chain error | ', error, 'error');
       cb(error)    
