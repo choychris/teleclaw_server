@@ -235,7 +235,7 @@ module.exports = function(User) {
         lastLogIn: 10000,
         name: newUser.username, 
         username: newUser.userId + '@teleclaw',
-        email: newUser.email || null,
+        contactEmail: newUser.email || null,
         password: newUser.userId,
         language: newUser.language,
         picture: profilePic.url

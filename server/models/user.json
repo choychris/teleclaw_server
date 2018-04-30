@@ -53,7 +53,7 @@
     "email": {
       "type": "string"
     },
-    "Email": {
+    "contactEmail": {
       "type": "string"
     },
     "password": {
