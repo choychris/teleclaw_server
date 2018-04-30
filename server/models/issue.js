@@ -22,12 +22,18 @@ module.exports = function(Issue) {
       let User = app.models.User;
       let { userId, email } =  ctx.instance;
       ctx.instance.solved = false;
+      // update user's email if user has no email in facebook;
       if(!!email){
-        // update user's email if user has no email in facebook;
         User.findById(userId, (err, user)=>{
-          user.updateAttributes({UserEmail: email});
+          user.updateAttributes({contactEmail: email});
         })
-      }
+      }else{
+        User.findById(userId, (err, user)=>{
+          let originalMail = user.contactEmail ? user.contactEmail : user.email;
+          ctx.instance.email = originalMail;
+        })
+      };
+
       next();
     }else{
       next();
