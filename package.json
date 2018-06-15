@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "unit_test": "mocha ./test/mocha/machineStatus"
+    "unit_test": "mocha ./test/mocha/mini_game_play/startGame"
   },
   "dependencies": {
     "@alicloud/pop-core": "^1.5.1",
@@ -35,6 +35,7 @@
     "moment": "^2.20.1",
     "multer": "^1.3.0",
     "pusher": "^1.5.1",
+    "request": "^2.87.0",
     "serve-favicon": "^2.0.1",
     "shortid": "^2.2.8",
     "strong-error-handler": "^2.0.0",

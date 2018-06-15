@@ -1,11 +1,12 @@
-'use strict';
-
 module.exports = function(server) {
   // Install a `/` route that returns server status
-  var router = server.loopback.Router();
-  var ds = server.dataSources.mongodb;
-  ds.autoupdate('user', (err, result)=>{});
-  ds.autoupdate('event', (err, result)=>{});
+  const router = server.loopback.Router();
+  const ds = server.dataSources.mongodb;
+  ds.autoupdate('user', () => {});
+  ds.autoupdate('wallet', () => {});
+  ds.autoupdate('event', () => {});
+  ds.autoupdate('tournament', () => {});
+  ds.autoupdate('participant', () => {});
   router.get('/', server.loopback.status());
   server.use(router);
 };

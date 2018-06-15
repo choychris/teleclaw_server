@@ -1,29 +1,28 @@
-var should = require('chai').should();
-var supertest = require('supertest');
-var { NODE_ENV } = process.env;
-var baseUrl = 'http://localhost:3000';
+const should = require('chai').should();
+const supertest = require('supertest');
 
-if(NODE_ENV == 'staging' || NODE_ENV == 'production'){
-  app = require('../../build/server.js')
-  before(function() {
-    console.log('server start')
+const { NODE_ENV } = process.env;
+const baseUrl = 'http://localhost:3000';
+
+if (NODE_ENV === 'staging' || NODE_ENV === 'production') {
+  const app = require('../../build/server.js');
+  before(() => {
+    console.log('server start');
     app.start();
   });
 
-  after(function(){
+  after(() => {
     console.log('server stop')
     app.stop();  
   });
 }
 
-const generateJSONAPI = (url, filter) => {
-  return url + '&filter=' + JSON.stringify(filter) ;
-}
+const generateJSONAPI = (url, filter) => url + '&filter=' + JSON.stringify(filter) ;
 
 global.lbUserId = '5ab0ed67309ce20064ea65a7';
 global.accessToken = 'HEqokw8Fm6uoDVHe5CCEMd4QBHnJCc4BMhMi5lPSmJcHjGLNZIpkCuCFcErsHBtC';
 
-describe('Change a machine to different status', function(){
+describe('Change a machine to different status', () => {
 
   // |================== Authenticate User API ==================|
   // if(process.env.NODE_ENV === 'staging'){

@@ -9,6 +9,9 @@
   "extends": ["airbnb-base", "loopback"],
   "plugins": ["import"],
   "rules": {
-      "no-use-before-define": 0
+      "no-use-before-define": 0,
+      "object-curly-spacing": [2, "always"],
+      "no-param-reassign": ["error", { "props": false }],
+      "max-len": ["error", 120]
     }
 }

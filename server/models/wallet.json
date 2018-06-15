@@ -5,6 +5,13 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes": {
+    "search_index": {
+      "keys": {
+        "userId": 1
+      }
+    }
+  },
   "properties": {
     "id": {
       "type": "string",

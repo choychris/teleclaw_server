@@ -1,5 +1,5 @@
 {
-  "name": "turnserver",
+  "name": "trial",
   "base": "PersistedModel",
   "idInjection": false,
   "options": {
@@ -15,17 +15,23 @@
       "type": "date",
       "required": true
     },
-    "urls": {
+    "transactionId": {
       "type": "string",
-      "required": true
+      "require": true
     },
-    "username": {
+    "gameId": {
       "type": "string",
-      "required": true
+      "require": true
     },
-    "credential": {
-      "type": "string",
-      "required": true
+    "coins": {
+      "type": "number",
+      "require": true
+    },
+    "score": {
+      "type": "number"
+    },
+    "participantId": {
+      "type": "string"
     }
   },
   "validations": [],
@@ -38,15 +44,16 @@
       "permission": "DENY"
     },
     {
-      "accessType": "READ",
+      "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "$authenticated",
-      "permission": "ALLOW"
+      "permission": "ALLOW",
+      "property": "newGame"
     },
     {
       "accessType": "WRITE",
       "principalType": "ROLE",
-      "principalId": "teleClawAdmin",
+      "principalId": "$authenticated",
       "permission": "ALLOW"
     },
     {

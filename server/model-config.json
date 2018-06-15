@@ -119,5 +119,21 @@
   "turnserver": {
     "dataSource": "mongodb",
     "public": true
+  },
+  "game": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "tournament": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "participant": {
+    "dataSource": "mongodb",
+    "public": true
+  },
+  "trial": {
+    "dataSource": "mongodb",
+    "public": true
   }
 }

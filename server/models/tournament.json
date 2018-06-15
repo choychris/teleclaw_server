@@ -1,9 +1,17 @@
 {
-  "name": "turnserver",
+  "name": "tournament",
   "base": "PersistedModel",
   "idInjection": false,
   "options": {
     "validateUpsert": true
+  },
+  "indexes": {
+    "sort_index": {
+      "keys": {
+        "gameId": 1,
+        "created": 1
+      }
+    }
   },
   "properties": {
     "id": {
@@ -12,36 +20,40 @@
       "required": true
     },
     "created": {
-      "type": "date",
+      "type": "number",
       "required": true
     },
-    "urls": {
+    "duration": {
+      "type": "number",
+      "required": true
+    },
+    "endTime": {
+      "type": "number",
+      "required": true
+    },
+    "gameId": {
       "type": "string",
       "required": true
     },
-    "username": {
-      "type": "string",
-      "required": true
-    },
-    "credential": {
-      "type": "string",
+    "status": {
+      "type": "boolean",
       "required": true
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "participants": {
+      "type": "hasMany",
+      "model": "participant",
+      "foreginKey": "tournamentId"
+    }
+  },
   "acls": [
     {
       "accessType": "*",
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "DENY"
-    },
-    {
-      "accessType": "READ",
-      "principalType": "ROLE",
-      "principalId": "$authenticated",
-      "permission": "ALLOW"
     },
     {
       "accessType": "WRITE",

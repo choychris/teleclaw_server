@@ -1,0 +1,46 @@
+{
+  "name": "participant",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true,
+    "strictObjectIDCoercion": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "created": {
+      "type": "date",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "tournamentId": {
+      "type": "string",
+      "required": true
+    },
+    "numberOfTrial": {
+      "type": "number",
+      "required": true
+    },
+    "highestScore": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "trials": {
+      "type": "hasMany",
+      "model": "trial",
+      "foreginKey": "participantId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

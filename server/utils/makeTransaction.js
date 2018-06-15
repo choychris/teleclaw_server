@@ -1,67 +1,64 @@
-import { loggingFunction } from './createLogging.js';
-const Promise = require('bluebird');
+import { loggingFunction } from './createLogging';
 
-export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMinus){
-  model.findById(modelId, (err, foundModel)=>{
-    if(plusOrMinus === 'minus'){
-      let newNumber = foundModel[modelAttribute] - amount;
-      let roundNumber = Math.round(newNumber);
-      foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
-        if(err){
-          loggingFunction(`${model} | `, 'makeCalculation error | ', err, 'error')
+const Promise = require('bluebird');
+const app = require('../server');
+
+export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMinus) {
+  model.findById(modelId, (err, foundModel) => {
+    if (plusOrMinus === 'minus') {
+      const newNumber = foundModel[modelAttribute] - amount;
+      const roundNumber = Math.round(newNumber);
+      foundModel.updateAttributes({ [modelAttribute]: roundNumber }, (error) => {
+        if (err) {
+          loggingFunction(`${model} | `, 'makeCalculation error | ', error, 'error');
         }
       });
-    }else if(plusOrMinus === 'plus'){
-      let newNumber = foundModel[modelAttribute] + amount;
-      let roundNumber = Math.round(newNumber);
-       foundModel.updateAttributes({[modelAttribute]: roundNumber}, (err, instance)=>{
-        if(err){
-          loggingFunction(`${model} | `, 'makeCalculation error | ', err, 'error')
+    } else if (plusOrMinus === 'plus') {
+      const newNumber = foundModel[modelAttribute] + amount;
+      const roundNumber = Math.round(newNumber);
+      foundModel.updateAttributes({ [modelAttribute]: roundNumber }, (error) => {
+        if (err) {
+          loggingFunction(`${model} | `, 'makeCalculation error | ', error, 'error');
         }
       });
     }
   });
-};
+}
 
-export function createNewTransaction(userId, amount, type, action, status, gateway){
- var app = require('../server');
- let Wallet = app.models.Wallet;
- let Transaction = app.models.Transaction;
- return new Promise((resolve, reject)=>{
-  //find user's wallet to get wallet id
-    Wallet.findOne({where: {userId:userId}}, (err, wallet)=>{
-      if(err){
-        loggingFunction('Wallet | ', 'Wallet.findOne in createNewTransaction error | ', err, 'error')
-        reject(err);
-        return err;
+export function createNewTransaction(userId, amount, type, action, status, gateway) {
+  const { Wallet, Transaction } = app.models;
+  return new Promise((resolve, reject) => {
+  // find user's wallet to get wallet id
+    Wallet.findOne({ where: { userId } }, (err, wallet) => {
+      if (err) {
+        loggingFunction('Wallet | ', 'Wallet.findOne in createNewTransaction error | ', err, 'error');
+        return reject(err);
       }
-      let transacObject = {
-        action: action,
-        amount: amount,
+      const transacObject = {
+        action,
+        amount,
         transactionType: type,
         success: status,
         walletId: wallet.id,
-        userId: userId,
-      }
-      if(!!gateway){transacObject.gatewayResponse = gateway};
+        userId,
+      };
+      if (gateway !== undefined) { transacObject.gatewayResponse = gateway; }
       // create a new transaction record
-      Transaction.create(transacObject, (error, createdTrans)=>{
-        if(error){
-          loggingFunction('Transaction | ', 'create trans in createNewTransaction error | ', error, 'error')
-          reject(error);
-          return error;
+      Transaction.create(transacObject, (error, createdTrans) => {
+        if (error) {
+          loggingFunction('Transaction | ', 'create trans in createNewTransaction error | ', error, 'error');
+          return reject(error);
         }
-        if(action === 'minus' && status){
+        if (action === 'minus' && status) {
           createdTrans.newWalletBalance = wallet.balance - createdTrans.amount;
-        }else if(action === 'plus' && status){
+        } else if (action === 'plus' && status) {
           createdTrans.newWalletBalance = wallet.balance + createdTrans.amount;
-        }else{
+        } else {
           createdTrans.newWalletBalance = wallet.balance;
         }
-        resolve(createdTrans);
-        return createdTrans
-      });
-    });//<--- find User function ended
- });//<--- promise ended
-};
+        return resolve(createdTrans);
+      });// <--- create transaction object ended
+    });// <--- find User wallet function ended
+  });// <--- promise ended
+}
 

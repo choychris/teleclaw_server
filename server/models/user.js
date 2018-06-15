@@ -134,13 +134,14 @@ module.exports = function(User) {
             return false
           }
           let result = JSON.parse(body);
+          // console.log(result);
           if(result.error !== undefined){
             loggingFunction('User | ', 'fb check token valid api error | ', result.error, 'error');
             reject(result.error.message);
             return false
           } else {
             let valid = (result.data.is_valid && result.data.expires_at > new Date().getTime()/1000 ) ? 'valid' : 'invalid' ;
-            valid == 'valid' ? resolve(true) : reject(new Error('invalid token')) ;
+            valid == 'valid' ? resolve(true) : reject(new Error('invalid token from facebook')) ;
             return true;
           }
         });

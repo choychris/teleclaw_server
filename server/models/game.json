@@ -1,5 +1,6 @@
 {
-  "name": "turnserver",
+  "name": "game",
+  "plural": "games",
   "base": "PersistedModel",
   "idInjection": false,
   "options": {
@@ -15,33 +16,28 @@
       "type": "date",
       "required": true
     },
-    "urls": {
+    "name": {
       "type": "string",
       "required": true
     },
-    "username": {
-      "type": "string",
-      "required": true
-    },
-    "credential": {
-      "type": "string",
-      "required": true
+    "description": {
+      "type": "string"
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "tournaments": {
+      "type": "hasMany",
+      "model": "tournament",
+      "foreginKey": "gameId"
+    }
+  },
   "acls": [
     {
       "accessType": "*",
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "DENY"
-    },
-    {
-      "accessType": "READ",
-      "principalType": "ROLE",
-      "principalId": "$authenticated",
-      "permission": "ALLOW"
     },
     {
       "accessType": "WRITE",

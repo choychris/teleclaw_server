@@ -1,18 +1,17 @@
-'use strict';
-import { updateTimeStamp, assignKey } from '../utils/beforeSave.js';
-import { loggingModel } from '../utils/createLogging.js';
-//import { changeFirebaseDb } from '../utils/firebasedb.js';
-module.exports = function(Wallet) {
+import { updateTimeStamp, assignKey } from '../utils/beforeSave';
+import { loggingModel } from '../utils/createLogging';
+// import { changeFirebaseDb } from '../utils/firebasedb.js';
+// const app = require('../server');
 
-  var app = require('../server');
-  //make loggings for monitor purpose
+module.exports = function(Wallet) {
+  // make loggings for monitor purpose
   loggingModel(Wallet);
 
   // assgin last updated time / created time to model
   updateTimeStamp(Wallet);
 
-  //assign an unique if its new instance 
-  assignKey(Wallet)
+  // assign an unique if its new instance
+  assignKey(Wallet);
 
   // deprecated firebase api :
   // Wallet.observe('after save', (ctx, next)=>{
@@ -25,5 +24,4 @@ module.exports = function(Wallet) {
   //   }
   //   next();
   // });
-
 };

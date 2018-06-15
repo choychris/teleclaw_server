@@ -70,7 +70,7 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "refer"
-    },    
+    },
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
