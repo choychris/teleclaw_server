@@ -3,8 +3,9 @@ import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLog
 import { checkMachineStatus } from '../utils/gamePlayTimer';
 import { makeCalculation } from '../utils/makeTransaction';
 
+const app = require('../server');
+
 module.exports = function(Reservation) {
-  const app = require('../server');
   // make loggings for monitor purpose
   loggingModel(Reservation);
   loggingRemote(Reservation, 'endEngage');
@@ -18,7 +19,7 @@ module.exports = function(Reservation) {
   assignKey(Reservation);
 
   Reservation.observe('before save', (ctx, next) => {
-    const Machine = app.models.Machine;
+    const { Machine } = app.models;
     if (!ctx.isNewInstance) {
       // machineId of currently reserving
       const {
@@ -77,9 +78,9 @@ module.exports = function(Reservation) {
 
   // the remote method to immediately change the machine status and find the next user
   Reservation.endEngage = (machineId, userId, cb) => {
-    const Machine = app.models.Machine;
+    const { Machine } = app.models;
 
-    Machine.findById(machineId, (machine) => {
+    Machine.findById(machineId, (error, machine) => {
       // check if machine is still in playing
       const currentId = machine.currentUser ? machine.currentUser.id : 'null';
       const infomation = {
@@ -89,33 +90,36 @@ module.exports = function(Reservation) {
         currentId: currentId.toString(),
       };
       loggingFunction('Reservation | ', 'end user engage | ', JSON.stringify(infomation), 'info');
-      if (machine.status == 'open' && (currentId.toString() == userId.toString())) {
+      if (machine.status === 'open' && (currentId.toString() === userId.toString())) {
         // find next reservation
-        Reservation.findOne({ where: { machineId, status: 'open' }, order: 'lastUpdated ASC' }, (foundReserve) => {
-          if (foundReserve === null) {
-            updateMachine(machineId, 'open', null);
-            if (cb) { cb(null, 'machine_open'); }
-          } else {
+        Reservation.findOne(
+          { where: { machineId, status: 'open' }, order: 'lastUpdated ASC' },
+          (errors, foundReserve) => {
+            if (foundReserve === null) {
+              updateMachine(machineId, 'open', null);
+              if (cb) { cb(null, 'machine_open'); }
+            } else {
             // update the next reserve and trigger pusher in after save
-            foundReserve.updateAttributes({ status: 'close' }, (instance) => {
-              updateMachine(machineId, 'open', { id: instance.userId });
-              // after 8 sec, check if user has reponsed
-              timeOutReserve(machineId, instance.userId, Machine, Reservation);
-              if (cb) { cb(null, 'next_reserve'); }
-            });
+              foundReserve.updateAttributes({ status: 'close' }, (err, instance) => {
+                updateMachine(machineId, 'open', { id: instance.userId });
+                // after 8 sec, check if user has reponsed
+                timeOutReserve(machineId, instance.userId, Machine, Reservation);
+                if (cb) { cb(null, 'next_reserve'); }
+              });
+            }
           }
-        });
-      } else if (machine.status == 'playing') {
+        );
+      } else if (machine.status === 'playing') {
         if (cb) { cb(null, 'machine_playing'); }
-      } else if (machine.status == 'close') {
+      } else if (machine.status === 'close') {
         if (cb) { cb(null, 'machine_closed'); }
       } else if (cb) { cb(null, 'machine_ready'); }
     });
   };// <--- endEngage remote method end
 
   function updateMachine(machineId, status, userId) {
-    const Machine = app.models.Machine;
-    Machine.findById(machineId, (machine) => {
+    const { Machine } = app.models;
+    Machine.findById(machineId, (error, machine) => {
       machine.updateAttributes({ status, currentUser: userId }, (err) => {
         if (err) {
           loggingFunction('Reservation | ', ' updateMachine Error | ', err, 'error');
@@ -126,9 +130,9 @@ module.exports = function(Reservation) {
   }
 
   // after 8 sec, check if user has reponsed
-  function timeOutReserve(machineId, userId, Machine, Reservation) {
+  function timeOutReserve(machineId, userId, Machine, reservation) {
     setTimeout(() => {
-      checkMachineStatus(machineId, userId, Machine, Reservation);
+      checkMachineStatus(machineId, userId, Machine, reservation);
     }, 12000);
   }
 
@@ -148,7 +152,7 @@ module.exports = function(Reservation) {
     // find next reservation
     Reservation.findOne(
       { where: { machineId, status: 'open' }, order: 'lastUpdated ASC' },
-      (foundReserve) => {
+      (err, foundReserve) => {
         if (foundReserve === null) {
           updateMachine(machineId, 'open', null);
           cb(null, 'machine_open');
@@ -156,7 +160,7 @@ module.exports = function(Reservation) {
         // update the next reserve and trigger pusher in after save
           foundReserve.updateAttributes(
             { status: 'close' },
-            (instance) => {
+            (error, instance) => {
               updateMachine(machineId, 'open', { id: instance.userId });
               // after 8 sec, check if user has reponsed
               const { Machine } = app.models;

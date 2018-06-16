@@ -6,6 +6,12 @@
     "validateUpsert": true,
     "strictObjectIDCoercion": true
   },
+  "indexes": {
+    "ranking_index": {
+      "highestScore": -1,
+      "numberOfTrial": -1
+    }
+  },
   "properties": {
     "id": {
       "type": "string",

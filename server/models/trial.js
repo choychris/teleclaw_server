@@ -13,6 +13,29 @@ module.exports = function(Trial) {
     next();
   });
 
+  Trial.observe('after save', (ctx, next) => {
+    if (!ctx.isNewInstance) {
+      const { score, participantId } = ctx.instance;
+      if (score !== undefined) {
+        const { Participant } = app.models;
+        Participant.findById(participantId)
+          .then((data) => {
+            const { numberOfTrial, highestScore } = data;
+            const newHighScore = (score > highestScore) ? score : highestScore;
+            data.updateAttributes({
+              numberOfTrial: numberOfTrial + 1,
+              highestScore: newHighScore,
+            });
+            return null;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    }
+    next();
+  });
+
   Trial.newGame = (data, cb) => {
     const { userId, coins, gameId } = data;
     const { Wallet, Transaction } = app.models;
@@ -60,12 +83,12 @@ module.exports = function(Trial) {
   };
 
   Trial.afterRemote('newGame', (ctx, output, next) => {
-    const { gameId, userId } = output.response;
+    const { trialId, gameId, userId } = output.response;
     const { Tournament, Participant } = app.models;
     Tournament.findOne(
       { where: { gameId }, order: 'created DESC' },
       (err, tournament) => {
-        console.log('tournament', tournament);
+        // console.log('tournament', tournament);
         Participant.findOrCreate(
           { where: { userId, tournamentId: tournament.id } },
           {
@@ -74,28 +97,16 @@ module.exports = function(Trial) {
             numberOfTrial: 1,
             highestScore: 0,
           }
-        );
-        // .then((partiUser) => {
-        //   console.log('partiUser', partiUser);
-        //   if (!partiUser) {
-        //     return Participant.create({
-        //       userId,
-        //       tournamentId: tournament.id,
-        //       numberOfTrial: 1,
-        //       highestScore: 0,
-        //     });
-        //   }
-        //   return null;
-        // })
-        // .catch((error) => {
-        //   console.log(error);
-        // });
-        // Participant.findOne(
-        //   { where: { userId: userId, tournamentId: tournament.id } }, 
-        //   (err, data) => {
-        //     if (err) { console.log(err); }
-        //     console.log(data);
-        //   })
+        )
+          .then((participant) => {
+            console.log(participant[0].id);
+            Trial.findById(
+              trialId,
+              (error, data) => {
+                data.updateAttributes({ participantId: participant[0].id });
+              }
+            );
+          });
         next();
       }
     );
@@ -107,6 +118,44 @@ module.exports = function(Trial) {
       http: { path: '/newGame', verb: 'post' },
       accepts: { arg: 'data', type: 'object', http: { source: 'body' } },
       returns: { arg: 'response', type: 'object' },
+    }
+  );
+
+  Trial.retry = (userId, coins, cb) => {
+    const { Wallet, Transaction } = app.models;
+
+    Wallet.findOne({ where: { userId } })
+      .then((wallet) => {
+        if (wallet.balance >= coins) {
+          Transaction.create({
+            action: 'minus',
+            amount: coins,
+            success: true,
+            walletId: wallet.id,
+            userId,
+            transactionType: 'Game',
+          });
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+        return null;
+      })
+      .catch((error) => {
+        console.log(error);
+        cb(error, false);
+      });
+  };
+
+  Trial.remoteMethod(
+    'retry',
+    {
+      http: { path: '/:userId/:coins/retry', verb: 'get' },
+      accepts: [
+        { arg: 'userId', type: 'string', require: true },
+        { arg: 'coins', type: 'number', require: true },
+      ],
+      returns: { arg: 'response', type: 'boolean' },
     }
   );
 };

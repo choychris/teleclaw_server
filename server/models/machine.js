@@ -105,7 +105,7 @@ module.exports = function(Machine) {
   function checkAllMachines(productId) {
     const { Product } = app.models;
     function updateProductStatus(newMachineStatus, productId) {
-      Product.findById(productId, (foundProduct) => {
+      Product.findById(productId, (error, foundProduct) => {
         const oldStatus = foundProduct.status;
         if (newMachineStatus) {
           oldStatus.machineStatus = newMachineStatus;
@@ -119,7 +119,7 @@ module.exports = function(Machine) {
 
     Machine.find(
       { where: { productId, status: 'open', currentUser: null } },
-      (result) => {
+      (error, result) => {
         if (result.length !== 0) {
           updateProductStatus(true, productId);
         } else {
@@ -227,11 +227,11 @@ module.exports = function(Machine) {
           cb(null, response);
         }).catch((error) => {
           loggingFunction('Machine | ', 'start game function error | ', error, 'error');
-          createNewTransaction(userId, gamePlayRate, 'refund', 'plus', true)
-            .then(refundRes => Play.create({
-              userId, machineId, productId, transactionId: refundRes.id, expectedResult: false,
-            })).then((playRes) => {
-              cb(null, { playId: playRes.id, gizwits: 'no response' });
+          Play.create({
+            userId, machineId, productId, transactionId: 'system error', expectedResult: false,
+          })
+            .then((playRes) => {
+              cb(null, { playId: playRes.id, userId, gizwits: 'no response' });
             });
         });
     }// <--- start game function end
@@ -251,13 +251,13 @@ module.exports = function(Machine) {
       };
       // first, login the user to get token
       return new Promise((resolve, reject) => {
-        request(createUser, (err, body) => {
+        request(createUser, (err, resp) => {
           User.find({ where: { id: userId, bindedDevice: deviceId } }, (error, user) => {
-            if (err || error || !body) {
+            const { token, uid } = JSON.parse(resp.body);
+            if (err || error || !resp.body || !token || !uid) {
               loggingFunction('Machine | ', 'login gizwits user error | ', err || error, 'error');
-              reject(err || error || Error('no response from gizwits'));
+              return reject(err || error || new Error('bad response from gizwits'));
             }
-            const { token, uid } = JSON.parse(body);
             // check whether the user has already bind this machine
             const gizwits = {
               init: {
@@ -275,7 +275,7 @@ module.exports = function(Machine) {
               bindMac(deviceMAC, token, machineId, gizwits, resolve, reject);
               User.update({ id: userId }, { $push: { bindedDevice: deviceId } }, { allowExtendedOperators: true });
             } else {
-              resolve(gizwits);
+              return resolve(gizwits);
             }
           });// <--- find user end
         });// <--- request end
@@ -300,12 +300,12 @@ module.exports = function(Machine) {
           mac: deviceMAC,
         }),
       };
-      request(bindMac, (err, bindBody) => {
-        if (err || !bindBody) {
+      request(bindMac, (err, respos) => {
+        const { host, wss_port } = JSON.parse(respos.body);
+        if (err || !respos.body || !host) {
           loggingFunction('Machine | ', 'gizwits bind mac error | ', err, 'error');
-          reject(err || Error('no response from gizwits'));
+          reject(err || new Error('bad response from gizwits'));
         } else {
-          const { host, wss_port } = JSON.parse(bindBody);
           const update = { 'iotPlatform.gizwits.host': host, 'iotPlatform.gizwits.wss_port': wss_port };
           updateMachineAttri(machineId, update);
           gizwits.websocket = { host, wss_port };
@@ -340,7 +340,7 @@ module.exports = function(Machine) {
 
   // find the user include relations
   function findUserInclude(userId, include) {
-    const User = app.models.User;
+    const { User } = app.models;
     return new Promise((resolve, reject) => {
       User.findById(userId, { include }, (err, user) => {
         if (err) {
@@ -374,14 +374,14 @@ module.exports = function(Machine) {
 
   // update Machine attributies function
   function updateMachineAttri(machineId, updateObj) {
-    Machine.findById(machineId, (instance) => {
+    Machine.findById(machineId, (error, instance) => {
       instance.updateAttributes(updateObj);
     });
   }
 
   // make a reservation of user
   function makeReserve(userId, machineId, productId) {
-    const Reservation = app.models.Reservation;
+    const { Reservation } = app.models;
     return new Promise((resolve, reject) => {
       Reservation.findOne({ where: { userId } }, (err, instance) => {
         instance.updateAttributes({ status: 'open', machineId, productId }, (error, updatedReserve) => {
@@ -405,39 +405,39 @@ module.exports = function(Machine) {
     });
   }
 
-  Machine.afterRemote('gamePlay', (ctx, next) => {
+  Machine.afterRemote('gamePlay', (ctx, unused, next) => {
     // console.log('|=========== Game Play End =============|')
     // console.log(ctx.result.result)
 
     // if the user is able to start a game play;
     if (ctx.result.result.gizwits !== undefined) {
-      const { Play, Transaction } = app.models;
       const { userId, playId } = ctx.result.result;
       // let { transactionId, userId, machineId, productId, playId } = afterRemote;
 
       // check the result after 47s
-      setTimeout(() => { checkPlayResult(playId); }, 70000);
-
-      // check if the result is updated manually
-      function checkPlayResult(playId) {
-        // console.log('check play result trigger HERE')
-        Play.findById(playId, (instance) => {
-          // console.log('final play instance : ', instance);
-          if (instance.finalResult === undefined) {
-            const attri = { ended: new Date().getTime(), finalResult: false, systemUpdate: true };
-            instance.updateAttributes(attri);
-            if (instance.catched === undefined) {
-              Transaction.findById(instance.transactionId)
-                .then((trans) => {
-                  createNewTransaction(userId, trans.amount, 'refund', 'plus', true);
-                });
-            }
-          }
-        });
-      }
+      setTimeout(() => { checkPlayResult(playId, userId); }, 70000);
       next();
+      // check if the result is updated manually
     } else {
       next();
+    }
+
+    function checkPlayResult(playId, userId) {
+      const { Play, Transaction } = app.models;
+      // console.log('check play result trigger HERE')
+      Play.findById(playId, (error, instance) => {
+        // console.log('final play instance : ', instance);
+        if (instance.finalResult === undefined) {
+          const attri = { ended: new Date().getTime(), finalResult: false, systemUpdate: true };
+          instance.updateAttributes(attri);
+          if (instance.catched === undefined) {
+            Transaction.findById(instance.transactionId)
+              .then((trans) => {
+                createNewTransaction(userId, trans.amount, 'refund', 'plus', true);
+              });
+          }
+        }
+      });
     }
   });
 

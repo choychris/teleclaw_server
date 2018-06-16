@@ -78,11 +78,51 @@ describe('Start to play a mini game', () => {
         .set('Accept', 'application/json')
         .end((err, res) => {
           console.log(res.body.response);
+          global.trialId = res.body.response.trialId;
           res.body.response.should.be.an('object');
           res.status.should.equal(200);
           done();
         });
     });
   });
+
+  // ===== after game play user submit score =====
+  describe('update play score', function(){
+    this.timeout(10000);
+    it('should return trial object', function(done){
+      setTimeout(()=>{
+          var api = supertest.agent(baseUrl);
+          let trialId = global.trialId;
+          let url = `/api/trials/${trialId}?access_token=${global.accessToken}`;
+          api
+            .patch(url)
+            .send({score: 40})
+            .set('Accept', 'application/json')
+            .end(function(err,res){
+              console.log(res.body)
+              res.body.should.be.an('object');
+              res.status.should.equal(200);
+              done();
+            });
+      }, 8000)
+    });
+  });
+  // ====== user press continue/retry button ======
+  // describe('Retry Game', () => {
+  //   it('enough coins return true', (done) => {
+  //     const api = supertest.agent(baseUrl);
+  //     const userId = global.lbUserId;
+  //     const accessToken = global.accessToken;
+
+  //     api
+  //       .get(`/api/trials/${userId}/${1}/retry?access_token=${accessToken}`)
+  //       .set('Accept', 'application/json')
+  //       .end((err, res) => {
+  //         res.body.response.should.be.true;
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
 });

@@ -44,7 +44,7 @@ module.exports = function(Event) {
       const type = ctx.data.type || ctx.instance.type;
       if (type !== 'promotion') {
         // if it is not promotion, make sure no same type of event is launching
-        Event.findOne({where: {type, launching: true}}, (err, event) => {
+        Event.findOne({ where: { type, launching: true } }, (err, event) => {
           if (event !== null) {
             next('there is already a same type event launching');
           } else {
