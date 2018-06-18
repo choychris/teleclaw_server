@@ -56,13 +56,27 @@
       "permission": "DENY"
     },
     {
-      "accessType": "WRITE",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "rank"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "weekly"
+    },
+    {
+      "accessType": "READ",
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",
       "permission": "ALLOW"
     },
     {
-      "accessType": "READ",
+      "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "teleClawAdmin",
       "permission": "ALLOW"

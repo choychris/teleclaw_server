@@ -21,6 +21,8 @@ const generateJSONAPI = (url, filter) => `${url}&filter=${JSON.stringify(filter)
 
 global.lbUserId = '5b23939f29e05d00bd846546';
 global.accessToken = 'z7XVvlIbDhSZG649KU59bljIyv9xWAdTOBpVIK0ZHK2HlNOKIR3S5n5wJHCRzJVY';
+// global.lbUserId = '5a378cfe3d4405006a68798a';
+// global.accessToken = 'dVneP8e5uBQkieAC5FeHMyUW0A0bGebL0VNYkDamfDyqNUZrfaPcKm0qtSnD0c3T';
 
 describe('Start to play a mini game', () => {
   // |================== Authenticate User API ==================|
@@ -96,7 +98,7 @@ describe('Start to play a mini game', () => {
           let url = `/api/trials/${trialId}?access_token=${global.accessToken}`;
           api
             .patch(url)
-            .send({score: 40})
+            .send({score: 28})
             .set('Accept', 'application/json')
             .end(function(err,res){
               console.log(res.body)

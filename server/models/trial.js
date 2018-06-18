@@ -1,5 +1,8 @@
 import { assignKey } from '../utils/beforeSave';
 import { loggingModel } from '../utils/createLogging';
+import { createNewTransaction } from '../utils/makeTransaction';
+
+const Promise = require('bluebird');
 
 const app = require('../server');
 
@@ -15,13 +18,15 @@ module.exports = function(Trial) {
 
   Trial.observe('after save', (ctx, next) => {
     if (!ctx.isNewInstance) {
-      const { score, participantId } = ctx.instance;
+      const { score, participantId, userId } = ctx.instance;
       if (score !== undefined) {
+        if (score >= 100) createNewTransaction(userId, 20, 'reward', 'plus', true);
         const { Participant } = app.models;
         Participant.findById(participantId)
           .then((data) => {
             const { numberOfTrial, highestScore } = data;
-            const newHighScore = (score > highestScore) ? score : highestScore;
+            const newHighScore = (score > highestScore) ?
+              score : highestScore;
             data.updateAttributes({
               numberOfTrial: numberOfTrial + 1,
               highestScore: newHighScore,
@@ -75,6 +80,7 @@ module.exports = function(Trial) {
           };
           cb(null, resObject);
         }
+        return null;
       })
       .catch((error) => {
         console.log(error);
@@ -84,32 +90,40 @@ module.exports = function(Trial) {
 
   Trial.afterRemote('newGame', (ctx, output, next) => {
     const { trialId, gameId, userId } = output.response;
-    const { Tournament, Participant } = app.models;
-    Tournament.findOne(
-      { where: { gameId }, order: 'created DESC' },
-      (err, tournament) => {
+    const { Tournament, Participant, User } = app.models;
+    Promise.all([
+      Tournament.findOne({ where: { gameId }, order: 'created DESC' }),
+      User.findById(userId, { fields: { name: true } }),
+    ])
+      .then((dataArray) => {
+        const tournament = dataArray[0];
+        const user = dataArray[1];
         // console.log('tournament', tournament);
-        Participant.findOrCreate(
+        return Participant.findOrCreate(
           { where: { userId, tournamentId: tournament.id } },
           {
             userId,
+            username: user.name,
             tournamentId: tournament.id,
-            numberOfTrial: 1,
+            numberOfTrial: 0,
             highestScore: 0,
           }
-        )
-          .then((participant) => {
-            console.log(participant[0].id);
-            Trial.findById(
-              trialId,
-              (error, data) => {
-                data.updateAttributes({ participantId: participant[0].id });
-              }
-            );
-          });
-        next();
-      }
-    );
+        );
+      })
+      .then((participant) => {
+        console.log(participant[0].id);
+        Trial.findById(
+          trialId,
+          (error, data) => {
+            data.updateAttributes({ participantId: participant[0].id });
+          }
+        );
+        return null;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    next();
   });
 
   Trial.remoteMethod(
