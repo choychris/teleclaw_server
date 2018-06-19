@@ -430,12 +430,6 @@ module.exports = function(Machine) {
         if (instance.finalResult === undefined) {
           const attri = { ended: new Date().getTime(), finalResult: false, systemUpdate: true };
           instance.updateAttributes(attri);
-          if (instance.catched === undefined) {
-            Transaction.findById(instance.transactionId)
-              .then((trans) => {
-                createNewTransaction(userId, trans.amount, 'refund', 'plus', true);
-              });
-          }
         }
       });
     }

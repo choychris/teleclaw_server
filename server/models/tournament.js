@@ -42,7 +42,11 @@ module.exports = function(Tournament) {
         const participantList = tournament.toJSON().participants;
         const userPositionIndex = participantList.findIndex(i => i.userId === userId);
         const result = filterParticipant(participantList, userPositionIndex);
-        cb(null, [result, tournament.endTime, participantList.length]);
+        cb(null, {
+          result,
+          endTime: tournament.endTime,
+          totalPlayer: participantList.length,
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -55,7 +59,7 @@ module.exports = function(Tournament) {
         for (let i = 0; i < result.length; i += 1) {
           result[i].rank = i + 1;
         }
-        if (userIndex > 0) result[userIndex].self = true;
+        if (userIndex >= 0) result[userIndex].self = true;
         return result;
       }
       const topThree = list.slice(0, 3);

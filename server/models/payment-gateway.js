@@ -1,5 +1,5 @@
-import {assignKey} from '../utils/beforeSave';
-import {loggingModel} from '../utils/createLogging';
+import { assignKey } from '../utils/beforeSave';
+import { loggingModel } from '../utils/createLogging';
 
 module.exports = function(Paymentgateway) {
   loggingModel(Paymentgateway);

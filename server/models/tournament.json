@@ -72,7 +72,7 @@
     {
       "accessType": "READ",
       "principalType": "ROLE",
-      "principalId": "teleClawAdmin",
+      "principalId": "$authenticated",
       "permission": "ALLOW"
     },
     {
