@@ -103,6 +103,7 @@ module.exports = function(Trial) {
           { where: { userId, tournamentId: tournament.id } },
           {
             userId,
+            gameId,
             username: user.name,
             tournamentId: tournament.id,
             numberOfTrial: 0,

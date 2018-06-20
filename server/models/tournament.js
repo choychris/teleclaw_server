@@ -112,6 +112,7 @@ module.exports = function(Tournament) {
           fields: [
             'username',
             'highestScore',
+            'numberOfTrial',
           ],
         },
       },
