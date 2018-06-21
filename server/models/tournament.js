@@ -2,6 +2,10 @@ import { assignKey } from '../utils/beforeSave';
 
 const moment = require('moment');
 
+const Promise = require('bluebird');
+
+const app = require('../server');
+
 module.exports = function(Tournament) {
   assignKey(Tournament);
 
@@ -118,8 +122,30 @@ module.exports = function(Tournament) {
       },
     };
 
-    Tournament.find(filter)
-      .then((tournaments) => {
+    const partiFilter = {
+      where: {
+        gameId,
+        created: {
+          gt: startOfWeek,
+        },
+      },
+      order: [
+        'highestScore DESC',
+        'numberOfTrial DESC',
+      ],
+      limit: 3,
+      fields: [
+        'username',
+        'highestScore',
+        'numberOfTrial',
+      ],
+    };
+
+    const { Participant } = app.models;
+    Promise.all([Tournament.find(filter), Participant.find(partiFilter)])
+      .then((result) => {
+        const tournaments = result[0];
+        const weeklyTopThree = result[1];
         const highestScoreList = [];
         tournaments.map((data) => {
           const bestOne = data.toJSON().participants[0];
@@ -128,12 +154,12 @@ module.exports = function(Tournament) {
           }
         });
         const compareScore = (a, b) => {
-          if (a.highestScore > b.highestScore) return 1;
-          if (b.highestScore > a.highestScore) return -1;
+          if (a.highestScore > b.highestScore) return -1;
+          if (b.highestScore > a.highestScore) return 1;
           return 0;
         };
         const sorted = highestScoreList.sort(compareScore);
-        cb(null, sorted);
+        cb(null, { allWinner: sorted, weeklyTopThree });
       })
       .catch((error) => {
         console.log(error);
