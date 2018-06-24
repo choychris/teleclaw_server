@@ -6,7 +6,7 @@ const { NODE_ENV } = process.env;
 const baseUrl = 'http://localhost:3000';
 
 if (NODE_ENV === 'staging' || NODE_ENV === 'production') {
-  const app = require('../../build/server.js');
+  const app = require('../../../build/server.js');
   before(() => {
     console.log('server start');
     app.start();
