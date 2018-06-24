@@ -418,6 +418,16 @@ module.exports = function(Machine) {
       setTimeout(() => { checkPlayResult(playId, userId); }, 70000);
       next();
       // check if the result is updated manually
+      function checkPlayResult(playId) {
+        //console.log('check play result trigger HERE')
+        Play.findById(playId, (err, instance)=>{
+          //console.log('final play instance : ', instance);
+          if(instance.finalResult === undefined){
+            let attri = {ended: new Date().getTime(), finalResult: false, systemUpdate: true};
+            instance.updateAttributes(attri);
+          }
+        });
+      };
     } else {
       next();
     }
