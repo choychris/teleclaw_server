@@ -417,21 +417,11 @@ module.exports = function(Machine) {
       // check the result after 47s
       setTimeout(() => { checkPlayResult(playId, userId); }, 70000);
       next();
-      // check if the result is updated manually
-      function checkPlayResult(playId) {
-        //console.log('check play result trigger HERE')
-        Play.findById(playId, (err, instance)=>{
-          //console.log('final play instance : ', instance);
-          if(instance.finalResult === undefined){
-            let attri = {ended: new Date().getTime(), finalResult: false, systemUpdate: true};
-            instance.updateAttributes(attri);
-          }
-        });
-      };
     } else {
       next();
     }
 
+    // check if the result is updated manually
     function checkPlayResult(playId, userId) {
       const { Play, Transaction } = app.models;
       // console.log('check play result trigger HERE')
