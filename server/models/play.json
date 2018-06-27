@@ -56,8 +56,7 @@
       "type": "string"
     },
     "transactionId": {
-      "type": "string",
-      "required": true
+      "type": "string"
     }
   },
   "validations": [],

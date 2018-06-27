@@ -20,7 +20,7 @@ module.exports = function(Trial) {
     if (!ctx.isNewInstance) {
       const { score, participantId, userId } = ctx.instance;
       if (score !== undefined) {
-        if (score >= 100) createNewTransaction(userId, 20, 'reward', 'plus', true);
+        if (score >= 80) createNewTransaction(userId, 15, 'reward', 'plus', true);
         const { Participant } = app.models;
         Participant.findById(participantId)
           .then((data) => {
