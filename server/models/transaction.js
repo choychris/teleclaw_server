@@ -57,10 +57,10 @@ module.exports = function(Transaction) {
 
   // remote method to create braintree client token
   Transaction.clientToken = (userId, cb) => {
-    const { Paymentgateway } = app.models;
-    Paymentgateway.findOne({ where: { userId } }).then((gateway) => {
+    const { PaymentGateway } = app.models;
+    PaymentGateway.findOne({ where: { userId } }).then((gateway) => {
       if (gateway === null) {
-        return Paymentgateway.create({ userId });
+        return PaymentGateway.create({ userId });
       }
       // calling the function to generate braintree token
       generateToken(gateway.id, cb);
