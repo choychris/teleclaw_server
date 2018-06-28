@@ -63,52 +63,52 @@ describe('Start to play a mini game', () => {
   // }
 
   // ====== user press start game button ======
-  describe('Start a game', () => {
-    it('enough coins return trial id', (done) => {
-      const api = supertest.agent(baseUrl);
-      const userId = global.lbUserId;
-      const accessToken = global.accessToken;
-      const body = {
-        userId,
-        gameId: 'A0001',
-        coins: 1,
-      }
+  // describe('Start a game', () => {
+  //   it('enough coins return trial id', (done) => {
+  //     const api = supertest.agent(baseUrl);
+  //     const userId = global.lbUserId;
+  //     const accessToken = global.accessToken;
+  //     const body = {
+  //       userId,
+  //       gameId: 'A0001',
+  //       coins: 1,
+  //     }
 
-      api
-        .post(`/api/trials/newGame?access_token=${accessToken}`)
-        .send(body)
-        .set('Accept', 'application/json')
-        .end((err, res) => {
-          console.log(res.body.response);
-          global.trialId = res.body.response.trialId;
-          res.body.response.should.be.an('object');
-          res.status.should.equal(200);
-          done();
-        });
-    });
-  });
+  //     api
+  //       .post(`/api/trials/newGame?access_token=${accessToken}`)
+  //       .send(body)
+  //       .set('Accept', 'application/json')
+  //       .end((err, res) => {
+  //         console.log(res.body.response);
+  //         global.trialId = res.body.response.trialId;
+  //         res.body.response.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 
   // ===== after game play user submit score =====
-  describe('update play score', function(){
-    this.timeout(10000);
-    it('should return trial object', function(done){
-      setTimeout(()=>{
-          var api = supertest.agent(baseUrl);
-          let trialId = global.trialId;
-          let url = `/api/trials/${trialId}?access_token=${global.accessToken}`;
-          api
-            .patch(url)
-            .send({score: 28})
-            .set('Accept', 'application/json')
-            .end(function(err,res){
-              console.log(res.body)
-              res.body.should.be.an('object');
-              res.status.should.equal(200);
-              done();
-            });
-      }, 8000)
-    });
-  });
+  // describe('update play score', function(){
+  //   this.timeout(10000);
+  //   it('should return trial object', function(done){
+  //     setTimeout(()=>{
+  //         var api = supertest.agent(baseUrl);
+  //         let trialId = global.trialId;
+  //         let url = `/api/trials/${trialId}?access_token=${global.accessToken}`;
+  //         api
+  //           .patch(url)
+  //           .send({score: 28})
+  //           .set('Accept', 'application/json')
+  //           .end(function(err,res){
+  //             console.log(res.body)
+  //             res.body.should.be.an('object');
+  //             res.status.should.equal(200);
+  //             done();
+  //           });
+  //     }, 8000)
+  //   });
+  // });
   // ====== user press continue/retry button ======
   // describe('Retry Game', () => {
   //   it('enough coins return true', (done) => {
@@ -126,5 +126,24 @@ describe('Start to play a mini game', () => {
   //       });
   //   });
   // });
+
+  // ====== create new tournament ======
+  describe('corn job creating new tournament', () => {
+    it('update old and create new and distribute prize', (done) => {
+      const api = supertest.agent(baseUrl);
+      // admin access token:
+      const accessToken = 'zmMaTGFwtS78TwBFQMAfphAF6ZJylcbQWqv1qFtlko0ChHZS1BodLj8rSAunu7it';
+
+      api
+        .get(`/api/tournaments/toNextPeriod/A0001?access_token=${accessToken}`)
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          console.log(res.body.response);
+          res.body.response.should.be.a('string');
+          res.status.should.equal(200);
+          done();
+        })
+    })
+  })
 
 });

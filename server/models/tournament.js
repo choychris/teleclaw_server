@@ -1,4 +1,6 @@
 import { assignKey } from '../utils/beforeSave';
+import { loggingModel } from '../utils/createLogging';
+import { createNewTransaction } from '../utils/makeTransaction';
 
 const moment = require('moment');
 
@@ -8,6 +10,7 @@ const app = require('../server');
 
 module.exports = function(Tournament) {
   assignKey(Tournament);
+  loggingModel(Tournament);
 
   Tournament.observe('before save', (ctx, next) => {
     if (ctx.isNewInstance) {
@@ -98,6 +101,7 @@ module.exports = function(Tournament) {
 
   Tournament.weekly = (gameId, cb) => {
     const startOfWeek = moment().startOf('week').valueOf();
+    // filter to get every 1st place winner
     const filter = {
       where: {
         gameId,
@@ -121,7 +125,7 @@ module.exports = function(Tournament) {
         },
       },
     };
-
+    // filter to get top 3 highest score of the week
     const partiFilter = {
       where: {
         gameId,
@@ -173,6 +177,80 @@ module.exports = function(Tournament) {
       http: { path: '/weekly/:gameId', verb: 'get' },
       accepts: { arg: 'gameId', type: 'string', require: true },
       returns: { arg: 'response', type: 'array' },
+    }
+  );
+
+  Tournament.toNextPeriod = (gameId, cb) => {
+    const tourFilter = {
+      where: {
+        gameId,
+        status: true,
+      },
+      order: 'created DESC',
+    };
+    const partiFilter = {
+      order: [
+        'highestScore DESC',
+        'numberOfTrial DESC',
+      ],
+      limit: 3,
+    };
+
+    const { Play, Participant } = app.models;
+    Tournament.findOne(tourFilter)
+      .then((data) => {
+        console.log('Tournament', data);
+        data.updateAttributes({ status: false });
+        partiFilter.where = { tournamentId: data.id };
+        return Promise.all([
+          Participant.count({ tournamentId: data.id }),
+          Participant.find(partiFilter),
+        ]);
+      })
+      .then((data) => {
+        const count = data[0];
+        const topThree = data[1];
+        // temp hard coding the reward amount
+        const factor = Math.floor((count + 50) / 50);
+        const firstSecond = 30 * factor;
+        const third = 20 * factor;
+        // temp hard coding the reward distribution
+        topThree.map((user, index) => {
+          const amount = (index < 2) ? firstSecond : third;
+          createNewTransaction(user.userId, amount, 'reward', 'plus', true);
+        });
+        if (count >= 1) {
+          Play.create({
+            expectedResult: true,
+            finalResult: true,
+            machineId: gameId,
+            userId: topThree[0].userId,
+            ended: new Date(),
+            // id of banana (temp hard code solution)
+            productId: '40c18fc8-e395-4d79-ac5f-0596948f5db4',
+          });
+        }
+        return Tournament.create({
+          gameId,
+          duration: 86400,
+          status: true,
+        });
+      })
+      .then((tournament) => {
+        cb(null, tournament.id);
+      })
+      .catch((err) => {
+        console.log(err);
+        cb(err);
+      });
+  };
+
+  Tournament.remoteMethod(
+    'toNextPeriod',
+    {
+      http: { path: '/toNextPeriod/:gameId', verb: 'get' },
+      accepts: { arg: 'gameId', type: 'string', require: true },
+      returns: { arg: 'response', type: 'string' },
     }
   );
 };
