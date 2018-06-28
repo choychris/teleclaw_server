@@ -11,7 +11,8 @@
     }
   },
   "options": {
-    "validateUpsert": true
+    "validateUpsert": true,
+    "allowEternalTokens": true
   },
   "properties": {
     "id": {
