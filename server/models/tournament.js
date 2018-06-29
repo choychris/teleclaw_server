@@ -219,7 +219,7 @@ module.exports = function(Tournament) {
           const amount = (index < 2) ? firstSecond : third;
           createNewTransaction(user.userId, amount, 'reward', 'plus', true);
         });
-        if (count >= 1) {
+        if (count >= 50) {
           Play.create({
             expectedResult: true,
             finalResult: true,
