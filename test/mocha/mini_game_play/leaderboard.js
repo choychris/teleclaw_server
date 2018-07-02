@@ -46,18 +46,37 @@ describe('Get leaderboard', () => {
   // });
 
   // ====== user get weekly best stats ======
-  describe('Get Weekly Stats', () => {
-    it('Return Weekly Stats list', (done) => {
+  // describe('Get Weekly Stats', () => {
+  //   it('Return Weekly Stats list', (done) => {
+  //     const api = supertest.agent(baseUrl);
+  //     const userId = global.lbUserId;
+  //     const accessToken = global.accessToken;
+  //     const gameId = 'A0001';
+
+  //     api
+  //       .get(`/api/tournaments/weekly/${gameId}?access_token=${accessToken}`)
+  //       .end((err, res) => {
+  //         console.log(res.body.response);
+  //         res.body.response.should.be.an('object');
+  //         res.status.should.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
+  
+  // ====== user get last two day winner ======
+  describe('Last two days winners', () => {
+    it('win or not', (done) => {
       const api = supertest.agent(baseUrl);
       const userId = global.lbUserId;
       const accessToken = global.accessToken;
       const gameId = 'A0001';
 
       api
-        .get(`/api/tournaments/weekly/${gameId}?access_token=${accessToken}`)
+        .get(`/api/participants/bonus/${gameId}/${userId}?access_token=${accessToken}`)
         .end((err, res) => {
           console.log(res.body.response);
-          res.body.response.should.be.an('object');
+          res.body.response.should.be.a('boolean');
           res.status.should.equal(200);
           done();
         });
