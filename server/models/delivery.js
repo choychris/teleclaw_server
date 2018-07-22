@@ -6,9 +6,10 @@ const request = require('request');
 const Promise = require('bluebird');
 
 const { EASYSHIP_TOKEN } = process.env;
+const app = require('../server');
 
 module.exports = function(Delivery) {
-  const app = require('../server');
+
   // make loggings for monitor purpose
   loggingModel(Delivery);
   loggingRemote(Delivery, 'new');
@@ -41,17 +42,17 @@ module.exports = function(Delivery) {
         cb(null, 'insufficient_balance');
       } else if (courier.courier_name !== 'fixed_delivery') {
         Promise.map(products, each =>
-          createitems(Product, each, items, null) // <-- func to format items array, also return arrays of plays Id;
-        ).then((plays) => {
-          if (plays[0] !== undefined) {
-            createShippmentApi(address, items).then((shipmentId) => {
-              data.easyship_shipment_id = shipmentId;
-              return recordDelivery(plays);
-            });
-          } else {
-            cb(null, 'incorrect_products_format');
-          }
-        });
+          createitems(Product, each, items, null)) // <-- func to format items array, also return arrays of plays Id;
+          .then((plays) => {
+            if (plays[0] !== undefined) {
+              createShippmentApi(address, items).then((shipmentId) => {
+                data.easyship_shipment_id = shipmentId;
+                return recordDelivery(plays);
+              });
+            } else {
+              cb(null, 'incorrect_products_format');
+            }
+          });
       } else {
         // if user is only shipping fixed delivery products ;
         Promise.map(products, (each) => {
@@ -164,13 +165,14 @@ module.exports = function(Delivery) {
         declared_currency: 'HKD',
         declared_customs_value: cost.value || 0,
       };
-      if (deliveryPrice.type == 'dynamic') {
+      if (deliveryPrice.type === 'dynamic') {
         items.push(item);
         return { id: each.playId };
-      } else if (deliveryPrice.type == 'fixed') {
+      } else if (deliveryPrice.type === 'fixed') {
         if (isFixed !== null) { isFixed.push(deliveryPrice.value); }
         return { id: each.playId };
       }
+      return null;
     });
   }
 

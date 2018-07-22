@@ -58,6 +58,7 @@ export function createNewTransaction(userId, amount, type, action, status, gatew
         }
         return resolve(createdTrans);
       });// <--- create transaction object ended
+      return null;
     });// <--- find User wallet function ended
   });// <--- promise ended
 }
