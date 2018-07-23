@@ -13,6 +13,6 @@
       "object-curly-spacing": [2, "always"],
       "no-param-reassign": ["error", { "props": false }],
       "max-len": ["error", 120],
-      "camelcase": ["error", {"properties": "never"}]
+      "camelcase": ["error", { "properties": "never" }]
     }
 }

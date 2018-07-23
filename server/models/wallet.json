@@ -26,6 +26,9 @@
       "type": "number",
       "required": true
     },
+    "ticket": {
+      "type": "number"
+    },
     "userId": {
       "type": "string",
       "required": true

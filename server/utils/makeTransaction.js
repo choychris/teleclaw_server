@@ -5,8 +5,11 @@ const app = require('../server');
 
 export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMinus) {
   model.findById(modelId, (err, foundModel) => {
+    const current = foundModel[modelAttribute] || 0;
+    // console.log('amount', amount);
+    // console.log('current', current);
     if (plusOrMinus === 'minus') {
-      const newNumber = foundModel[modelAttribute] - amount;
+      const newNumber = current - amount;
       const roundNumber = Math.round(newNumber);
       foundModel.updateAttributes({ [modelAttribute]: roundNumber }, (error) => {
         if (err) {
@@ -14,7 +17,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
         }
       });
     } else if (plusOrMinus === 'plus') {
-      const newNumber = foundModel[modelAttribute] + amount;
+      const newNumber = current + amount;
       const roundNumber = Math.round(newNumber);
       foundModel.updateAttributes({ [modelAttribute]: roundNumber }, (error) => {
         if (err) {
@@ -25,7 +28,7 @@ export function makeCalculation(model, modelId, modelAttribute, amount, plusOrMi
   });
 }
 
-export function createNewTransaction(userId, amount, type, action, status, gateway) {
+export function createNewTransaction(userId, amount, type, action, status, category = 'coin', gateway = undefined) {
   const { Wallet, Transaction } = app.models;
   return new Promise((resolve, reject) => {
   // find user's wallet to get wallet id
@@ -41,6 +44,7 @@ export function createNewTransaction(userId, amount, type, action, status, gatew
         success: status,
         walletId: wallet.id,
         userId,
+        category,
       };
       if (gateway !== undefined) { transacObject.gatewayResponse = gateway; }
       // create a new transaction record
@@ -49,12 +53,13 @@ export function createNewTransaction(userId, amount, type, action, status, gatew
           loggingFunction('Transaction | ', 'create trans in createNewTransaction error | ', error, 'error');
           return reject(error);
         }
+        const attribute = (category === 'ticket') ? 'ticket' : 'balance';
         if (action === 'minus' && status) {
-          createdTrans.newWalletBalance = wallet.balance - createdTrans.amount;
+          createdTrans.newWalletBalance = wallet[attribute] - createdTrans.amount;
         } else if (action === 'plus' && status) {
-          createdTrans.newWalletBalance = wallet.balance + createdTrans.amount;
+          createdTrans.newWalletBalance = wallet[attribute] + createdTrans.amount;
         } else {
-          createdTrans.newWalletBalance = wallet.balance;
+          createdTrans.newWalletBalance = wallet[attribute];
         }
         return resolve(createdTrans);
       });// <--- create transaction object ended
