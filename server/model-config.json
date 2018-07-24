@@ -135,5 +135,9 @@
   "trial": {
     "dataSource": "mongodb",
     "public": true
+  },
+  "prize": {
+    "dataSource": "mongodb",
+    "public": true
   }
 }

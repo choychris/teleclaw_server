@@ -1,5 +1,5 @@
 import { assignKey } from '../utils/beforeSave';
-import { loggingModel } from '../utils/createLogging';
+import { loggingModel, loggingFunction } from '../utils/createLogging';
 import { createNewTransaction } from '../utils/makeTransaction';
 
 const Promise = require('bluebird');
@@ -35,6 +35,7 @@ module.exports = function(Trial) {
           })
           .catch((error) => {
             console.log(error);
+            loggingFunction('Trial |', 'Update Participant Error', error, 'error');
           });
       } else if (score !== undefined) {
         createNewTransaction(userId, score, 'reward', 'plus', true, 'ticket');
@@ -87,6 +88,7 @@ module.exports = function(Trial) {
       })
       .catch((error) => {
         console.log(error);
+        loggingFunction('Trial |', 'newGame remote Error', error, 'error');
         cb(error);
       });
   };
@@ -116,7 +118,7 @@ module.exports = function(Trial) {
           );
         })
         .then((participant) => {
-          console.log(participant[0].id);
+          // console.log(participant[0].id);
           Trial.findById(
             trialId,
             (error, data) => {
@@ -127,6 +129,7 @@ module.exports = function(Trial) {
         })
         .catch((error) => {
           console.log(error);
+          loggingFunction('Trial |', 'newGame After remote Error', error, 'error');
         });
     }
     next();
@@ -164,6 +167,7 @@ module.exports = function(Trial) {
       })
       .catch((error) => {
         console.log(error);
+        loggingFunction('Trial |', 'retry remote Error', error, 'error');
         cb(error, false);
       });
   };

@@ -65,6 +65,9 @@
     },
     "gamePlayRate": {
       "type": "number"
+    },
+    "ticketPrice": {
+      "type": "number"
     }
   },
   "validations": [],

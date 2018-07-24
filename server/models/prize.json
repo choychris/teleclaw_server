@@ -1,14 +1,8 @@
 {
-  "name": "wallet",
+  "name": "prize",
+  "plural": "prizes",
   "base": "PersistedModel",
-  "idInjection": false,
-  "indexes": {
-    "search_index": {
-      "keys": {
-        "userId": 1
-      }
-    }
-  },
+  "idInjection": true,
   "options": {
     "validateUpsert": true
   },
@@ -22,12 +16,23 @@
       "type": "date",
       "required": true
     },
-    "balance": {
-      "type": "number",
+    "lastUpdated": {
+      "type": "date"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "normal"
+    },
+    "expires": {
+      "type": "date"
+    },
+    "productId": {
+      "type": "string",
       "required": true
     },
-    "ticket": {
-      "type": "number"
+    "deliveryId": {
+      "type": "string"
     },
     "userId": {
       "type": "string",
@@ -36,11 +41,15 @@
   },
   "validations": [],
   "relations": {
+    "product": {
+      "type": "belongsTo",
+      "model": "product",
+      "foreignKey": "productId"
+    },
     "user": {
       "type": "belongsTo",
       "model": "user",
-      "foreignKey": "",
-      "primaryKey": "id"
+      "foreignKey": "userId"
     }
   },
   "acls": [
@@ -52,8 +61,16 @@
       "property": [
         "find",
         "findOne",
-        "findById"
+        "findById",
+        "__get__product"
       ]
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "exchange"
     }
   ],
   "methods": {}
