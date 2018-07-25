@@ -8,7 +8,9 @@ export function updateTimeStamp(model){
     // let logData = { model : ctx.Model.modelName , functionName : 'updateTimestamp' }; 
     // console.log('ctx.instance : =====', ctx.instance);
     if (ctx.isNewInstance) {
-      ctx.instance.created = new Date().getTime();
+      const now = new Date().getTime()
+      ctx.instance.created = now;
+      ctx.instance.lastUpdated = now;
       // logData.description = 'Assign Created Time';
       // logData.data = ctx.instance.created;
     } else {

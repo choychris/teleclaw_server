@@ -74,7 +74,7 @@ describe('operation of ticket', () => {
       const accessToken = global.accessToken;
       const body = {
         userId,
-        prizeId: "ffee76a1-f458-4d1c-94b1-632467b8ca35",
+        prizeId: "0750895f-3d68-497a-9bd3-91035d787b5d",
       }
 
       api

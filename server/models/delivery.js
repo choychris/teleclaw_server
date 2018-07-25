@@ -9,7 +9,6 @@ const { EASYSHIP_TOKEN } = process.env;
 const app = require('../server');
 
 module.exports = function(Delivery) {
-
   // make loggings for monitor purpose
   loggingModel(Delivery);
   loggingRemote(Delivery, 'new');

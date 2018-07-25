@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "unit_test": "mocha ./test/mocha/prize_test.js"
+    "unit_test": "mocha ./test/mocha/eventAndReward.js"
   },
   "dependencies": {
     "@alicloud/pop-core": "^1.5.1",
