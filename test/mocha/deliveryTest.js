@@ -81,8 +81,14 @@ describe('Get delivery rate quote', function(){
   this.timeout(4000);
   it('should return the list of courier rate', function(done){
   global.productIds = [
-    {"id":'ae55c637-26a8-45f6-9fb0-fe716bcfe176', playId:'BkSMizqzM'},
-    {"id": 'ae55c637-26a8-45f6-9fb0-fe716bcfe176', playId: 'ByE0nW5fG'},
+    {
+      id:'ae55c637-26a8-45f6-9fb0-fe716bcfe176',
+      prizeId:'4ce11111-7c9d-4a3d-9caf-0f9f4fa45876',
+    },
+    {
+      id: 'ae55c637-26a8-45f6-9fb0-fe716bcfe176',
+      prizeId: 'b5d23df1-e2ef-4493-a289-820c2957f4fc',
+    },
   ]
   var api = supertest.agent(baseUrl);
   var data = {
@@ -97,63 +103,63 @@ describe('Get delivery rate quote', function(){
     .end(function(err,res){
       res.body.should.be.an('object');
       res.status.should.equal(200);
-      console.log(res.body);
+      console.log(res.body.result);
       global.selectedRate = res.body.result[0] || res.body.result;
       done()
     });
   });
 })
 
-// describe('Submit a delivery', function(){
-//   it('should return the list of courier rate', function(done){
-//   var api = supertest.agent(baseUrl);
-//   var data = {
-//    address: {
-//     line1: "3B, Todex Building, San Po Kong",
-//     line2: "Kowloon",
-//     country: "Hong Kong",
-//     countryCode: "hk",
-//     city: "Hong Kong",
-//     postalCode: 0,
-//     state: null,
-//     name: "Chris",
-//     phone: +85212345678,
-//     email: 'teleclaw.live@gmail.com'
-//    },
-//    cost: global.selectedRate.coins_value,
-//    status: 'pending',
-//    userId: global.lbUserId,
-//    products: global.productIds,
-//    courier: global.selectedRate
-//   }
-//   api
-//     .post(`/api/deliveries/new?access_token=${global.accessToken}`)
-//     .set('Accept', 'application/json')
-//     .send({data: data})
-//     .end(function(err,res){
-//       console.log(res.body)
-//       res.body.should.be.an('object');
-//       res.status.should.equal(200);
-//       done()
-//     });
-//   });
-// })
+describe('Submit a delivery', function(){
+  it('should return the list of courier rate', function(done){
+  var api = supertest.agent(baseUrl);
+  var data = {
+   address: {
+    line1: "3B, Todex Building, San Po Kong",
+    line2: "Kowloon",
+    country: "Hong Kong",
+    countryCode: "hk",
+    city: "Hong Kong",
+    postalCode: 0,
+    state: null,
+    name: "Chris",
+    phone: +85212345678,
+    email: 'teleclaw.live@gmail.com'
+   },
+   cost: global.selectedRate.coins_value,
+   status: 'pending',
+   userId: global.lbUserId,
+   products: global.productIds,
+   courier: global.selectedRate
+  }
+  api
+    .post(`/api/deliveries/new?access_token=${global.accessToken}`)
+    .set('Accept', 'application/json')
+    .send({data: data})
+    .end(function(err,res){
+      console.log(res.body)
+      res.body.should.be.an('object');
+      res.status.should.equal(200);
+      done()
+    });
+  });
+})
 
-// describe('Get Plays', function(){
-//   it('should return the list plays', function(done){
-//   var api = supertest.agent(baseUrl);
+describe('Get Prizes', function(){
+  it('should return the list prizes', function(done){
+  var api = supertest.agent(baseUrl);
 
-//   api
-//     .get(`/api/plays/${'BkSMizqzM'}?access_token=${global.accessToken}`)
-//     .set('Accept', 'application/json')
-//     .end(function(err,res){
-//       console.log(res.body)
-//       res.body.should.be.an('object');
-//       res.status.should.equal(200);
-//       done()
-//     });
-//   });
-// })
+  api
+    .get(`/api/prizes/getPrize/${global.lbUserId}?access_token=${global.accessToken}`)
+    .set('Accept', 'application/json')
+    .end(function(err,res){
+      console.log(res.body)
+      res.body.should.be.an('array');
+      res.status.should.equal(200);
+      done()
+    });
+  });
+})
 
 
 

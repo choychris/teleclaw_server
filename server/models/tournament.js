@@ -151,7 +151,7 @@ module.exports = function(Tournament) {
         const tournaments = result[0];
         const weeklyTopThree = result[1];
         const highestScoreList = [];
-        tournaments.map((data) => {
+        tournaments.forEach((data) => {
           const bestOne = data.toJSON().participants[0];
           if (bestOne) {
             highestScoreList.push(data.toJSON().participants[0]);
@@ -220,7 +220,7 @@ module.exports = function(Tournament) {
         const third = 20 * factor;
         const payOut = [first, second, third];
         // temp hard coding the reward distribution
-        topThree.map((user, index) => {
+        topThree.forEach((user, index) => {
           // const amount = (index < 2) ? firstSecond : third;
           createNewTransaction(user.userId, payOut[index], 'reward', 'plus', true, 'ticket');
         });

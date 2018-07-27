@@ -101,7 +101,7 @@ module.exports = function(Delivery) {
 
     // func to create transaction of user's wallet and update play data
     function recordDelivery(prizes) {
-      createNewTransaction(userId, cost, 'delivery', 'minus', true, null)
+      createNewTransaction(userId, cost, 'delivery', 'minus', true)
         .then((createdTrans) => {
           data.transactionId = createdTrans.id;
           return Promise.all([Delivery.create(data), createdTrans.newWalletBalance]);
@@ -129,6 +129,7 @@ module.exports = function(Delivery) {
       const {
         countryCode, city, postalCode, state, name, line1, line2, phone, email,
       } = addressInfo;
+      // console.log(itemArray);
       const options = {
         method: 'POST',
         url: 'https://api.easyship.com/shipment/v1/shipments',
@@ -148,7 +149,7 @@ module.exports = function(Delivery) {
           destination_address_line_2: line2,
           destination_phone_number: phone,
           destination_email_address: email || null,
-          itemArray,
+          items: itemArray,
         }),
       };
       return new Promise((resolve, reject) => {
@@ -158,6 +159,7 @@ module.exports = function(Delivery) {
             reject(err);
           }
           const parsedBody = JSON.parse(body);
+          // console.log(parsedBody);
           resolve(parsedBody.shipment.easyship_shipment_id);
         });
       });
