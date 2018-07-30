@@ -131,6 +131,21 @@ module.exports = function(Trial) {
           console.log(error);
           loggingFunction('Trial |', 'newGame After remote Error', error, 'error');
         });
+    } else {
+      User.findById(userId, { fields: { name: true } })
+        .then((user) => {
+          Trial.findById(
+            trialId,
+            (error, data) => {
+              data.updateAttributes({ username: user.name });
+            }
+          );
+          return null;
+        })
+        .catch((error) => {
+          console.log(error);
+          loggingFunction('Trial |', 'newGame After remote Error', error, 'error');
+        });
     }
     next();
   });
