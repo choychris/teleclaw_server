@@ -19,7 +19,7 @@ module.exports = function(Prize) {
   Prize.observe('before save', (ctx, next) => {
     if (ctx.isNewInstance) {
       // expire day in milli second
-      ctx.instance.expires = new Date().getTime() + (77760000 * 1000);
+      ctx.instance.expires = new Date().getTime() + (2592000 * 1000);
     }
     next();
   });
@@ -161,6 +161,7 @@ module.exports = function(Prize) {
           { status: 'sent' },
         ],
       },
+      include: 'product',
     })
       .then((prizes) => {
         cb(null, prizes);
