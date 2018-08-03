@@ -58,7 +58,12 @@ module.exports = function(Delivery) {
     if (target === 'user') {
       // update user address everytimes user make a shipping request
       User.findById(userId, (err, foundUser) => {
-        foundUser.updateAttributes({ address, phone: address.phone, Email: address.email });
+        foundUser.updateAttributes({
+          fullName: address.name,
+          address,
+          phone: address.phone,
+          contactEmail: address.email,
+        });
       });
     }
 
