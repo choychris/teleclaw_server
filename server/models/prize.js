@@ -1,6 +1,6 @@
 import { updateTimeStamp, assignKey } from '../utils/beforeSave';
 import { loggingModel, loggingFunction } from '../utils/createLogging';
-import { createNewTransaction } from '../utils/makeTransaction';
+import { createNewTransaction, makeCalculation } from '../utils/makeTransaction';
 
 const Promise = require('bluebird');
 
@@ -56,6 +56,7 @@ module.exports = function(Prize) {
         })
         .then((trans) => {
           if (trans) {
+            makeCalculation(Product, productId, 'sku', 1, 'minus');
             return Prize.create({
               userId,
               productId,
@@ -66,7 +67,9 @@ module.exports = function(Prize) {
           return null;
         })
         .then((prize) => {
-          if (prize) cb(null, { msg: 'success' });
+          if (prize) {
+            cb(null, { msg: 'success' });
+          }
           return null;
         })
         .catch((err) => {
@@ -87,6 +90,7 @@ module.exports = function(Prize) {
         Product.findById(prize.productId)
           .then((product) => {
             if (product) {
+              makeCalculation(Product, product.id, 'sku', 1, 'plus');
               const ticket = (product.ticketPrice * 0.9);
               // Prize.destroyById(prizeId);
               return createNewTransaction(userId, ticket, 'ticket', 'plus', true, 'ticket');
