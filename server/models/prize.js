@@ -166,6 +166,7 @@ module.exports = function(Prize) {
         ],
       },
       include: 'product',
+      order: 'created ASC',
     })
       .then((prizes) => {
         cb(null, prizes);
