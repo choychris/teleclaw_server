@@ -72,6 +72,13 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "countPlayers"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "teleClawAdmin",
       "permission": "ALLOW",
       "property": "toNextPeriod"

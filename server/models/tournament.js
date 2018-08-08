@@ -202,7 +202,7 @@ module.exports = function(Tournament) {
     } = app.models;
     Tournament.findOne(tourFilter)
       .then((data) => {
-        console.log('Tournament', data);
+        // console.log('Tournament', data);
         data.updateAttributes({ status: false });
         partiFilter.where = { tournamentId: data.id };
         return Promise.all([
@@ -216,8 +216,8 @@ module.exports = function(Tournament) {
         // temp hard coding the reward amount
         const factor = Math.floor((count + 50) / 50);
         const first = 50 * factor;
-        const second = 30 * factor;
-        const third = 20 * factor;
+        const second = 40 * factor;
+        const third = 30 * factor;
         const payOut = [first, second, third];
         // temp hard coding the reward distribution
         topThree.forEach((user, index) => {
@@ -235,6 +235,8 @@ module.exports = function(Tournament) {
           //   productId: '40c18fc8-e395-4d79-ac5f-0596948f5db4',
           // });
           createNewTransaction(topThree[0].userId, 200, 'reward', 'plus', true, 'ticket');
+          createNewTransaction(topThree[1].userId, 100, 'reward', 'plus', true, 'ticket');
+          createNewTransaction(topThree[2].userId, 50, 'reward', 'plus', true, 'ticket');
         }
         return Tournament.create({
           gameId,
@@ -257,6 +259,36 @@ module.exports = function(Tournament) {
       http: { path: '/toNextPeriod/:gameId', verb: 'get' },
       accepts: { arg: 'gameId', type: 'string', require: true },
       returns: { arg: 'response', type: 'string' },
+    }
+  );
+
+  Tournament.countPlayers = (gameId, cb) => {
+    const tourFilter = {
+      where: {
+        gameId,
+        status: true,
+      },
+      order: 'created DESC',
+    };
+    Tournament.findOne(tourFilter)
+      .then((tour) => {
+        const { Participant } = app.models;
+        return Participant.count({ tournamentId: tour.id });
+      })
+      .then((count) => {
+        cb(null, count);
+      })
+      .catch((error) => {
+        cb(error);
+      });
+  };
+
+  Tournament.remoteMethod(
+    'countPlayers',
+    {
+      http: { path: '/countPlayers/:gameId', verb: 'get' },
+      accepts: { arg: 'gameId', type: 'string', require: true },
+      returns: { arg: 'count', type: 'number' },
     }
   );
 };
