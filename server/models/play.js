@@ -24,7 +24,7 @@ module.exports = function(Play) {
       if (ctx.data && ctx.data.ended && ctx.data.finalResult !== undefined) {
         const { Machine, Reservation, Product } = app.models;
         const {
-          productId, machineId, userId, created,
+          productId, machineId, userId, created, Prize,
         } = ctx.currentInstance;
         // set machine status to open, while frontend is asking for users response
         Machine.findById(machineId, (err, instance) => {
@@ -34,8 +34,14 @@ module.exports = function(Play) {
         ctx.data.duration = duration;
         // if the user win, update product and machine sku
         if (ctx.data.finalResult === true) {
+          ctx.data.deliveryId = 'transferred';
           makeCalculation(Product, productId, 'sku', 1, 'minus');
           makeCalculation(Machine, machineId, 'sku', 1, 'minus');
+          Prize.create({
+            userId,
+            productId: ctx.data.productId,
+            status: 'normal',
+          });
         }
         // after 8 sec, check if user has reponsed
         if (!ctx.data.errorRefund) {
