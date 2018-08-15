@@ -99,11 +99,6 @@
       "model": "transaction",
       "foreignKey": "userId"
     },
-    "deliveries": {
-      "type": "hasMany",
-      "model": "delivery",
-      "foreignKey": "userId"
-    },
     "wallet": {
       "type": "hasOne",
       "model": "wallet",
@@ -114,9 +109,9 @@
       "model": "reservation",
       "foreignKey": "userId"
     },
-    "paymentGateway": {
-      "type": "hasOne",
-      "model": "paymentGateway",
+    "prize": {
+      "type": "hasMany",
+      "model": "prize",
       "foreignKey": "userId"
     }
   },

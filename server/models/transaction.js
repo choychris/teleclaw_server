@@ -45,11 +45,12 @@ module.exports = function(Transaction) {
     if (ctx.isNewInstance) {
       const { Wallet } = app.models;
       const {
-        walletId, action, amount, success,
+        walletId, action, amount, success, category,
       } = ctx.instance;
+      const attribute = (category === 'ticket') ? 'ticket' : 'balance';
       if (success) {
         // update wallet balance when a transaction is made;
-        makeCalculation(Wallet, walletId, 'balance', amount, action);
+        makeCalculation(Wallet, walletId, attribute, amount, action);
       }
     }
     next();
@@ -146,7 +147,7 @@ module.exports = function(Transaction) {
           id, status, amount, currencyIsoCode, merchantAccountId, paymentInstrumentType, cardType,
         };
         loggingFunction('Transaction | ', 'Braintree Transaction Success | ', gatewayReponse);
-        createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
+        createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, undefined, gatewayReponse)
           .then((trans) => {
             cb(null, { success, message: status, balance: trans.newWalletBalance });
             return null;
@@ -169,7 +170,7 @@ module.exports = function(Transaction) {
             processorSettlementResponseText: result.transaction.processorSettlementResponseText,
           };
         }
-        createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, gatewayReponse)
+        createNewTransaction(userId, tolalCoins, 'topUp', 'plus', success, undefined, gatewayReponse)
           .then((trans) => {
             cb(null, { success, message: responseMessage, balance: trans.newWalletBalance });
             return null;

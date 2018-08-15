@@ -6,9 +6,9 @@ const request = require('request');
 const Promise = require('bluebird');
 
 const { EASYSHIP_TOKEN } = process.env;
+const app = require('../server');
 
 module.exports = function(Delivery) {
-  const app = require('../server');
   // make loggings for monitor purpose
   loggingModel(Delivery);
   loggingRemote(Delivery, 'new');
@@ -20,18 +20,50 @@ module.exports = function(Delivery) {
   // assign an unique if its new instance
   assignKey(Delivery);
 
+  Delivery.observe('after save', (ctx, next) => {
+    if (!ctx.isNewInstance) {
+      if (ctx.data) {
+        if (ctx.data.status === 'sent') {
+          const { Prize } = app.models;
+          Prize.find({
+            where: {
+              status: 'pending',
+              deliveryId: ctx.currentInstance.id,
+            },
+          })
+            .then((prizes) => {
+              if (prizes.length > 0) {
+                prizes.forEach((prize) => {
+                  prize.updateAttributes({ status: 'sent' });
+                });
+              }
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+      }
+    }
+    next();
+  });
+
   Delivery.new = (data, cb) => {
     const {
-      Wallet, User, Play, Product,
+      Wallet, User, Product, Prize,
     } = app.models;
     const {
-      address, cost, status, userId, products, courier, target,
+      address, cost, userId, products, courier, target,
     } = data;
     const items = [];
     if (target === 'user') {
       // update user address everytimes user make a shipping request
       User.findById(userId, (err, foundUser) => {
-        foundUser.updateAttributes({ address, phone: address.phone, Email: address.email });
+        foundUser.updateAttributes({
+          fullName: address.name,
+          address,
+          phone: address.phone,
+          contactEmail: address.email,
+        });
       });
     }
 
@@ -41,21 +73,22 @@ module.exports = function(Delivery) {
         cb(null, 'insufficient_balance');
       } else if (courier.courier_name !== 'fixed_delivery') {
         Promise.map(products, each =>
-          createitems(Product, each, items, null) // <-- func to format items array, also return arrays of plays Id;
-        ).then((plays) => {
-          if (plays[0] !== undefined) {
-            createShippmentApi(address, items).then((shipmentId) => {
-              data.easyship_shipment_id = shipmentId;
-              return recordDelivery(plays);
-            });
-          } else {
-            cb(null, 'incorrect_products_format');
-          }
-        });
+          // <-- func to format items array, also return arrays of prize Id;
+          createitems(Product, each, items, null))
+          .then((prizes) => {
+            if (prizes[0] !== undefined) {
+              createShippmentApi(address, items).then((shipmentId) => {
+                data.easyship_shipment_id = shipmentId;
+                return recordDelivery(prizes);
+              });
+            } else {
+              cb(null, 'incorrect_products_format');
+            }
+          });
       } else {
         // if user is only shipping fixed delivery products ;
         Promise.map(products, (each) => {
-          const aPlay = { id: each.playId };
+          const aPlay = { id: each.prizeId };
           return aPlay;
         }).then((plays) => {
           if (plays[0] !== undefined) {
@@ -72,28 +105,36 @@ module.exports = function(Delivery) {
     });// <--- Wallet.findOne promise end
 
     // func to create transaction of user's wallet and update play data
-    function recordDelivery(plays) {
-      createNewTransaction(userId, cost, 'delivery', 'minus', true, null)
+    function recordDelivery(prizes) {
+      createNewTransaction(userId, cost, 'delivery', 'minus', true)
         .then((createdTrans) => {
           data.transactionId = createdTrans.id;
           return Promise.all([Delivery.create(data), createdTrans.newWalletBalance]);
         }).then((result) => {
           const newDelivery = result[0];
           const walletBalance = result[1];
-          // update plays delivery id:
-          return Play.find({ where: { or: plays } }, (error, foundPlays) => {
-            Promise.map(foundPlays, eachPlay => eachPlay.updateAttributes({ deliveryId: newDelivery.id })).then((res) => {
-              cb(null, { delivery: newDelivery, newWalletBalance: walletBalance });
-            });
+          // update prizes delivery id:
+          return Prize.find({ where: { or: prizes } }, (error, foundPrizes) => {
+            Promise.map(
+              foundPrizes,
+              eachPrize => eachPrize.updateAttributes({
+                deliveryId: newDelivery.id,
+                status: 'pending',
+              })
+            )
+              .then(() => {
+                cb(null, { delivery: newDelivery, newWalletBalance: walletBalance });
+              });
           });
         });
     }
 
     // api request to create Easyship shippment records;
-    function createShippmentApi(address, items) {
+    function createShippmentApi(addressInfo, itemArray) {
       const {
         countryCode, city, postalCode, state, name, line1, line2, phone, email,
-      } = address;
+      } = addressInfo;
+      // console.log(itemArray);
       const options = {
         method: 'POST',
         url: 'https://api.easyship.com/shipment/v1/shipments',
@@ -113,7 +154,7 @@ module.exports = function(Delivery) {
           destination_address_line_2: line2,
           destination_phone_number: phone,
           destination_email_address: email || null,
-          items,
+          items: itemArray,
         }),
       };
       return new Promise((resolve, reject) => {
@@ -123,6 +164,7 @@ module.exports = function(Delivery) {
             reject(err);
           }
           const parsedBody = JSON.parse(body);
+          // console.log(parsedBody);
           resolve(parsedBody.shipment.easyship_shipment_id);
         });
       });
@@ -164,13 +206,14 @@ module.exports = function(Delivery) {
         declared_currency: 'HKD',
         declared_customs_value: cost.value || 0,
       };
-      if (deliveryPrice.type == 'dynamic') {
+      if (deliveryPrice.type === 'dynamic') {
         items.push(item);
-        return { id: each.playId };
-      } else if (deliveryPrice.type == 'fixed') {
+        return { id: each.prizeId };
+      } else if (deliveryPrice.type === 'fixed') {
         if (isFixed !== null) { isFixed.push(deliveryPrice.value); }
-        return { id: each.playId };
+        return { id: each.prizeId };
       }
+      return null;
     });
   }
 
@@ -181,63 +224,69 @@ module.exports = function(Delivery) {
     const items = [];
     const isFixed = [];
 
-    Promise.map(products, each =>
-      createitems(Product, each, items, isFixed) // <-- func to format items array, also return arrays of plays Id;
-    ).then((res) => {
-      const options = {
-        method: 'POST',
-        url: 'https://api.easyship.com/rate/v1/rates',
-        headers: {
-          'cache-control': 'no-cache',
-          authorization: `Bearer ${EASYSHIP_TOKEN}`,
-          'content-type': 'application/json',
-          accept: 'application/json',
-        },
-        body: JSON.stringify({
-          origin_country_alpha2: 'HK',
-          origin_postal_code: null,
-          destination_country_alpha2: countryCode.toUpperCase(),
-          destination_postal_code: postalCode,
-          items,
-        }),
-      };
-      if (items.length > 0) {
-        return requestToEasyship(options);
-      }
-      return isFixed[0];
-    }).then(result =>
-      // Find the best value exchange to calculate the coin value;
-      ExchangeRate.findOne({ order: 'realValuePerCoin.hkd ASC' }).then((rate) => {
-        const { realValuePerCoin } = rate;
-        if (result.length > 0) {
-          return Promise.mapSeries(result, (data) => {
-            const {
-              courier_id, courier_name, min_delivery_time, max_delivery_time, total_charge, courier_does_pickup,
-            } = data;
-            const total_delivery_cost = total_charge + 8;
-            const oneChoice = {
-              courier_id,
-              courier_name,
-              min_delivery_time,
-              max_delivery_time,
-              courier_does_pickup,
-              total_charge: total_delivery_cost,
-              coins_value: Math.round(total_delivery_cost / realValuePerCoin.hkd),
-            };
-            return oneChoice;
-          });
-        }
-        const fixed_charge = {
-          courier_name: 'fixed_delivery',
-          min_delivery_time: 7,
-          max_delivery_time: 10,
-          total_charge: result,
-          coins_value: Math.round(result / realValuePerCoin.hkd),
+    Promise.map(
+      products,
+      // <-- func to format items array, also return arrays of prize Id;
+      each => createitems(Product, each, items, isFixed)
+    )
+      .then(() => {
+        const options = {
+          method: 'POST',
+          url: 'https://api.easyship.com/rate/v1/rates',
+          headers: {
+            'cache-control': 'no-cache',
+            authorization: `Bearer ${EASYSHIP_TOKEN}`,
+            'content-type': 'application/json',
+            accept: 'application/json',
+          },
+          body: JSON.stringify({
+            origin_country_alpha2: 'HK',
+            origin_postal_code: null,
+            destination_country_alpha2: countryCode.toUpperCase(),
+            destination_postal_code: postalCode,
+            items,
+          }),
         };
-        return fixed_charge;
-      })).then((choices) => {
-      cb(null, choices);
-    })
+        if (items.length > 0) {
+          return requestToEasyship(options);
+        }
+        return isFixed[0];
+      })
+      .then(result =>
+        // Find the best value exchange to calculate the coin value;
+        ExchangeRate.findOne({ order: 'realValuePerCoin.hkd ASC' })
+          .then((rate) => {
+            const { realValuePerCoin } = rate;
+            if (result.length > 0) {
+              return Promise.mapSeries(result, (each) => {
+                const {
+                  courier_id, courier_name, min_delivery_time, max_delivery_time, total_charge, courier_does_pickup,
+                } = each;
+                const total_delivery_cost = total_charge + 8;
+                const oneChoice = {
+                  courier_id,
+                  courier_name,
+                  min_delivery_time,
+                  max_delivery_time,
+                  courier_does_pickup,
+                  total_charge: total_delivery_cost,
+                  coins_value: Math.round(total_delivery_cost / realValuePerCoin.hkd),
+                };
+                return oneChoice;
+              });
+            }
+            const fixed_charge = {
+              courier_name: 'fixed_delivery',
+              min_delivery_time: 7,
+              max_delivery_time: 10,
+              total_charge: result,
+              coins_value: Math.round(result / realValuePerCoin.hkd),
+            };
+            return fixed_charge;
+          }))
+      .then((choices) => {
+        cb(null, choices);
+      })
       .catch((error) => {
         cb(error);
       }); // <--- end of getting rate quote promise

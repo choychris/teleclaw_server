@@ -26,6 +26,10 @@
     "success": {
       "type": "boolean"
     },
+    "category": {
+      "type": "string",
+      "required": true
+    },
     "walletId": {
       "type": "string",
       "required": true

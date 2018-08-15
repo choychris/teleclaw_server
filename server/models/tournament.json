@@ -2,9 +2,6 @@
   "name": "tournament",
   "base": "PersistedModel",
   "idInjection": false,
-  "options": {
-    "validateUpsert": true
-  },
   "indexes": {
     "sort_index": {
       "keys": {
@@ -12,6 +9,9 @@
         "created": 1
       }
     }
+  },
+  "options": {
+    "validateUpsert": true
   },
   "properties": {
     "id": {
@@ -68,6 +68,13 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "weekly"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "countPlayers"
     },
     {
       "accessType": "EXECUTE",

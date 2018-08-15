@@ -1,5 +1,5 @@
 import { assignKey } from '../utils/beforeSave';
-import { loggingModel } from '../utils/createLogging';
+import { loggingModel, loggingFunction } from '../utils/createLogging';
 import { createNewTransaction } from '../utils/makeTransaction';
 
 const Promise = require('bluebird');
@@ -19,8 +19,8 @@ module.exports = function(Trial) {
   Trial.observe('after save', (ctx, next) => {
     if (!ctx.isNewInstance) {
       const { score, participantId, userId } = ctx.instance;
-      if (score !== undefined) {
-        if (score >= 70) createNewTransaction(userId, 15, 'reward', 'plus', true);
+      if (score !== undefined && participantId !== undefined) {
+        if (score >= 70) createNewTransaction(userId, 10, 'reward', 'plus', true, 'ticket');
         const { Participant } = app.models;
         Participant.findById(participantId)
           .then((data) => {
@@ -35,7 +35,10 @@ module.exports = function(Trial) {
           })
           .catch((error) => {
             console.log(error);
+            loggingFunction('Trial |', 'Update Participant Error', error, 'error');
           });
+      } else if (score !== undefined) {
+        createNewTransaction(userId, score, 'reward', 'plus', true, 'ticket');
       }
     }
     next();
@@ -54,6 +57,7 @@ module.exports = function(Trial) {
             success: true,
             walletId: wallet.id,
             userId,
+            category: 'coin',
             transactionType: 'Game',
           });
         }
@@ -84,6 +88,7 @@ module.exports = function(Trial) {
       })
       .catch((error) => {
         console.log(error);
+        loggingFunction('Trial |', 'newGame remote Error', error, 'error');
         cb(error);
       });
   };
@@ -91,39 +96,57 @@ module.exports = function(Trial) {
   Trial.afterRemote('newGame', (ctx, output, next) => {
     const { trialId, gameId, userId } = output.response;
     const { Tournament, Participant, User } = app.models;
-    Promise.all([
-      Tournament.findOne({ where: { gameId }, order: 'created DESC' }),
-      User.findById(userId, { fields: { name: true } }),
-    ])
-      .then((dataArray) => {
-        const tournament = dataArray[0];
-        const user = dataArray[1];
-        // console.log('tournament', tournament);
-        return Participant.findOrCreate(
-          { where: { userId, tournamentId: tournament.id } },
-          {
-            userId,
-            gameId,
-            username: user.name,
-            tournamentId: tournament.id,
-            numberOfTrial: 0,
-            highestScore: 0,
-          }
-        );
-      })
-      .then((participant) => {
-        console.log(participant[0].id);
-        Trial.findById(
-          trialId,
-          (error, data) => {
-            data.updateAttributes({ participantId: participant[0].id });
-          }
-        );
-        return null;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (gameId === 'A0001') {
+      Promise.all([
+        Tournament.findOne({ where: { gameId }, order: 'created DESC' }),
+        User.findById(userId, { fields: { name: true } }),
+      ])
+        .then((dataArray) => {
+          const tournament = dataArray[0];
+          const user = dataArray[1];
+          // console.log('tournament', tournament);
+          return Participant.findOrCreate(
+            { where: { userId, tournamentId: tournament.id } },
+            {
+              userId,
+              gameId,
+              username: user.name,
+              tournamentId: tournament.id,
+              numberOfTrial: 0,
+              highestScore: 0,
+            }
+          );
+        })
+        .then((participant) => {
+          // console.log(participant[0].id);
+          Trial.findById(
+            trialId,
+            (error, data) => {
+              data.updateAttributes({ participantId: participant[0].id });
+            }
+          );
+          return null;
+        })
+        .catch((error) => {
+          console.log(error);
+          loggingFunction('Trial |', 'newGame After remote Error', error, 'error');
+        });
+    } else {
+      User.findById(userId, { fields: { name: true } })
+        .then((user) => {
+          Trial.findById(
+            trialId,
+            (error, data) => {
+              data.updateAttributes({ username: user.name });
+            }
+          );
+          return null;
+        })
+        .catch((error) => {
+          console.log(error);
+          loggingFunction('Trial |', 'newGame After remote Error', error, 'error');
+        });
+    }
     next();
   });
 
@@ -148,6 +171,7 @@ module.exports = function(Trial) {
             success: true,
             walletId: wallet.id,
             userId,
+            category: 'coin',
             transactionType: 'Game',
           });
           cb(null, true);
@@ -158,6 +182,7 @@ module.exports = function(Trial) {
       })
       .catch((error) => {
         console.log(error);
+        loggingFunction('Trial |', 'retry remote Error', error, 'error');
         cb(error, false);
       });
   };

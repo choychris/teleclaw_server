@@ -2,15 +2,15 @@
   "name": "participant",
   "base": "PersistedModel",
   "idInjection": false,
-  "options": {
-    "validateUpsert": true,
-    "strictObjectIDCoercion": true
-  },
   "indexes": {
     "ranking_index": {
       "highestScore": -1,
       "numberOfTrial": -1
     }
+  },
+  "options": {
+    "validateUpsert": true,
+    "strictObjectIDCoercion": true
   },
   "properties": {
     "id": {

@@ -26,7 +26,7 @@ module.exports = function(Play) {
         const {
           productId, machineId, userId, created,
         } = ctx.currentInstance;
-        // set machine status to open, while frontend  is asking for users response
+        // set machine status to open, while frontend is asking for users response
         Machine.findById(machineId, (err, instance) => {
           instance.updateAttributes({ status: 'open' });
         });
@@ -51,10 +51,10 @@ module.exports = function(Play) {
   Play.refund = (userId, cb) => {
     const { Reservation, Transaction, Machine } = app.models;
 
-    function updateMachine(machineId, userId) {
+    function updateMachine(machineId, usrId) {
       Machine.findById(machineId)
-        .then(machine => machine.updateAttributes({ status: 'open' })).then((res) => {
-          Reservation.endEngage(machineId, userId, null);
+        .then(machine => machine.updateAttributes({ status: 'open' })).then(() => {
+          Reservation.endEngage(machineId, usrId, null);
         }).catch((error) => {
           loggingFunction('Play | ', 'Update machine in Play refund Error | ', error, 'error');
           cb(error);
@@ -69,10 +69,12 @@ module.exports = function(Play) {
           return Transaction.findById(result.transactionId);
         }
         cb(null, 'refund_fail');
+        return null;
       }).then((trans) => {
         if (trans !== null && trans !== undefined) {
           return createNewTransaction(userId, trans.amount, 'refund', 'plus', true);
         }
+        return null;
       }).then((createdTrans) => {
         if (createdTrans !== null && createdTrans !== undefined) {
           cb(null, { newWalletBalance: createdTrans.newWalletBalance });

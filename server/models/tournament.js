@@ -151,7 +151,7 @@ module.exports = function(Tournament) {
         const tournaments = result[0];
         const weeklyTopThree = result[1];
         const highestScoreList = [];
-        tournaments.map((data) => {
+        tournaments.forEach((data) => {
           const bestOne = data.toJSON().participants[0];
           if (bestOne) {
             highestScoreList.push(data.toJSON().participants[0]);
@@ -196,10 +196,13 @@ module.exports = function(Tournament) {
       limit: 3,
     };
 
-    const { Play, Participant } = app.models;
+    const {
+      // Play,
+      Participant,
+    } = app.models;
     Tournament.findOne(tourFilter)
       .then((data) => {
-        console.log('Tournament', data);
+        // console.log('Tournament', data);
         data.updateAttributes({ status: false });
         partiFilter.where = { tournamentId: data.id };
         return Promise.all([
@@ -212,23 +215,28 @@ module.exports = function(Tournament) {
         const topThree = data[1];
         // temp hard coding the reward amount
         const factor = Math.floor((count + 50) / 50);
-        const firstSecond = 30 * factor;
-        const third = 20 * factor;
+        const first = 50 * factor;
+        const second = 40 * factor;
+        const third = 30 * factor;
+        const payOut = [first, second, third];
         // temp hard coding the reward distribution
-        topThree.map((user, index) => {
-          const amount = (index < 2) ? firstSecond : third;
-          createNewTransaction(user.userId, amount, 'reward', 'plus', true);
+        topThree.forEach((user, index) => {
+          // const amount = (index < 2) ? firstSecond : third;
+          createNewTransaction(user.userId, payOut[index], 'reward', 'plus', true, 'ticket');
         });
         if (count >= 50) {
-          Play.create({
-            expectedResult: true,
-            finalResult: true,
-            machineId: gameId,
-            userId: topThree[0].userId,
-            ended: new Date(),
-            // id of banana (temp hard code solution)
-            productId: '40c18fc8-e395-4d79-ac5f-0596948f5db4',
-          });
+          // Play.create({
+          //   expectedResult: true,
+          //   finalResult: true,
+          //   machineId: gameId,
+          //   userId: topThree[0].userId,
+          //   ended: new Date(),
+          //   // id of banana (temp hard code solution)
+          //   productId: '40c18fc8-e395-4d79-ac5f-0596948f5db4',
+          // });
+          createNewTransaction(topThree[0].userId, 200, 'reward', 'plus', true, 'ticket');
+          createNewTransaction(topThree[1].userId, 100, 'reward', 'plus', true, 'ticket');
+          createNewTransaction(topThree[2].userId, 50, 'reward', 'plus', true, 'ticket');
         }
         return Tournament.create({
           gameId,
@@ -251,6 +259,36 @@ module.exports = function(Tournament) {
       http: { path: '/toNextPeriod/:gameId', verb: 'get' },
       accepts: { arg: 'gameId', type: 'string', require: true },
       returns: { arg: 'response', type: 'string' },
+    }
+  );
+
+  Tournament.countPlayers = (gameId, cb) => {
+    const tourFilter = {
+      where: {
+        gameId,
+        status: true,
+      },
+      order: 'created DESC',
+    };
+    Tournament.findOne(tourFilter)
+      .then((tour) => {
+        const { Participant } = app.models;
+        return Participant.count({ tournamentId: tour.id });
+      })
+      .then((count) => {
+        cb(null, count);
+      })
+      .catch((error) => {
+        cb(error);
+      });
+  };
+
+  Tournament.remoteMethod(
+    'countPlayers',
+    {
+      http: { path: '/countPlayers/:gameId', verb: 'get' },
+      accepts: { arg: 'gameId', type: 'string', require: true },
+      returns: { arg: 'count', type: 'number' },
     }
   );
 };

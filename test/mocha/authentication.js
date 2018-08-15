@@ -3,8 +3,8 @@ var supertest = require('supertest');
 //var server = require('../../build/server.js');
 
 var baseUrl = 'http://localhost:3000';
-var accessToken = 'fzynTh6ygRiF4htEOvEJjiHUHAq9tHmmLbE9zLW1MSqbNFvTk1PcFDuYIYnb9CD2';
-var lbUserId = '5a2909f81deecd06749f63cc';
+// var accessToken = 'fzynTh6ygRiF4htEOvEJjiHUHAq9tHmmLbE9zLW1MSqbNFvTk1PcFDuYIYnb9CD2';
+// var lbUserId = '5a2909f81deecd06749f63cc';
 
 // before(function() {
 //   server.start();
@@ -91,15 +91,17 @@ describe('get facebook token', function(){
     var api = supertest.agent(baseUrl);
     var userInfo = {
       prvoider: 'facebook',
-      accessToken : 'EAACDHoPDoIMBAMDWVuWrysgH2d6MtLxdSuiZCxxJTNf9ZBEEFL3uPgDSWxoSHzRQv4G1eYzFc2p3XT6eZCQ1g7bLI8ZCFe2ZCmbqNtlnZAXpppcSWS525yXCMINzFaGLki5ZA3hJ0QVjp4519HjH5ghxAw2pXLSyqMKLEAsbrpHSQZDZD',
-      username : 'Lap Chi',
+      accessToken : 'EAACDHoPDoIMBALs5qj4nTudjcDtLzmqXgaJSRsnOZBNqaxW2qORAPCSkplYdv6TnQtSwrTB0sIiuQMxXQjs0IlUTJbPEZAWhz16esyKaF5VO1gEg0Ts46SMPe8Fzl5NbZBCdTRmYg77JvA5lfz4ZAYAb3XbOMhQZAKnBmZAbT6ZBm09BQPC9lzxTKCB7UrnsAMoCtCWlw6JYSrem9F0e06e87i1OIxOZBe62LDR3v7nZAOgZDZD',
+      username : 'Will Albggacehbige Okelolaescu',
       expiresIn: 5173511,
-      userId:  "10156122556431165",
-      picture: {
-        height: 100,
-        is_silhouette: false,
-        url: "https://scontent.xx.fbcdn.net/v/t1.0-1/p100x100/1916279_10154397272841165_6485132739615337980_n.jpg?oh=838585186d56fc60e4dcfa90aa9ee10e&oe=5A8E8B2F",
-        width: 100
+      userId:  "102025230731263",
+      picture: { 
+        data: {
+          height: 100,
+          is_silhouette: false,
+          url: null,
+          width: 100
+        } 
       }
     }
 
