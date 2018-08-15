@@ -54,7 +54,9 @@ export function createNewTransaction(userId, amount, type, action, status, categ
           return reject(error);
         }
         const attribute = (category === 'ticket') ? 'ticket' : 'balance';
-        if (action === 'minus' && status) {
+        if (!wallet[attribute]) {
+          createdTrans.newWalletBalance = createdTrans.amount;
+        } else if (action === 'minus' && status) {
           createdTrans.newWalletBalance = wallet[attribute] - createdTrans.amount;
         } else if (action === 'plus' && status) {
           createdTrans.newWalletBalance = wallet[attribute] + createdTrans.amount;
