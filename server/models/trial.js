@@ -1,5 +1,5 @@
 import { assignKey } from '../utils/beforeSave';
-import { loggingModel, loggingFunction } from '../utils/createLogging';
+import { loggingModel, loggingFunction, loggingRemote } from '../utils/createLogging';
 import { createNewTransaction } from '../utils/makeTransaction';
 
 const Promise = require('bluebird');
@@ -9,6 +9,9 @@ const app = require('../server');
 module.exports = function(Trial) {
   assignKey(Trial);
   loggingModel(Trial);
+
+  loggingRemote(Trial, 'newGame');
+
   Trial.observe('before save', (ctx, next) => {
     if (ctx.isNewInstance) {
       ctx.instance.created = new Date();
@@ -131,7 +134,7 @@ module.exports = function(Trial) {
           console.log(error);
           loggingFunction('Trial |', 'newGame After remote Error', error, 'error');
         });
-    } else {
+    } else if (userId !== undefined) {
       User.findById(userId, { fields: { name: true } })
         .then((user) => {
           Trial.findById(
