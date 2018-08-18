@@ -234,9 +234,9 @@ module.exports = function(Tournament) {
           //   // id of banana (temp hard code solution)
           //   productId: '40c18fc8-e395-4d79-ac5f-0596948f5db4',
           // });
-          createNewTransaction(topThree[0].userId, 200, 'reward', 'plus', true, 'ticket');
-          createNewTransaction(topThree[1].userId, 100, 'reward', 'plus', true, 'ticket');
-          createNewTransaction(topThree[2].userId, 50, 'reward', 'plus', true, 'ticket');
+          createNewTransaction(topThree[0].userId, 250, 'reward', 'plus', true, 'ticket');
+          createNewTransaction(topThree[1].userId, 150, 'reward', 'plus', true, 'ticket');
+          createNewTransaction(topThree[2].userId, 100, 'reward', 'plus', true, 'ticket');
         }
         return Tournament.create({
           gameId,
