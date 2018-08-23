@@ -22,9 +22,11 @@ module.exports = function(Play) {
     } else {
       // if the play result is updated
       if (ctx.data && ctx.data.ended && ctx.data.finalResult !== undefined) {
-        const { Machine, Reservation, Product } = app.models;
         const {
-          productId, machineId, userId, created, Prize,
+          Machine, Reservation, Product, Prize,
+        } = app.models;
+        const {
+          productId, machineId, userId, created,
         } = ctx.currentInstance;
         // set machine status to open, while frontend is asking for users response
         Machine.findById(machineId, (err, instance) => {
