@@ -37,13 +37,13 @@ module.exports = function(Play) {
         // if the user win, update product and machine sku
         if (ctx.data.finalResult === true) {
           ctx.data.deliveryId = 'transferred';
-          makeCalculation(Product, productId, 'sku', 1, 'minus');
-          makeCalculation(Machine, machineId, 'sku', 1, 'minus');
           Prize.create({
             userId,
-            productId: ctx.data.productId,
+            productId,
             status: 'normal',
           });
+          makeCalculation(Product, productId, 'sku', 1, 'minus');
+          // makeCalculation(Machine, machineId, 'sku', 1, 'minus');
         }
         // after 8 sec, check if user has reponsed
         if (!ctx.data.errorRefund) {
