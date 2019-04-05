@@ -1,8 +1,1 @@
-'use strict';
-
-module.exports = function (server) {
-  // Install a `/` route that returns server status
-  var router = server.loopback.Router();
-  router.get('/', server.loopback.status());
-  server.use(router);
-};
+"use strict";module.exports=function(t){var u=t.loopback.Router(),o=t.dataSources.mongodb;o.autoupdate("user",function(){}),o.autoupdate("wallet",function(){}),o.autoupdate("event",function(){}),o.autoupdate("tournament",function(){}),o.autoupdate("participant",function(){}),u.get("/",t.loopback.status()),t.use(u)};

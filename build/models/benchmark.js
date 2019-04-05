@@ -1,17 +1,1 @@
-'use strict';
-
-var _beforeSave = require('../utils/beforeSave.js');
-
-var _createLogging = require('../utils/createLogging.js');
-
-module.exports = function (Benchmark) {
-
-  //make loggings for monitor purpose
-  (0, _createLogging.loggingModel)(Benchmark);
-
-  //assgin an id to each newly created model
-  (0, _beforeSave.assignKey)(Benchmark);
-
-  // assgin last updated time / created time to model
-  (0, _beforeSave.updateTimeStamp)(Benchmark);
-};
+"use strict";var _beforeSave=require("../utils/beforeSave"),_createLogging=require("../utils/createLogging"),app=require("../server");module.exports=function(e){(0,_createLogging.loggingModel)(e),(0,_beforeSave.assignKey)(e),(0,_beforeSave.updateTimeStamp)(e),e.observe("after save",function(e,r){if(e.isNewInstance)r();else{var n=app.models.Product,t=e.instance.id;n.find({where:{benchmarkId:t}}).then(function(e){return 0<e.length&&e.map(function(e){e.updateAttributes({benchmarkId:t})}),r(),null}).catch(function(e){(0,_createLogging.loggingFunction)("Benchmark | "," update Product Error | ",e,"error"),r(e)})}})};

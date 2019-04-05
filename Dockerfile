@@ -16,7 +16,7 @@ WORKDIR /usr/src/app
 # Bundle App Source Code
 COPY . /usr/src/app
 
-EXPOSE 3000
+EXPOSE 8080
 
 ENV NODE_ENV=development
 

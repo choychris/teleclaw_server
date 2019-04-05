@@ -1,11 +1,1 @@
-{
-  "db": {
-    "name": "db",
-    "connector": "memory"
-  },
-  "mongodb": {
-    "url": "mongodb://teleClawAdmin:123456@mongo:27017/teleclaw_dev",
-    "name": "mongodb",
-    "connector": "mongodb"
-  }
-}
+{"db":{"name":"db","connector":"memory"},"mongodb":{"url":"mongodb://teleClawAdmin:123456@mongo:27017/teleclaw_dev","name":"mongodb","connector":"mongodb","useNewUrlParser":"true"}}
